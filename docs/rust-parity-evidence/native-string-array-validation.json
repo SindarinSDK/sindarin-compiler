@@ -1,5 +1,5 @@
 {
-  "status": "published; full integrated CI pending",
+  "status": "accepted: complete integrated CI green",
   "baseline": "002c4edce223bbca440b043584414a51be9285b5",
   "fix": "string array-producing calls wrap Vec results using their projected canonical native container instead of the nullable container",
   "local": {
@@ -38,6 +38,11 @@
   "published_revision": "cf6f54f89a994ab71920c609a182edde20b57486",
   "ci": {
     "run": 38136911450,
-    "status": "in_progress"
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": 34,
+    "gates": 313,
+    "groups": 26,
+    "evidence": "native-string-array-ci-green.json"
   }
 }

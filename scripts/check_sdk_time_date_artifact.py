@@ -31,7 +31,7 @@ def verify(compiler, sdk, quick=False):
         opaque = [s for s in signatures if s['binding'].get('result_type')]
         assert {s['binding']['declaration'] for s in opaque} == {'src/time/date.sn::Date.toTime', 'src/time/date.sn::sn_date_to_time'}
         (app / 'consume.c').write_text(
-            '#include <assert.h>\n#include ".sn/sindarin-pkg-sdk/src/time/time.native.h"\n'
+            '#undef NDEBUG\n#include <assert.h>\n#include ".sn/sindarin-pkg-sdk/src/time/time.native.h"\n'
             'long long consume_sdk_time(void *p) { SnSdkTimeRecord *t=p;assert(t && sn_sdk_time_refs(t)==1);'
             'long long value=t->milliseconds;sn_sdk_time_release(t);return value; }\n', encoding='utf-8')
         control = (

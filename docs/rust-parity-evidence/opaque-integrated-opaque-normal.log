@@ -1,0 +1,13 @@
+test_configured_flags_reach_raw_rust_client (__main__.OpaqueResultTests.test_configured_flags_reach_raw_rust_client) ... ok
+test_invalid_and_ambiguous_selectors_are_rejected (__main__.OpaqueResultTests.test_invalid_and_ambiguous_selectors_are_rejected) ... ok
+test_missing_wrong_and_nonowned_pointer_contracts_are_rejected (__main__.OpaqueResultTests.test_missing_wrong_and_nonowned_pointer_contracts_are_rejected) ... ok
+test_owned_pointer_survives_source_owner_and_transfers_to_caller_cleanup (__main__.OpaqueResultTests.test_owned_pointer_survives_source_owner_and_transfers_to_caller_cleanup) ... ok
+test_raw_wire_failure_preserves_outputs_and_releases_owned_storage (__main__.OpaqueResultTests.test_raw_wire_failure_preserves_outputs_and_releases_owned_storage) ... ok
+test_rust_body_static_export_uses_private_collision_name (__main__.OpaqueResultTests.test_rust_body_static_export_uses_private_collision_name) ... ok
+test_rust_resource_body_requires_explicit_resource_guards (__main__.OpaqueResultTests.test_rust_resource_body_requires_explicit_resource_guards) ... ok
+test_static_instance_calls_preserve_aliases_and_cleanup_in_all_modes (__main__.OpaqueResultTests.test_static_instance_calls_preserve_aliases_and_cleanup_in_all_modes) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 27.810s
+
+OK

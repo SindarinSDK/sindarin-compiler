@@ -1487,6 +1487,90 @@
       },
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "sdk-time-date-artifacts",
+      "name": "canonical SDK Time/Date artifacts and owned opaque conversions (108 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_time_date_artifact.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-time-date-artifacts-sanitizers",
+      "name": "canonical SDK Time/Date artifacts and owned opaque conversions (108 cases) sanitizers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_time_date_artifact.py"
+      ],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
+    },
+    {
+      "id": "sdk-time-date-native",
+      "name": "canonical SDK Time/Date native archives and unchanged legacy callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "time-date"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-time-date-native-sanitizers",
+      "name": "canonical SDK Time/Date native archives and unchanged legacy callers sanitizers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "time-date",
+        "--sanitize"
+      ],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
+    },
+    {
+      "id": "sdk-dtls-lifecycle",
+      "name": "canonical SDK DTLS registry lifecycle and unchanged C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "dtls"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-dtls-lifecycle-sanitizers",
+      "name": "canonical SDK DTLS registry lifecycle and unchanged C/Rust callers sanitizers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "dtls",
+        "--sanitize"
+      ],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

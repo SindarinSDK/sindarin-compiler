@@ -1,0 +1,1085 @@
+{
+  "status": "completed",
+  "conclusion": "success",
+  "headSha": "a70d43edd3a4f0662ca27519a48b5b905380f035",
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38139957540",
+  "jobs": [
+    {
+      "name": "Native text oracle contract",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38139957540/job/114471594815"
+    },
+    {
+      "name": "Canonical Time/Date (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38139957540/job/114471594861"
+    },
+    {
+      "name": "Canonical Time/Date (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38139957540/job/114471594864"
+    },
+    {
+      "name": "Canonical Time/Date (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38139957540/job/114471594994"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38139957540/job/114471595009"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38139957540/job/114471595057"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38139957540/job/114471595084"
+    }
+  ],
+  "reports": {
+    "time-date-native-macos-latest:uuid-credit-validation.json": {
+      "passed": true,
+      "cases": [
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        }
+      ],
+      "compiler_sha256": "ce4f61736fce337c42614904a6f2be45ce45a69726623cdab5f623a45a6a013c",
+      "original_source_sha256": "9905847d9c0b812104ff6495e08824f15f2d766c73ed93f175773b37abda6a05",
+      "original_oracle_sha256": "d1c5fa414dcf4c8ae3dc9db23ffab5f4a03d7b93999504f58d1b477de5b2b94b"
+    },
+    "time-date-native-windows-latest:uuid-credit-validation.json": {
+      "passed": true,
+      "cases": [
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        }
+      ],
+      "compiler_sha256": "8db34c331ede38ab8e85fb541cb72deb154d375b9c49cbbf2e713f08a2756277",
+      "original_source_sha256": "6181427db14d30721264c680f99532cc9da084879ed7a599dc5ed4ee88b4f4cc",
+      "original_oracle_sha256": "af83765327d181cf4b531c507e4e870dcaf12334787438bbfd99368b2f5ed940"
+    },
+    "time-date-native-ubuntu-latest:uuid-credit-validation-sanitized.json": {
+      "passed": true,
+      "cases": [
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        }
+      ],
+      "compiler_sha256": "d6f14dea94f1ebcf57b237398a0964d7981cb8eb545a54015522acd4c9511d04",
+      "original_source_sha256": "9905847d9c0b812104ff6495e08824f15f2d766c73ed93f175773b37abda6a05",
+      "original_oracle_sha256": "d1c5fa414dcf4c8ae3dc9db23ffab5f4a03d7b93999504f58d1b477de5b2b94b"
+    },
+    "time-date-native-ubuntu-latest:uuid-credit-validation.json": {
+      "passed": true,
+      "cases": [
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "namespace credits and alias lifetime",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "c",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O0",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O1",
+          "mode": "unchecked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "default",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "checked",
+          "passed": true
+        },
+        {
+          "case": "original UUID caller",
+          "target": "rust",
+          "opt": "-O2",
+          "mode": "unchecked",
+          "passed": true
+        }
+      ],
+      "compiler_sha256": "d6f14dea94f1ebcf57b237398a0964d7981cb8eb545a54015522acd4c9511d04",
+      "original_source_sha256": "9905847d9c0b812104ff6495e08824f15f2d766c73ed93f175773b37abda6a05",
+      "original_oracle_sha256": "d1c5fa414dcf4c8ae3dc9db23ffab5f4a03d7b93999504f58d1b477de5b2b94b"
+    }
+  }
+}

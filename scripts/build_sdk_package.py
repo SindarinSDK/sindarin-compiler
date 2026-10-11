@@ -13,8 +13,9 @@ import subprocess
 from pathlib import Path
 
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
-           'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto')
-SUPPORTED_MODULES = MODULES + ('time/time', 'time/date')
+           'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
+           'time/time', 'time/date')
+SUPPORTED_MODULES = MODULES
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
     ('time/date', 'Date.toTime'): 'src/time/time.sn::Time',

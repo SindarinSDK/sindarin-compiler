@@ -7,6 +7,33 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Locally held SDK integration and UUID ownership repair, 2026-10-11
+
+Compiler worktree `development/opaque-resources-integrated` commits `947cd3e6`
+and `dac46432` integrate owned opaque results with accepted selector correction
+`cd230cc2`, pin accepted SDK `bd210cf`, and register 329 gates in 26 groups.
+Its eleven-module stage passes 468 artifact cases, Time/Date passes 108 normal
+and 108 sanitizer cases, native calendar passes 38 plus its actual-runtime
+sanitizer probe, and DTLS passes 19 plus its teardown sanitizer probe. Complete
+C/Rust suites pass 3,242/1,097; all 50 imports, 22 artifact tests and 22 CI helpers
+pass. Eight opaque/method tests pass normally and with strict sanitizers.
+This is held locally until the Stdio dependency finishes hosted validation.
+
+The existing SDK UUID namespace constructors were also proven to overwrite a
+new allocation's credit with zero: a C control reports four zero credits and
+four 24-byte leaks. SDK local commit `a70d43e` copies only namespace fields,
+preserving the constructor credit. Its 36 C/Rust ownership/original-caller cases
+pass normally and under strict sanitizers on both current main and accepted
+compiler `2c0f1c08`; all 28 legacy SDK cases and seven native helper tests pass.
+The legacy harness was isolated with an explicit compiler and --no-install after
+its package refresh reset an uncommitted self-package worktree. The repaired
+source was restored and verified still present after the isolated run.
+[Retained local evidence](rust-parity-evidence/sdk-uuid-local-validation.json)
+records the exact checks. SDK hosted acceptance and canonical UUID migration
+remain required; SDK repair `a70d43e` passed all seven jobs in CI 38139957540;
+[hosted acceptance](rust-parity-evidence/sdk-uuid-ci-green.json) retains 36 UUID
+cases on every host and another 36 under Linux sanitizers.
+
 ## Rust wire-client target: required CI correction, 2026-10-11
 
 Selector revision `002c4edc` failed Windows core in CI 38131264045. Its original
@@ -47,7 +74,7 @@ failed because the new worktree lacked the pinned SDK checkout. That dependency
 is restored and those five pass, establishing all 50 import checks. The complete
 nine-module SDK source/sealed matrix also passes 324 originals and 72 stdin
 controls, for 396 cases. Required compiler wire-client correction CI 38134321189
-is accepted. Published batch `cf6f54f8` awaits
+is accepted. Published batch `cf6f54f8` passed all 34 jobs in
 [CI 38136911450](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38136911450). The two new gates bring
 the local inventory to 313 in 26 groups. SDK `bd210cf` has full seven-job hosted
 acceptance; whole SDK migration, wider contracts and final corpus proof remain.
@@ -67,10 +94,10 @@ accepted compiler `2c0f1c08` and SDK `89f3b83`. The same complete 396-case
 SDK matrix passed the string-array compiler, and integrated main `cf6f54f8`
 passes 36 original Stdio cases plus all 72 stdin controls. CI helpers pass 22
 tests. The required correction is accepted; this independent coverage batch is
-published as `93dea079` and awaits
+published as `93dea079` and passed all 34 jobs in
 [CI 38137086990](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38137086990).
-It does not depend on the pending string-array feature. Two independent batches
-are awaiting complete CI; further feature publication waits for their results.
+It does not depend on the pending string-array feature. [Retained Stdio acceptance](rust-parity-evidence/sdk-stdio-ci-green.json) verifies
+313 gates in 26 groups. Both compiler batches are accepted.
 Whole SDK and final platform acceptance remain required.
 
 
@@ -97,13 +124,22 @@ The actual Time/Date stager builds all four C/SN units, including same-name Date
 method pairs and its original `toTime()` API. Original Time/Date callers plus an
 owned conversion control pass 108 source/sealed C/Rust mode cases after backing
 C source removal. All 28 public SDK module bytes remain unchanged. The SDK source
-migration is accepted SDK `bd210cf`; integrated hosted registration is being added.
+migration is accepted SDK `a70d43e`; integrated hosted registration is being added.
 
 Final complete C/Rust suites pass 3,242/1,097 checks. The final import/artifact sequence passes 50/22, and the 108-case SDK matrix also
 passes strict address/undefined/leak checks.
 [Local evidence](rust-parity-evidence/opaque-resource-results-validation.json)
 records the exact scope; hosted acceptance remains pending.
-The integrated local gate inventory is 317 in 26 groups before SDK gate registration.
+The integrated inventory is 329 gates in 26 groups after opaque result, native
+calendar, Time/Date artifact and DTLS registration, including Linux sanitizer
+gates and retained SDK JSON reports. The compiler workflow pins accepted SDK
+`a70d43e`. The default SDK stage includes eleven modules and passes all 468
+source/sealed mode cases: 396 originals plus 72 stdin controls. Integrated C/Rust
+suites pass 3,242/1,097 checks, all 50 imports and 22 artifact tests pass, and
+all eight opaque/method controls pass normally and under strict sanitizers.
+Calendar artifacts pass 108 normal and 108 sanitizer cases with credit assertions
+active at every optimization level. Native calendar checks pass 38 cases plus
+one actual-runtime sanitizer probe; DTLS passes 19 plus one sanitizer probe.
 Compiler selectors and SDK migration have complete hosted acceptance.
 
 Method repair `3a8d675a` passed all 34 hosted jobs, 26 groups and 304 gates in
@@ -115,6 +151,7 @@ with 26 groups and 305 gates. The selector correction passed all 34 jobs in CI 3
 work remains locally held until the two outstanding feature runs finish. Wider
 record/interface/generic contracts, dependency lifecycle graphs, whole SDK and
 final original-corpus/platform acceptance remain required.
+
 
 
 ## Package static/instance method selection: local validation, 2026-10-11

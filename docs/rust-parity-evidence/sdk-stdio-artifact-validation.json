@@ -1,5 +1,5 @@
 {
-  "status": "integrated local validation complete; hosted verification pending",
+  "status": "accepted: complete integrated CI green",
   "accepted_compiler_revision": "2c0f1c087cb887bfeead1e756756358881e6ddee",
   "sdk_revision": "89f3b83ee42e78e84b47d9979b3ec66fa305cbe5",
   "original_mode_cases": 324,
@@ -19,5 +19,15 @@
     "ci_helpers": 22,
     "coverage_gates": 313,
     "coverage_groups": 26
+  },
+  "published_revision": "93dea0792ec465ebf33efd963ba37c1f06333287",
+  "ci": {
+    "run": 38137086990,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": 34,
+    "gates": 313,
+    "groups": 26,
+    "evidence": "sdk-stdio-ci-green.json"
   }
 }

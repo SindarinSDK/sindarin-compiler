@@ -1,0 +1,60 @@
+{
+  "status": "integrated local validation complete; dependency CI accepted; hosted verification pending",
+  "compiler_base": "93dea0792ec465ebf33efd963ba37c1f06333287",
+  "local_opaque_revision": "947cd3e6e621a71f47cb4160119006e4d8b5b559",
+  "sdk_revision": "a70d43edd3a4f0662ca27519a48b5b905380f035",
+  "compiler_sha256": "cddf8972d2d3015fa32c9a4bbe1b43afef5c24ef8eeabd118d9462ef9fc3a097",
+  "source_sha256": {
+    ".github/workflows/ci.yml": "849eda3fa9f38a3d0d1e32c01c4661482923368ef9d21ed43491d20a69f6c267",
+    "scripts/build_sdk_package.py": "6b7126a5700f93a378d46b995b3554f0535e6775b0c57a5837831f693ada108f",
+    "scripts/check_sdk_artifact.py": "f0eba7cb01403e7762d2f2ff6d61a9c4f57317dc4fd605cf8a1d84b2a277634e",
+    "scripts/check_sdk_time_date_artifact.py": "911d1898b0534426cac3f5af65f8ae5d2cc74639a23766cfc3b7b7d3d22bd61c",
+    "scripts/ci/gates.json": "7b6d5849787bb95a5496f5cf399391dc93d1cbb0182ea3621e92b736e700dde9",
+    "tests/ci/test_ci_helpers.py": "0fd88c7a53dbe93b855d2365c13f309dd5dca974233a576f71d95cd11c30fc1c",
+    "scripts/check_sdk_native.py": "86c0bd595f4a3633790c2cebea177c531259b70aaf9e70aa3f62a430d90525ff"
+  },
+  "tests": {
+    "C": 3242,
+    "Rust": 1097,
+    "imports": 50,
+    "artifacts": 22,
+    "opaque_normal": 8,
+    "opaque_sanitized": 8,
+    "ci_helpers": 22,
+    "sdk_original_mode_cases": 396,
+    "sdk_stdin_mode_cases": 72,
+    "calendar_artifact_normal": 108,
+    "calendar_artifact_sanitized": 108,
+    "calendar_native": 38,
+    "calendar_actual_runtime_sanitizer": 1,
+    "dtls": 19,
+    "dtls_actual_runtime_sanitizer": 1
+  },
+  "coverage": {
+    "gates": 329,
+    "groups": 26
+  },
+  "time_credit_assertions_active_in_release": true,
+  "report_case_counts": {
+    "sdk-artifact-validation.json": 468,
+    "sdk-time-date-artifact.json": 108,
+    "time-date-native.json": 38,
+    "time-date-sanitizers.json": 1,
+    "dtls-lifecycle.json": 19,
+    "dtls-lifecycle-sanitizers.json": 1
+  },
+  "remaining": [
+    "whole SDK migration",
+    "RS record/opaque body guards",
+    "record/interface/generic package contracts",
+    "dependency lifecycle graphs",
+    "final original corpus/platform acceptance"
+  ],
+  "previous_sdk_revision": "bd210cfcd14ef8d5023483e110f7fc93aa2228e4",
+  "sdk_selected_backing_sources_unchanged": true,
+  "accepted_dependency_ci": [
+    38136911450,
+    38137086990,
+    38139957540
+  ]
+}
