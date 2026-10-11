@@ -309,14 +309,14 @@ and wider value/interface/generic contracts remain unfinished.
 Random staging also supports explicit `--modules core/random` when the SDK
 contains its canonical Random C module. This adds two C/Sindarin units with all
 134 declared exports and keeps the public API unchanged. The default selection
-remains eleven modules until the Random SDK revision has hosted acceptance.
+now includes Random using accepted SDK revision `d829ebe`.
 `scripts/check_sdk_random_artifact.py --sdk /path/to/canonical-sdk` verifies
 72 source/sealed C/Rust cases across nine modes using the unchanged original
 caller and a lifetime control. Aliases share seeded state, repeated disposal is
 idempotent, and owned integer/string arrays survive cleanup of their producing
 Random instance and input array. Sealed consumption removes all backing C sources
 and checks every public Sindarin module byte-for-byte. Normal and sanitizer gates
-are registered locally; publication requires a pinned accepted SDK revision.
+are registered with that exact accepted SDK revision.
 
 
 With the canonical Time/Date SDK modules, explicit selection supports
@@ -324,8 +324,8 @@ With the canonical Time/Date SDK modules, explicit selection supports
 storage contract for its unchanged owned opaque `toTime()` result. Staging keeps
 the original public modules and operation bodies; same-name static/instance
 methods receive explicit manifest selectors and distinct exports. The existing
-eleven-module default includes Time/Date. Compiler hosted checks pin the accepted
-SDK revision `a70d43e` and verify both legacy and artifact consumption.
+twelve-module default includes Time/Date and Random. Compiler hosted checks pin
+accepted SDK revision `d829ebe` and verify both legacy and artifact consumption.
 
 `scripts/check_sdk_time_date_artifact.py --sdk /path/to/canonical-sdk` verifies
 108 source/sealed C/Rust mode cases: the unchanged original Time and Date callers
@@ -342,7 +342,7 @@ package directory, retaining original manifest dependencies, public `.sn` files
 and C implementations. Generated C forwarders preserve original function names;
 C Sindarin facade units export unchanged static/instance bodies. It currently
 supports io/bytes, io/textfile, io/binaryfile, io/path, io/directory, io/stdio,
-os/os, os/env, crypto/crypto, time/time and time/date as 22 independent C/SN units.
+os/os, os/env, crypto/crypto, time/time, time/date and core/random as 24 independent C/SN units.
 TextFile/BinaryFile use their canonical C record storage. ABI 1.7 supplies the
 nested Environment contract. Third-party headers and original link requirements
 remain build inputs; OpenSSL continues to use the existing toolchain setup.
@@ -357,13 +357,13 @@ The stager requires a fresh output outside the SDK checkout. `--modules` selects
 implemented modules; it validates every selected public method instead of
 silently dropping unsupported signatures. Use the generated manifest with
 `--build-native` / `--build-package`; seal `assembly.json` with its hash using
-normal artifact metadata. The durable checker exercises eleven original SDK
+normal artifact metadata. The durable checker exercises twelve original SDK
 callers/oracles against C/Rust in all nine modes, source and sealed builds after
-C source removal: 396 original cases. Public SDK files are checked byte-for-byte.
+C source removal: 432 original cases. Public SDK files are checked byte-for-byte.
 The original Stdio caller is noninteractive and writes four exact stderr OK
 lines. Two separate controls cover all six stdin methods, empty/nonempty input,
 nil writes and an owned line surviving later reads, for another 72 cases and
-468 total. Both stdout and stderr are checked. `--fixtures io/stdio` selects its
+504 total. Both stdout and stderr are checked. `--fixtures io/stdio` selects its
 108-case original/input matrix; `--quick` selects O0/default arithmetic.
 
 Remaining SDK modules, broader record/interface/generic contracts, Rust generic

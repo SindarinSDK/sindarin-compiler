@@ -1,6 +1,6 @@
 {
-  "status": "Local validation passed; unpublished; compiler gates await accepted SDK pin",
-  "base": "4211bf0f37b2941faa4534e349aabf46697ba907",
+  "status": "Integrated local validation passed against accepted SDK; unpublished",
+  "base": "c603d967f3ae539eaabd57125d85e727414bb510",
   "sdk_local_revision": "d829ebeae36ef0a0b684191d2150f2fb964ea509",
   "normal_cases": 72,
   "sanitizer_cases": 72,
@@ -17,8 +17,8 @@
     "sealed consumption without backing C sources"
   ],
   "remaining": [
-    "SDK hosted acceptance and compiler exact-revision SDK pin",
-    "integrated compiler hosted Linux macOS Windows acceptance",
+    "integrated compiler hosted Linux/macOS/Windows acceptance",
+    "remaining SDK modules",
     "whole SDK and final corpus/platform proof"
   ],
   "logs": {
@@ -616,5 +616,21 @@
     "exports": 134,
     "compiler_sha256": "3fa6fb9ca7c8f27dd0507de329293ba9a3dad59eb33adbe1d29d4e25e43b342c"
   },
-  "final_sanitizer_log_sha256": "639d2f3008d49bbd5590c4667617feec812fa867e9ae29994c147876580c2f6d"
+  "final_sanitizer_log_sha256": "639d2f3008d49bbd5590c4667617feec812fa867e9ae29994c147876580c2f6d",
+  "sdk_accepted_revision": "d829ebeae36ef0a0b684191d2150f2fb964ea509",
+  "sdk_ci": 38147329141,
+  "default_modules": 12,
+  "default_units": 24,
+  "original_caller_cases": 432,
+  "stdin_controls": 72,
+  "integrated_random_normal_cases": 72,
+  "integrated_random_sanitizer_cases": 72,
+  "ci_helpers": 22,
+  "integrated_logs": {
+    "sindarin-sdk-random-full-integration.log": "aa72aea8ae7efb6502e57314de53a5ee7481ad6de1ae6da29d89ae0583caa6da",
+    "sindarin-sdk-random-integrated-artifact.log": "639d2f3008d49bbd5590c4667617feec812fa867e9ae29994c147876580c2f6d",
+    "sindarin-sdk-random-integrated-artifact-san.log": "639d2f3008d49bbd5590c4667617feec812fa867e9ae29994c147876580c2f6d",
+    "sindarin-sdk-random-integrated-native.log": "7eb86791a0dc71c143349bc6e9fb094ff46d0c14967997a8cfd9c0248b9e92e4",
+    "sindarin-sdk-random-integrated-native-san.log": "1304fd785f2428e96ec603d4685bfaecc3d5f54779a28fe64acf44e6b675523e"
+  }
 }
