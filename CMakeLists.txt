@@ -199,6 +199,7 @@ set(SN_BACKEND_SOURCES
     src/target/rust/rust_native_plan.c
     src/target/rust/rust_native_render.c
     src/target/rust/rust_native_build.c
+    src/target/rust/rust_native_response.c
     src/target/rust/projection/rust_model.c
     src/target/rust/projection/rust_model_expr.c
     src/target/rust/projection/rust_model_stmt.c

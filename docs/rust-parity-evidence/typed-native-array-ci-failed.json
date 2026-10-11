@@ -1,0 +1,200 @@
+{
+  "conclusion": "failure",
+  "headSha": "68cbbbcfd54ded8b438f4a80b81b7c5a99e31cc6",
+  "jobs": [
+    {
+      "name": "Build (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400263778"
+    },
+    {
+      "name": "Build (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400263840"
+    },
+    {
+      "name": "Build (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400263891"
+    },
+    {
+      "name": "Tests / c (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546752"
+    },
+    {
+      "name": "Tests / rust (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546754"
+    },
+    {
+      "name": "Tests / arrays (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546755"
+    },
+    {
+      "name": "Tests / native (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546767"
+    },
+    {
+      "name": "Tests / closures (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546769"
+    },
+    {
+      "name": "Tests / arrays (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546770"
+    },
+    {
+      "name": "Tests / sanitizers (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546775"
+    },
+    {
+      "name": "Tests / closures (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546776"
+    },
+    {
+      "name": "Tests / c (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546790"
+    },
+    {
+      "name": "Tests / rust (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546795"
+    },
+    {
+      "name": "Tests / numeric-io (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546796"
+    },
+    {
+      "name": "Tests / callbacks (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546797"
+    },
+    {
+      "name": "Tests / callback-sanitizers (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546799"
+    },
+    {
+      "name": "Tests / closures (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546801"
+    },
+    {
+      "name": "Tests / numeric-io (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546809"
+    },
+    {
+      "name": "Tests / core (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546811"
+    },
+    {
+      "name": "Tests / numeric-io (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546815"
+    },
+    {
+      "name": "Tests / core (windows-latest)",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546829"
+    },
+    {
+      "name": "Tests / c (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546833"
+    },
+    {
+      "name": "Tests / callbacks (windows-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546835"
+    },
+    {
+      "name": "Tests / arrays (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546836"
+    },
+    {
+      "name": "Tests / native (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546848"
+    },
+    {
+      "name": "Tests / rust (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546857"
+    },
+    {
+      "name": "Tests / callbacks (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546864"
+    },
+    {
+      "name": "Tests / native (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546867"
+    },
+    {
+      "name": "Tests / core (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114400546900"
+    },
+    {
+      "name": "Verify complete CI coverage",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114404806550"
+    },
+    {
+      "name": "Compiler CI",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114404841840"
+    },
+    {
+      "name": "Validated artifacts (${{ matrix.os }})",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862/job/114404842343"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862"
+}

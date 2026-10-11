@@ -1,5 +1,6 @@
 #include "target/rust/rust_native_internal.h"
 #include "target/rust/cc_sidecar.h"
+#include "target/rust/rust_native_response.h"
 #include "debug.h"
 #include "gcc_backend.h"
 #include <errno.h>
@@ -155,14 +156,40 @@ static bool write_linker_proxy(const char *path,
     }
 
 #ifdef _WIN32
+    char prefix_path[PATH_MAX], suffix_path[PATH_MAX];
+    int prefix_length = snprintf(prefix_path, sizeof(prefix_path), "%s.prefix.rsp", path);
+    int suffix_length = snprintf(suffix_path, sizeof(suffix_path), "%s.suffix.rsp", path);
+    bool responses_ok = prefix_length >= 0 && (size_t)prefix_length < sizeof(prefix_path) &&
+                        suffix_length >= 0 && (size_t)suffix_length < sizeof(suffix_path);
+    FILE *prefix = responses_ok ? fopen(prefix_path, "wb") : NULL;
+    FILE *suffix = responses_ok ? fopen(suffix_path, "wb") : NULL;
+    char standard[128];
+    int standard_length = snprintf(standard, sizeof(standard), "-w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE", link_config->c_standard);
+    responses_ok = prefix && suffix && standard_length >= 0 && (size_t)standard_length < sizeof(standard) &&
+        rust_native_write_windows_response(prefix, link_config->mode_cflags) &&
+        rust_native_write_windows_response(prefix, standard) &&
+        rust_native_write_windows_response(prefix, link_config->configured_compile_options) &&
+        rust_native_write_windows_response(suffix, sidecar->package_link_options) &&
+        rust_native_write_windows_response(suffix, sidecar->link_library_options) &&
+        rust_native_write_windows_response(suffix, sidecar->configured_libraries) &&
+        rust_native_write_windows_response(suffix, sidecar->configured_linker_options);
+    if (prefix && fclose(prefix) != 0) responses_ok = false;
+    if (suffix && fclose(suffix) != 0) responses_ok = false;
+    if (!responses_ok)
+    {
+        fprintf(stderr, "Error: cannot create Rust native linker response files\n");
+        fclose(file);
+        return false;
+    }
+    const char *proxy_name = strrchr(path, '/');
+    const char *backslash = strrchr(path, '\\');
+    if (backslash && (!proxy_name || backslash > proxy_name)) proxy_name = backslash;
+    proxy_name = proxy_name ? proxy_name + 1 : path;
     const char *cc_prefix = strchr(link_config->compiler_command, ' ') ? "\"" : "";
     bool ok = fprintf(file,
-        "@echo off\r\n%s%s%s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s %%* %s%s %s %s\r\nexit /b %%errorlevel%%\r\n",
+        "@echo off\r\n%s%s%s @\"%%~dp0%s.prefix.rsp\" %%* @\"%%~dp0%s.suffix.rsp\"\r\nexit /b %%errorlevel%%\r\n",
         cc_prefix, link_config->compiler_command, cc_prefix,
-        link_config->mode_cflags, link_config->c_standard,
-        link_config->configured_compile_options, sidecar->package_link_options,
-        sidecar->link_library_options, sidecar->configured_libraries,
-        sidecar->configured_linker_options) >= 0;
+        proxy_name, proxy_name) >= 0;
 #else
     char *quoted_cc = strchr(link_config->compiler_command, ' ')
         ? shell_quote(link_config->compiler_command)

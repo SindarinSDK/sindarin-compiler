@@ -1549,6 +1549,42 @@ class NativeImports(unittest.TestCase):
         for target in ('c','rust'):
             with self.subTest(target=target):self.execute(target,b'67\n')
 
+    def test_rust_links_large_archive_graph_from_paths_with_spaces(self):
+        import hashlib,json
+        self.root=self.root/'working tree with spaces';self.root.mkdir()
+        package=self.root/'.sn/largegraph';count=18
+        self.write('.sn/largegraph/src/api.sn',''.join(f'native fn part{i}(): int\n' for i in range(count)))
+        manifest='name: largegraph\nruntime: C\nnative:\n  abi: 1.0\n  declarations: [src/api.sn]\n  builds:\n'
+        for i in range(count):
+            self.write(f'.sn/largegraph/src/unit{i}.c',f'long long provide(void) {{ return {i}; }}\n')
+            manifest+=f'    - name: unit{i}\n      language: C\n      sources: [src/unit{i}.c]\n'
+        manifest+='  bindings:\n'
+        for i in range(count):
+            manifest+=(f'    - declaration: src/api.sn::part{i}\n      function: provide\n      symbol: largegraph_part_{i}\n'
+                f'      build: unit{i}\n      convention: C\n      failure: abort\n      ownership: {{parameters: {{}}, result: value}}\n')
+        self.write('.sn/largegraph/sn.yaml',manifest)
+        self.write('main.sn','import "largegraph/src/api"\nfn main(): void =>\n  println('+
+            ' + '.join(f'part{i}()' for i in range(count))+')\n')
+        for archive in ('source','prebuilt'):
+            if archive=='prebuilt':
+                built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'-o',str(package/'dist-build')],
+                    cwd=self.root,capture_output=True,timeout=180)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                assembly=Path(json.loads(built.stdout)['assembly']);metadata=json.loads(assembly.read_text())
+                self.assertEqual(len(metadata['units']),count)
+                shutil.copytree(assembly.parent,package/'dist')
+                (package/'sn.yaml').write_text(manifest.replace('  abi: 1.0\n','  abi: 1.0\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+                for source in (package/'src').glob('*.c'):source.unlink()
+            for target in ('c','rust'):
+                with self.subTest(target=target,archive=archive):self.execute(target,b'153\n')
+            if os.name=='nt':
+                proxies=list((self.root/'.sn/build/rust').glob('*/sn_rust_linker_proxy.cmd'))
+                self.assertTrue(proxies)
+                for proxy in proxies:
+                    self.assertLess(len(proxy.read_bytes()),1024)
+                    suffix=Path(str(proxy)+'.suffix.rsp').read_text()
+                    self.assertEqual(suffix.count('libsn_native_'),count)
+
     def test_c_links_dependency_graph_larger_than_path_limit(self):
         imports, calls = [], []
         for i in range(20):

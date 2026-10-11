@@ -1,0 +1,31 @@
+{
+  "status": "local correction; hosted acceptance pending",
+  "failed_revision": "68cbbbcfd54ded8b438f4a80b81b7c5a99e31cc6",
+  "failed_ci": 38115775862,
+  "cause": "Windows batch proxy expanded static 18-archive SDK graph plus rustc arguments beyond cmd.exe command limit",
+  "correction": "ordered prefix/suffix response files with Windows CRT decoding and GNU response quoting",
+  "local": {
+    "c_suite": 3242,
+    "rust_suite": 1097,
+    "artifact_tests": 21,
+    "package_imports": {
+      "tests": 49,
+      "passed": true
+    },
+    "original_sdk_mode_cases": 288,
+    "large_graph_source_prebuilt_c_rust": 4,
+    "gnu_driver_over_8191_option_characters": true,
+    "strict_address_undefined_leak_response_test": true
+  },
+  "harness_rerun": "Initial parallel C/Rust startup cleanup removed the C suite scratch directory; isolated TMPDIR C rerun passed completely. No implementation/test oracle was changed.",
+  "local_clang": "unavailable; no host software installed; required macOS/Windows hosted tests use clang",
+  "unchanged": "SDK sources, public modules, original callers/oracles and corpus snapshots preserved; Rust/Go feature commit 623af769 held separately",
+  "source_sha256": {
+    "src/target/rust/rust_native_build.c": "7af0678dea836fe17906ee7ccae602e1cd1809b320fad960d589c86e78a48283",
+    "src/target/rust/rust_native_response.c": "4acab0eec8c02cc6633a33d00754f63e20fe28def8a263406cf49afe3298bf9e",
+    "src/target/rust/rust_native_response.h": "0b1376611af90d8134ceb703b6b90d13884f5ac6d6c67386e071b13d8497c555",
+    "tests/package/native_imports.py": "52867782f66b45557f8a31c853279fd914cbbc87b83062c83053c618bd85fa5a",
+    "tests/package/native_artifacts.py": "cd78590f705e016e220047060c55079d78a8baf61436859e6f60795fdb32c2cc",
+    "CMakeLists.txt": "7d21b1c28f9d204bb7a83192148f388ef58b9b0d6c0aa1e1fff0dda6ebdc7080"
+  }
+}

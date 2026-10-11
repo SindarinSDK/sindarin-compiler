@@ -7,6 +7,32 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Windows SDK archive linking: required CI correction, 2026-10-11
+
+`68cbbbcf` failed [CI 38115775862](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862)
+in Windows core validation. All 48 package import tests passed there; the new
+SDK artifact gate failed on the first Rust caller. Its 18 archive paths expanded
+inside the batch linker proxy alongside rustc's own arguments, producing
+`The input line is too long` before the C driver ran. Linux/macOS core passed.
+Feature publication is frozen until a complete corrected integrated run passes.
+
+The correction writes separate prefix/suffix response files, preserving option
+order around rustc's arguments. Windows CRT argument decoding retains paths,
+backslashes and literal quotes; GNU response-file encoding supplies the resulting
+arguments to the GCC-compatible driver. See [LLVM's response-file parsing](https://clang.llvm.org/doxygen/Driver_8cpp_source.html).
+GCC driver and strict address/undefined/leak controls pass, including more than
+8,191 option characters, Unicode, empty arguments and quoted paths. A source/
+sealed C/Rust 18-archive graph under a directory with spaces passes locally.
+Full local C/Rust suites pass 3,242/1,097 checks; all 21 artifact tests and 288
+original SDK source/sealed mode cases pass. All 49 package import tests pass.
+The initial concurrent suite startup deleted the C scratch directory; its isolated
+TMPDIR rerun passed. GCC and sanitizer response tests passed locally; local clang
+is unavailable, so its actual driver acceptance remains for hosted CI.
+[Correction evidence](rust-parity-evidence/windows-linker-correction-validation.json)
+retains the checks and source hashes. Hosted correction
+acceptance is unproven until its own required Windows/Linux/macOS CI passes.
+The Rust/Go provider feature remains unpublished in the development worktree.
+
 ## Typed canonical arrays and reusable SDK artifacts: local validation, 2026-10-11
 
 ABI 1.7 adds typed canonical scalar/string arrays with rank 1..32. Borrowing

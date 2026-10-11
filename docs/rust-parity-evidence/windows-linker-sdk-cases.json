@@ -1,0 +1,2372 @@
+{
+  "cases": [
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "source",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/bytes",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/textfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/binaryfile",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/path",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "io/directory",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/env",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "os/os",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O0",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O1",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "default",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "checked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "c",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    },
+    {
+      "module": "crypto/crypto",
+      "archive": "prebuilt",
+      "target": "rust",
+      "opt": "-O2",
+      "mode": "unchecked",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "source_sha256": {
+    "tests/io/test_bytes.sn": "22b80bcdcfe7caff2d95f3de26c75dc9aa6584f1c5de2c7553d667e15f20297d",
+    "tests/io/test_bytes.expected": "b2f19f23ccc60f35c2dce2b24a60d59ea946bd0f16f6c8c4a9dbe70aa2ab2993",
+    "tests/io/test_textfile.sn": "40436a5a8b3ba61a818e738bac531b147b173f5a55f293fe17489dc925691ea4",
+    "tests/io/test_textfile.expected": "0ad4c6e2ded7f3f35b79cf32719f18b25dc7e285336f9309fee5aaf3ef373ed4",
+    "tests/io/test_binaryfile.sn": "5de1a3353789676b39332fa9bb893f9019b7e5ceaa28c3f734314e69ce4adf48",
+    "tests/io/test_binaryfile.expected": "e9fb63cea834f5d045bb70696538bbe75873126501eb3205fc9fa1b26c41751f",
+    "tests/io/test_path.sn": "d33f2500d569e23f973e0f9304046da75a844e1b93b5f2c817c87518b1893910",
+    "tests/io/test_path.expected": "fc76a996e2195a7b6457d31899bf547276851edebbad196e888d3289e0bbb225",
+    "tests/io/test_directory.sn": "dd9b54c3bf7041db33803f946bc40e6c4eeefa04f2d4f256850b8c7e8c61c7e0",
+    "tests/io/test_directory.expected": "d2d8d140ff55f2cc5c65bd4e733de14482b6c330a9cedbd8dc64ee56f94ae958",
+    "tests/os/test_env.sn": "844cea0f3a0b7371a7691cfafd3916a3dcf941586db67ef10cdf41965eaf694e",
+    "tests/os/test_env.expected": "46ac14909016913a2372d315165f447404fb203c9d822c0c2d7695e46652c899",
+    "tests/os/test_os.sn": "421c0214e02ffd8d5411d51c36eba9125c07af3dfd613ae1b29302ae89303e0b",
+    "tests/os/test_os.expected": "80017fd6f92247792e8f8fae33e49b6346fc052defb67f9f5b09527aca096a06",
+    "tests/crypto/test_crypto.sn": "5ed5372f70810c6cc272f340c71fc37c2ded2da4d219c66cc97da51a9cd23621",
+    "tests/crypto/test_crypto.expected": "fcd28c127ebcf66b53e9af1fa09f9755f59e3fe5f898b8440332ecc8c4f8d4b9"
+  },
+  "modules": [
+    "io/bytes",
+    "io/textfile",
+    "io/binaryfile",
+    "io/path",
+    "io/directory",
+    "io/stdio",
+    "os/os",
+    "os/env",
+    "crypto/crypto"
+  ],
+  "public_source_sha256": {
+    "src/net/tcp.sn": "5aed984e18a9908d930c4696411bc16517cea139d6243e45421ec01fdda49c7a",
+    "src/net/dtls.sn": "772a532faa85a90542b21aba316455aa9e6cb82f7fb09722263c8976d638ac5b",
+    "src/net/tls.sn": "afa37f9a4ae7ee268cc1575afa9ad3d09dc1280bfd98f0c0610d8f1d39c42d2c",
+    "src/net/ssh.sn": "9a13b1d27cb9ece5b28326f84e47feb4b21d1585faa795559df34480e9486991",
+    "src/net/git.sn": "69b25cc0f458c5f63506f25ce7eb042e0cc3c8f5e56c10b7582587c0f983f0b7",
+    "src/net/udp.sn": "08db07367b13e00ff2ff0e46faf4fa303d7bbc1515e63308d27de0a01302e093",
+    "src/time/time.sn": "6b494afe070762049ee40734d32a980314ee82fdb9d72d8ce0b10a099bb52d92",
+    "src/time/date.sn": "4f308d5da8903fa170dc4bd459247123239f1f08aaf94e999b472674e80507ea",
+    "src/os/os.sn": "b1327a62beb93463634bdd14afbb581ba82dae883b9100371b67109d86a673bd",
+    "src/os/env.sn": "e5dd2a21c324b8a09f694d6d51117851f1be555eadeed5722213393a79b0eed4",
+    "src/os/process.sn": "92a4b7c5b670038e0ddc593a974f505a1d15880b999c055e4e309141ff397b40",
+    "src/crypto/crypto.sn": "4dc52e39a930881ae0708a76e56c9a29c40c25240eab2129cad611a4dd125677",
+    "src/core/uuid.sn": "59348996cf1de781fe16e55f1d5663924e40f0c5f8345b8cbc9a40c9073f67be",
+    "src/core/random.sn": "9023a5274348396e41d4af1ff4e47fe2d3fcf24aeb84fb75d51082a1ca54e5dd",
+    "src/core/math.sn": "a73b50d5573f4139fd29f507187bfab407367a3ce820baf6747e3de8d49b8e60",
+    "src/core/fields.sn": "dd74fe52f13965f14aabf0ad2d84c70560ed0340e2382a42455d93fb4a2146d1",
+    "src/core/version.sn": "2841affe8659ad124d0178d643b108b8cc54808af4878e434e803528180e1b1f",
+    "src/io/stdio.sn": "046a6e151b470c2278166bb63488159ae62cf004cb5a0402914304e6628ce735",
+    "src/io/path.sn": "64afa4cda538c8f3baa9246c63dff337ec6ca3af83e502cb72f130d434871144",
+    "src/io/directory.sn": "8999d0d4628d416104a20b8affa6e726c0c9b72fd3970624216fd654e22d67a5",
+    "src/io/textfile.sn": "cdff312be708a055409d97d108e77bc050a734fd375bb7fdd1d6b19eb9ef10a7",
+    "src/io/binaryfile.sn": "c717083e18128360f5d3ece675f0475c6509da69bcc9ad36c72f9f789893c4e9",
+    "src/io/bytes.sn": "013490106aad9617bdfc30d7981be573ed1ead4320af4c89298f8d094aab48b6",
+    "src/encoding/yaml.sn": "8bbe7915bdd2640f4be3940a6ce0da1dbc0fc0edb94628703a536ab54f6876ec",
+    "src/encoding/zlib.sn": "c423d102335215c5894a8d56f2c8713878b255ec3a198c8889d493f02acd8b5d",
+    "src/encoding/json.sn": "e229fb2ec2fbe64d1c76ca35f0ee385179b96fe8ad933e4bb668244bb4b0bcec",
+    "src/encoding/text.sn": "d693471888b9599e19594611bde496e9cf0cded06cb33b3eac06b726ae355e1f",
+    "src/encoding/xml.sn": "aee568777cc053276c7aa8100af8ca66d06ea1f2efa6db3a67c12c6883134036"
+  },
+  "compiler_sha256": "8eb1d2e8fdf482143fa3b3aa302daa1bc6bc8c9057c88bf05c997d6bcfd3da11",
+  "public_sources_preserved": true,
+  "backing_sources_removed_for_prebuilt": true,
+  "scope": "Canonical C implementations, unchanged SDK callers/oracles; remaining SDK modules and wider provider contracts still require migration"
+}

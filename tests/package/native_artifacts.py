@@ -70,6 +70,46 @@ class NativeArtifactTests(unittest.TestCase):
         metadata = json.loads(Path(summary['assembly']).read_text())
         return summary, metadata
 
+    def test_windows_response_arguments_reach_the_actual_c_driver(self):
+        self.write('response-writer.c','#include <stdlib.h>\n#include "target/rust/rust_native_response.h"\n'
+            'int main(int argc,char **argv) { if(argc!=3) return 1; FILE *input=fopen(argv[2],"rb");\n'
+            'if(!input || fseek(input,0,SEEK_END)) return 2;long size=ftell(input);rewind(input);\n'
+            'if(size<0) return 3;char *text=malloc((size_t)size+1);if(!text) return 4;\n'
+            'if(fread(text,1,(size_t)size,input)!=(size_t)size) return 5;text[size]=0;fclose(input);\n'
+            'FILE *output=fopen(argv[1],"wb");if(!output) return 6;\n'
+            'int ok=rust_native_write_windows_response(output,text);free(text);if(fclose(output)) return 7;return ok?0:8; }\n')
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        writer=self.root/'response-writer.exe';response=self.root/'compiler options.rsp';options=self.root/'options.txt'
+        flags=shlex.split(os.environ.get('SN_CFLAGS',''))
+        build=subprocess.run(cc+['-std=c11','-I',str(ROOT/'src'),str(self.root/'response-writer.c'),
+            str(ROOT/'src/target/rust/rust_native_response.c'),'-o',str(writer)]+flags,capture_output=True,timeout=90)
+        self.assertEqual(build.returncode,0,build.stderr.decode(errors='replace'))
+        words=['',r'C:\folder with spaces\library.a',r'\\server\share space\file',
+               'trailing space\\','literal"quote','%unexpanded% & ^ |','single\'quote','unicode λ']
+        options.write_text(subprocess.list2cmdline(words),encoding='utf-8')
+        run=subprocess.run([str(writer),str(response),str(options)],capture_output=True,timeout=15)
+        self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+        self.assertEqual(shlex.split(response.read_text(encoding='utf-8')),words)
+        options.write_text('"a""b" "" tail\\',encoding='utf-8')
+        run=subprocess.run([str(writer),str(response),str(options)],capture_output=True,timeout=15)
+        self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+        self.assertEqual(shlex.split(response.read_text()),['a"b','','tail\\'])
+        self.write('response consumer.c','#include <string.h>\nint main(void) {\n'
+            'return strcmp(SN_RSP_TEXT,"two words") || strcmp(SN_RSP_PATH,"C:\\\\library space\\\\λ.a") || SN_RSP_599!=599; }\n')
+        executable=self.root/'response consumer.exe'
+        arguments=['-std=c11','-DSN_RSP_TEXT="two words"','-DSN_RSP_PATH="C:\\\\library space\\\\λ.a"']
+        arguments+=['-DSN_RSP_'+str(i)+'='+str(i) for i in range(600)]
+        arguments+=[str(self.root/'response consumer.c'),'-o',str(executable)]+flags
+        commandline=subprocess.list2cmdline(arguments)
+        self.assertGreater(len(commandline),8191)
+        options.write_text(commandline,encoding='utf-8')
+        run=subprocess.run([str(writer),str(response),str(options)],capture_output=True,timeout=15)
+        self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+        build=subprocess.run(cc+['@'+str(response)],capture_output=True,timeout=90)
+        self.assertEqual(build.returncode,0,build.stderr.decode(errors='replace'))
+        run=subprocess.run([str(executable)],capture_output=True,timeout=15)
+        self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
+
     def test_original_three_language_archives_link_in_c_and_rust(self):
         summary, metadata = self.build()
         self.assertFalse(metadata['complete_package'])
