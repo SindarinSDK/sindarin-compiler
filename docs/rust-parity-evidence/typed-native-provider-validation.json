@@ -1,0 +1,125 @@
+{
+  "status": "combined normal and strict sanitizer validation complete; ready for hosted publication",
+  "dependency_revision": "0bcd8cbd96f8339b4640c05aa2a910abf193927b",
+  "dependency_ci": 38121285417,
+  "native_provider_languages": [
+    "RS",
+    "GO"
+  ],
+  "runtime_abi": "1.7",
+  "typed_array_leaves": [
+    "string",
+    "int32"
+  ],
+  "source_prebuilt_mode_cases": 72,
+  "strict_address_undefined_leak_mode_cases": 72,
+  "mode_matrix": {
+    "application_targets": [
+      "c",
+      "rust"
+    ],
+    "archives": [
+      "source",
+      "prebuilt"
+    ],
+    "optimizations": [
+      "O0",
+      "O1",
+      "O2"
+    ],
+    "arithmetic": [
+      "default",
+      "checked",
+      "unchecked"
+    ]
+  },
+  "raw_wire_clients": {
+    "clients": 2,
+    "passed": true,
+    "checks": [
+      "nil",
+      "null output",
+      "wrong wire kind/leaf",
+      "status errors",
+      "foreign panics",
+      "invalid owned result cleanup",
+      "unchanged failed outputs",
+      "same-header aliases",
+      "live callback observes mutation",
+      "callback consumes last caller wire credit",
+      "result survives original cleanup",
+      "exact native cleanup counts",
+      "callback error cleanup"
+    ]
+  },
+  "source_preservation": {
+    "private_foreign_sources": true,
+    "sealed_backing_sources_and_headers_removed": true,
+    "validation": "focused 72-case rerun checks original C/Rust/Go backing bytes before sealing"
+  },
+  "go": {
+    "pointer_checks": "cgocheck2",
+    "forced_gc_during_calls": true,
+    "durable_test_enables_experiment_at_build_time": true
+  },
+  "rust_archive": {
+    "c_cleanup_bridge_in_archive": true,
+    "unique_package_build_symbol": true,
+    "cc_ar_rustc_provenance": true,
+    "runtime_header_dependency_hash_checked": true,
+    "isolated_RS_only_unit_normal_and_sanitized": true,
+    "missing_C_tool_explicit_diagnostic": true,
+    "new_isolated_artifact_test_passed": true
+  },
+  "existing_artifact_tests": 20,
+  "complete_import_suite": {
+    "tests": 49,
+    "passed": true
+  },
+  "implementation_sha256": {
+    "scripts/native_provider.py": "0abc6dc45561932ef6bb9eca70f0675e4e1fb479ee0457738b85adfeb11d4d97",
+    "scripts/build_native_package.py": "5b8dc5667ae4cb09328294ef5bcebff7edbd40ad6c2b957d9a9a7abe542531c3",
+    "tests/package/native_imports.py": "14d3aee53ab04d6721e554e27faf3727012ea5d4360d20da0e311d8befb32c86",
+    "tests/package/native_artifacts.py": "406a3b79d478d3d454f51a9bfcd416b6d52126553d8cf2ed2517e6000f0cc2ce",
+    "tests/package/typed_arrays/backing.rs": "0eb65b7f1594a7199f064c5939bca1e2b2a048a27af23faba12fb47b114a30ab",
+    "tests/package/typed_arrays/ops.c": "65c69dea816ad61dba890e638bdd1a8640ce38fd216b0203a521934449a25950",
+    "tests/package/typed_arrays/client.c": "a62e9367e51f7ebece388b9356045e18ad75106cffe9ff9a21d961cfe0a36267",
+    "tests/package/typed_arrays/ops.h": "a1d95b44133ed6ebdba5552859c64d720a5c2119b6de10bdc2446da186538ac5",
+    "tests/package/typed_arrays/go/main.go": "2121293efeaf667ef6ea646b65801ae34e425fc28b315f758a9f7b01f00612fb"
+  },
+  "remaining": [
+    "Rust generic Sindarin body guards/exports",
+    "wider records/interfaces/generics",
+    "remaining SDK modules",
+    "dependency initialization/lifecycle graphs",
+    "final original corpus/platform acceptance"
+  ],
+  "validated_at": "2026-10-11T06:06:14.538849+00:00",
+  "dependency_ci_conclusion": "success",
+  "integrated": {
+    "artifacts": 22,
+    "isolated_rs_archive_strict_sanitizer": true,
+    "formatting": true,
+    "ci_helpers": 22,
+    "compiler_sha256": "6851ff1f3e502bbb2c6a735bfc004898635d6048ec2ed651a34d84eb470c63a2",
+    "source_sha256": {
+      "scripts/native_provider.py": "0abc6dc45561932ef6bb9eca70f0675e4e1fb479ee0457738b85adfeb11d4d97",
+      "scripts/build_native_package.py": "5b8dc5667ae4cb09328294ef5bcebff7edbd40ad6c2b957d9a9a7abe542531c3",
+      "tests/package/native_imports.py": "eee5ef6f1ecce5e21c12924212f9fdf99beb05baa63fb5f4a1efdd4fcdf7ccaf",
+      "tests/package/native_artifacts.py": "9d5d589116350a74f55ebb6d80ac1fde2f59cce155b777402670e762f8faead4"
+    },
+    "native_imports": 50
+  },
+  "combined": {
+    "provider_source_sealed_mode_cases": 72,
+    "raw_wire_clients": 2,
+    "method_case_groups": 45,
+    "compiler_sha256": "cf2d8c263c5102f818f01eb60b02ccce09b44568486ed867670468e063c89362",
+    "hosted_inventory_groups": 26,
+    "hosted_inventory_gates": 305,
+    "method_batch_independent_ci": 38127775229,
+    "strict_sanitizer_mode_cases": 72,
+    "ci_helpers": 22,
+    "formatting": true
+  }
+}

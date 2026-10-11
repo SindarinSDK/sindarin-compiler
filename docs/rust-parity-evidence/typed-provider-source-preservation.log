@@ -1,0 +1,6 @@
+test_rust_go_typed_arrays_preserve_aliases_errors_callbacks_and_cleanup (__main__.NativeImports.test_rust_go_typed_arrays_preserve_aliases_errors_callbacks_and_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 46.860s
+
+OK

@@ -15,7 +15,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
-from native_provider import contracts, c_header, c_provider, rust_provider, go_provider
+from native_provider import contracts, c_header, c_provider, rust_provider, rust_array_support, go_provider
 from sindarin_library import build_library
 
 
@@ -303,6 +303,9 @@ def build(args):
         if plan['package']['runtime']=='GO':
             raise ValueError('Sindarin package bodies select GO; the Sindarin Go backend is not implemented')
         languages.remove('SN');languages.add(plan['package']['runtime'])
+    if any(u['language']=='RS' and rust_array_support(providers[u['name']], 'support')
+           for u in selected_builds):
+        languages.add('C')
     if languages & {'C', 'GO'}: tools['cc'] = tool_identity(cc)
     if 'C' in languages: tools['ar'] = tool_identity(ar, optional_version=True)
     if 'RS' in languages: tools['rustc'] = tool_identity(rustc)
@@ -438,6 +441,17 @@ def build(args):
                 if not libraries: raise ValueError('Rust toolchain did not report native static library dependencies')
                 native_link_flags = shlex.split(libraries.group(1))
                 capture_dependencies(archive.with_suffix('.d'))
+                support = rust_array_support(signatures, backing_crate) if signatures else None
+                if support:
+                    c_source, obj, depfile = (work/(stem+suffix) for suffix in ('_arrays.c','_arrays.o','_arrays.d'))
+                    c_source.write_text(support)
+                    c_flags = ['-std=c11','-D_GNU_SOURCE','-Werror=implicit-function-declaration',
+                               '-O'+args.optimization,'-fno-lto']
+                    for directory in includes: c_flags += ['-I',directory]
+                    run(cc+c_flags+shlex.split(os.environ.get('SN_CFLAGS',''))+
+                        ['-MD','-MF',depfile,'-c',c_source,'-o',obj],cwd=root)
+                    capture_dependencies(depfile)
+                    run(ar+['rcs',archive,obj])
                 # External crate files supplied through rustc flags affect the archive.
                 for flag in flags:
                     candidate = flag.split('=', 1)[-1]

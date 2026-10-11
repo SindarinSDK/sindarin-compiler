@@ -271,14 +271,26 @@ SDK packaging remain required.
 
 `native.abi: 1.7` permits scalar/string array leaves through rank 32 with borrowed
 parameters and owned results. C native backing and C Sindarin implementation
-exports use `SnArray *`; C/Rust consumers wrap actual headers and transfer unique
+exports use `SnArray *`; ordinary Rust and Go native providers also support typed
+arrays through opaque canonical C pointers. C/Rust consumers wrap actual headers and transfer unique
 owned results. Nested int32 controls preserve same-argument aliases, mutation,
 independent copies and nil across all nine modes and sealed imports after source
 removal. Flat string/byte arrays keep their prior transports under 1.7; earlier
 ABI declarations retain their original contracts.
 
-Rust/Go generic native providers and Rust generic Sindarin body exports are
-explicitly rejected until their recursive canonical storage/ownership guards
-exist. Runtime-level Rust/Go typed-array clients do not imply generated package
-support. Record/interface leaves, reference rebinding and full SDK migration
-remain work. See [the runtime contract](runtime-abi.md#abi-17-typed-canonical-arrays).
+Rust backing uses `*mut c_void` for typed array parameters/results; Go backing
+uses `unsafe.Pointer`. These pointers identify actual C `SnArray` storage, never
+Rust vectors or Go slices. Successful owned returns transfer one C allocation
+with its native hooks. Input wire credits remain guarded through callbacks,
+errors and panics. Invalid owned result layouts are cleaned up without publishing
+an output. Status exports preserve output arguments on error and contain foreign
+panics as `FOREIGN_ERROR`. Backing code owns temporary resources until successful
+return; borrowed results are not an owned return contract.
+
+Rust generic Sindarin body exports remain explicitly rejected pending recursive
+body guards. Record/interface leaves, reference rebinding and full SDK migration
+remain work. Native provider controls cover nested strings and int32, same-header
+aliases, independent owned copies, live callbacks, panic/status errors and exactly
+once cleanup. They pass all nine modes for both application targets, source and
+sealed archives with backing sources and headers removed, normally and with
+strict address/undefined/leak checking and Go `cgocheck2`. See [the runtime contract](runtime-abi.md#abi-17-typed-canonical-arrays).

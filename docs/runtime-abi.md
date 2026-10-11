@@ -455,6 +455,9 @@ success clears the wire credit and transfers the unchanged header.
 Fifteen C/Rust/Go clients exercise the shared runtime, including nested live
 aliases, callbacks, reentrant credit consumption, GC, missing hooks, ordinary
 copies after original cleanup and actual SDK Environment rows. Seven C clients
-run with address/undefined/leak checking. Generic array package generation in
-this batch supports C native and C Sindarin bodies; Rust/Go native providers and
-Rust generic body exports still require canonical guards and result contracts.
+run with address/undefined/leak checking. Generic array package generation supports C/Rust/Go native providers and C
+Sindarin bodies. Rust/Go inputs and owned results use opaque C header pointers,
+with generated lifetime and validation guards. A package-specific C cleanup
+bridge supplies canonical header destruction inside each Rust archive; Go uses
+the canonical C cleanup through cgo. Rust generic body exports still require
+recursive guards and result contracts.

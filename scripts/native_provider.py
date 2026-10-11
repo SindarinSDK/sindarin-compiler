@@ -1,7 +1,7 @@
 """Generate provider exports for declared ordinary backing-language functions."""
 import json
 import re
-from native_contract import TYPES, kind, validate, raw_type, record_types, c_array_shape
+from native_contract import TYPES, kind, validate, raw_type, record_types, c_array_shape, native_array_shape
 
 RUST = {'int':'i64', 'long':'i64', 'uint':'u64', 'int32':'i32', 'uint32':'u32',
         'byte':'u8', 'char':'u8', 'bool':'bool', 'float':'f32', 'double':'f64',
@@ -24,9 +24,6 @@ def contracts(native, unit):
     lifecycle_functions = {r[field] for r in records for field in ('create','retain','release','refs')}
     for s in signatures:
         validate(s)
-        if unit['language'] in ('RS','GO') and any(kind(t)=='native_array' for t in
-            [s['return_type']]+[p['type'] for p in s['params']]):
-            raise ValueError('typed native array provider generation requires canonical C storage; RS/GO provider contracts remain unsupported')
         binding = s['binding']
         if binding['function'] in lifecycle_functions:
             raise ValueError('record lifecycle functions must keep their public C symbols; use a separate backing function')
@@ -239,6 +236,14 @@ def c_provider(signatures, namespace, root='.'):
     return '\n'.join(lines)+'\n'
 
 
+def rust_array_support(signatures, backing_crate):
+    if not any(kind(t)=='native_array' for s in signatures for t in
+               [s['return_type']]+[p['type'] for p in s['params']]):
+        return None
+    return ('#include "sn_array.h"\nvoid '+backing_crate+
+            '_native_array_free(SnArray *value) { sn_array_free(value); }\n')
+
+
 def rust_provider(signatures, backing_crate):
     lines = [f'extern crate {backing_crate} as backing;',
              '#[repr(C)] pub struct V { _opaque: [u8; 0] }',
@@ -255,10 +260,17 @@ def rust_provider(signatures, backing_crate):
              'fn sn_abi_v1_retain(value: *mut V) -> *mut V;',
              'fn sn_abi_v1_release(value: *mut V); }',
              'struct OwnedV(*mut V); impl Drop for OwnedV { fn drop(&mut self) { unsafe { sn_abi_v1_release(self.0) } } }']
+    if any(kind(t)=='native_array' for s in signatures for t in
+           [s['return_type']]+[p['type'] for p in s['params']]):
+        lines += ['#[repr(C)] struct ArrayType { leaf_kind: u32, rank: u32 }',
+                  'extern "C" { fn sn_abi_v1_native_array_data(value: *const V, shape: ArrayType, out: *mut *mut std::ffi::c_void) -> u32;',
+                  'fn sn_abi_v1_native_array_adopt(value: *mut std::ffi::c_void, shape: ArrayType, out: *mut *mut V) -> u32;',
+                  f'#[link_name="{backing_crate}_native_array_free"] fn sn_package_array_free(value: *mut std::ffi::c_void); }}',
+                  'struct OwnedArray(*mut std::ffi::c_void); impl Drop for OwnedArray { fn drop(&mut self) { unsafe { sn_package_array_free(self.0) } } }']
     for s in signatures:
         b, params, result = s['binding'], s['params'], kind(s['return_type'])
         status = b['failure'] == 'status'
-        wire = lambda k: '*mut V' if k in ('string','string_array','byte_array') else 'u8' if k == 'bool' else RUST[k]
+        wire = lambda k: '*mut V' if k in ('string','string_array','byte_array','native_array') else 'u8' if k == 'bool' else RUST[k]
         declarations = [f'p{i}: {wire(kind(p["type"]))}' for i,p in enumerate(params)]
         if status and result != 'void': declarations.append(f'out: *mut {wire(result)}')
         lines += [f'#[no_mangle] pub unsafe extern "C" fn {b["symbol"]}({", ".join(declarations)}) -> '+('u32' if status else wire(result))+' {']
@@ -274,6 +286,12 @@ def rust_provider(signatures, backing_crate):
                           f'    let length{i} = usize::try_from(bytes{i}.length).map_err(|_| 5u32)?;',
                           f'    if length{i} > isize::MAX as usize {{ return Err(5); }}',
                           f'    let arg{i} = if bytes{i}.data.is_null() {{ None }} else {{ Some(std::slice::from_raw_parts(bytes{i}.data, length{i})) }};']
+                arguments.append(f'arg{i}')
+            elif k == 'native_array':
+                leaf, rank = native_array_shape(p['type'])
+                lines += [f'    let _owner{i} = OwnedV(sn_abi_v1_retain(p{i}));',
+                          f'    let mut arg{i} = std::ptr::null_mut();',
+                          f'    let code = sn_abi_v1_native_array_data(p{i}, ArrayType {{ leaf_kind: {leaf}, rank: {rank} }}, &mut arg{i}); if code != 0 {{ return Err(code); }}']
                 arguments.append(f'arg{i}')
             elif k in ('string_array','byte_array'):
                 if s.get('abi') in ('1.5','1.6','1.7'):
@@ -325,6 +343,12 @@ def rust_provider(signatures, backing_crate):
                           '    let (data, length) = value.as_ref().map_or((std::ptr::null(),0), |v| (v.as_ptr(),v.len() as u64));',
                           '    let code = sn_abi_v1_native_byte_array_copy_bytes(data,length,&mut output);',
                           '    if code != 0 { return Err(code); }', '    Ok(output)']
+        elif result == 'native_array':
+            leaf, rank = native_array_shape(s['return_type'])
+            lines += ['    let owner = OwnedArray(value); let mut output = std::ptr::null_mut();',
+                      f'    let code = sn_abi_v1_native_array_adopt(owner.0, ArrayType {{ leaf_kind: {leaf}, rank: {rank} }}, &mut output);',
+                      '    if code != 0 { return Err(code); }',
+                      '    std::mem::forget(owner); Ok(output)']
         elif result == 'bool': lines.append('    Ok(u8::from(value))')
         else: lines.append('    Ok(value)')
         lines += ['  }));', '  match call {', '    Ok(Ok(value)) => {']
@@ -340,9 +364,12 @@ def rust_provider(signatures, backing_crate):
 def go_provider(signatures, module, main=True):
     lines = ['package main', '/* #include <stdint.h>\n#include <stdlib.h>\n#include "sn_abi.h" */', 'import "C"',
              f'import {"backing" if signatures else "_"} {json.dumps(module)}']
-    if any(kind(p['type']) in ('string','string_array','byte_array') for s in signatures for p in s['params']) or any(kind(s['return_type']) in ('string','string_array','byte_array') for s in signatures):
+    if any(kind(t)=='native_array' for s in signatures for t in
+           [s['return_type']]+[p['type'] for p in s['params']]):
+        lines[1] = lines[1].replace('#include "sn_abi.h"', '#include "sn_abi.h"\n#include "sn_array.h"')
+    if any(kind(p['type']) in ('string','string_array','byte_array','native_array') for s in signatures for p in s['params']) or any(kind(s['return_type']) in ('string','string_array','byte_array','native_array') for s in signatures):
         lines.append('import "unsafe"')
-    wire = lambda k: '*C.SnAbiValue' if k in ('string','string_array','byte_array') else 'C.'+TYPES[k][1] if k != 'void' else ''
+    wire = lambda k: '*C.SnAbiValue' if k in ('string','string_array','byte_array','native_array') else 'C.'+TYPES[k][1] if k != 'void' else ''
     for s in signatures:
         b, params, result = s['binding'], s['params'], kind(s['return_type'])
         status = b['failure'] == 'status'
@@ -364,6 +391,13 @@ def go_provider(signatures, module, main=True):
                           f'    if uint64(bytes{i}.length) > uint64(^uint(0)>>1) {{ '+(normal_return('5') if status else 'panic("string length overflow")')+' }',
                           f'    text := string(unsafe.Slice((*byte)(unsafe.Pointer(bytes{i}.data)), int(bytes{i}.length))); arg{i} = &text', '  }']
                 arguments.append(f'arg{i}')
+            elif k == 'native_array':
+                leaf, rank = native_array_shape(p['type'])
+                error = lambda code: normal_return(code) if status else 'panic("invalid typed array ABI")'
+                lines += [f'  owner{i} := C.sn_abi_v1_retain(p{i}); defer C.sn_abi_v1_release(owner{i})',
+                          f'  var arg{i} *C.struct_SnArray',
+                          f'  if code := C.sn_abi_v1_native_array_data(p{i}, C.SnAbiNativeArrayType{{leaf_kind:{leaf}, rank:{rank}}}, &arg{i}); code != 0 {{ '+error('code')+' }']
+                arguments.append(f'unsafe.Pointer(arg{i})')
             elif k in ('string_array','byte_array'):
                 error = lambda code: normal_return(code) if status else 'panic("invalid array ABI")'
                 if s.get('abi') in ('1.5','1.6','1.7'):
@@ -417,6 +451,14 @@ def go_provider(signatures, module, main=True):
             lines += ['  var output *C.SnAbiValue', '  var data *C.uint8_t',
                       '  if value != nil { if len(value) == 0 { value = make([]byte,1); value = value[:0] }; data = (*C.uint8_t)(unsafe.Pointer(unsafe.SliceData(value))) }',
                       '  if code := C.sn_abi_v1_native_byte_array_copy_bytes(data,C.uint64_t(len(value)),&output); code != 0 { '+(normal_return('code') if status else 'panic("byte array result ABI")')+' }']
+            value = 'output'
+        elif result == 'native_array':
+            leaf, rank = native_array_shape(s['return_type'])
+            lines += ['  var output *C.SnAbiValue',
+                      '  owned := (*C.struct_SnArray)(value)',
+                      '  defer func() { if owned != nil { C.sn_array_free(owned) } }()',
+                      f'  if code := C.sn_abi_v1_native_array_adopt(owned, C.SnAbiNativeArrayType{{leaf_kind:{leaf}, rank:{rank}}}, &output); code != 0 {{ '+(normal_return('code') if status else 'panic("typed array result ABI")')+' }',
+                      '  owned = nil']
             value = 'output'
         elif result == 'bool':
             lines += ['  var output C.uint8_t', '  if value { output = 1 }']

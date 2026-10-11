@@ -250,7 +250,7 @@ and return one unique adopted wire credit. See
 
 The validator accepts `native.abi: 1.7` and existing `native.types` C record
 contracts under that version. Typed scalar/string arrays up to rank 32 select
-canonical C header transport, borrowed inputs and owned results. C native and
-C Sindarin provider builds support these wider arrays; Rust/Go native providers
-and Rust Sindarin providers receive an explicit unsupported-contract diagnostic.
+canonical C header transport, borrowed inputs and owned results. C native, Rust/Go native and C Sindarin provider builds support these wider
+arrays. Rust generic Sindarin providers still receive an explicit unsupported
+body-contract diagnostic.
 Flat string/byte contracts and earlier ABI versions preserve their behavior.

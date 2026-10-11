@@ -7,6 +7,39 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Rust/Go typed native providers: local validation, 2026-10-11
+
+Generated native providers now support ABI 1.7 scalar/string arrays through rank
+32 for ordinary Rust and Go backing. Inputs preserve actual C headers under wire
+credit guards; successful owned results adopt C storage. Invalid result layouts
+release the returned allocation and native hooks. Status outputs remain unchanged
+on error; panic handling and callback credit loss preserve cleanup. Rust packages
+include a private C cleanup bridge in the static archive with unique package/build
+symbols and transitive header/toolchain provenance. Go uses the canonical inline
+C cleanup through cgo. Foreign source implementations are not translated.
+
+Nested string and int32 controls pass 72 source/sealed C/Rust mode cases, normally
+and under strict address/undefined/leak checks. Two raw C ABI clients additionally
+check wrong kinds/shapes, nil outputs, explicit errors, foreign panics, malformed
+owned results, live callbacks consuming the caller's last credit, independent
+results and exactly-once native cleanup. Go uses `cgocheck2` and forces GC during
+calls. All 20 existing artifact tests and the isolated Rust-only-unit artifact check
+pass, including normal/sanitized C support, cache and missing-tool controls.
+The complete import suite passes all 49 tests.
+Correction `0bcd8cbd` has complete hosted acceptance, including the foundation
+this batch needs. The integrated provider suite passes all 50 package import and 22 artifact tests,
+including strict sanitizer validation of the isolated Rust cleanup bridge. Combined checks pass 72 source/sealed mode cases, two raw wire clients and 45
+method controls. The same 72 provider cases pass strict address/undefined/leak
+checks. Hosted sanitizer registration includes the provider matrix and isolated
+Rust cleanup bridge; the inventory is 305 gates in 26 groups. This batch is ready
+for hosted publication; final acceptance remains pending.
+
+Rust generic Sindarin bodies, record/interface/generic contracts, remaining SDK
+modules, dependency lifecycle graphs and final corpus/platform acceptance remain
+required. [Native provider documentation](native-package-imports.md#typed-arrays-native-abi-17)
+describes backing signatures and ownership. Retained [local validation](rust-parity-evidence/typed-native-provider-validation.json)
+and [full import results](rust-parity-evidence/typed-provider-full-imports.log) record this batch.
+
 ## SDK method names and native self storage: local validation, 2026-10-11
 
 The unchanged Date API declares static and instance `isLeapYear`/`daysInMonth`.
@@ -30,8 +63,9 @@ oracle. A native gate on all three hosts brings the inventory to 304 gates in
 records the scope. Correction `0bcd8cbd` has complete hosted acceptance. This
 batch passes the integrated 3,242-check C and 1,097-check Rust suites, 49
 package import tests, 21 artifact tests and 22 CI helpers. Normal/sanitized method
-controls and formatting pass. Hosted verification is pending publication; whole
-SDK and final corpus/platform acceptance remain required.
+controls and formatting pass. Published revision `3a8d675a` is pending complete
+[CI 38127775229](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38127775229).
+Whole SDK and final corpus/platform acceptance remain required.
 
 ## Windows response-file lifecycle and verifier follow-up, 2026-10-11
 
@@ -95,8 +129,8 @@ and owned transfer retain actual C headers, slots, aliases and native hooks;
 copying fills missing string/nested copy hooks with independent canonical storage.
 Original SDK Environment storage now has a durable lifetime control. C native
 providers and C Sindarin facade exports support these contracts for C/Rust apps.
-Rust/Go generic native providers and Rust generic body exports remain unsupported
-and explicitly diagnosed; the runtime clients alone do not establish those paths.
+Rust generic body exports remain unsupported and explicitly diagnosed; Rust/Go
+native generic provider support is locally validated separately above.
 
 The reusable SDK stager builds nine original public modules as 18 C/SN units,
 with 197 exports, preserving the actual C backing implementations and public

@@ -327,3 +327,26 @@ and default arithmetic for focused validation.
 Remaining SDK modules, broader record/interface/generic contracts, Rust/Go typed
 provider generation and dependency initialization graphs remain required. This
 stager is a reusable partial migration and does not establish whole-SDK acceptance.
+
+## Rust/Go typed native providers
+
+Native ABI 1.7 generic scalar/string arrays use opaque canonical C headers in
+ordinary Rust/Go backing signatures. Generated providers retain borrowed input
+credits through callbacks, errors and panics, validate the declared leaf/rank,
+and adopt successful owned headers. Invalid owned results release their C
+headers and hooks before returning an error; failed status calls preserve the
+caller's output. Foreign backing modules remain in their original language.
+
+Rust archives include a generated C cleanup bridge with a package/build-specific
+symbol. The original Rust module still compiles with rustc; the bridge compiles
+with the C toolchain and is indexed into the archive. Compiler/ar identities,
+C flags and transitive runtime header dependencies participate in artifact cache
+validation. This is needed because canonical `sn_array_free` is a C inline helper,
+not a standalone runtime export. Sealed consumers retain the bridge after backing
+sources and headers are removed. Go calls the same inline C cleanup through cgo.
+
+Nested string/int32 controls exercise C/Rust applications in all nine modes,
+source and prebuilt consumption, in-call aliases, callback credit consumption,
+GC, independent results, malformed results, status/panic errors and final cleanup.
+The controls also run with strict address/undefined/leak checks and `cgocheck2`.
+Rust generic Sindarin bodies and wider record/interface contracts remain work.

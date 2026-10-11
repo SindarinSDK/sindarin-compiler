@@ -1,5 +1,5 @@
 {
-  "status": "local; hosted acceptance pending",
+  "status": "local validation passed; published, hosted acceptance pending",
   "baseline": "0d802850a72699d199c72d362f506a9bcfb948bb",
   "sdk_revision": "89f3b83ee42e78e84b47d9979b3ec66fa305cbe5",
   "abi": {
@@ -257,5 +257,12 @@
     "tests/package/native_imports.py": "8d2f3e7713e2dde8fa501c34f5659e6f0139e73098bacf468310139b1bf527b1",
     "src/target/rust/rust_lower.c": "e4a498cceb33b3a2274df0c1589df2c768315d17a5b4d47d42a1551123745bdc",
     "templates/rust/partials/expr/binary.hbs": "a92bf40216f1c9c89337a42900ebec810cad76d98b79c9bed7f85582972249c8"
+  },
+  "published_revision": "68cbbbcfd54ded8b438f4a80b81b7c5a99e31cc6",
+  "ci": {
+    "run": 38115775862,
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862",
+    "status": "queued",
+    "conclusion": null
   }
 }

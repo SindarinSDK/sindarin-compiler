@@ -1,0 +1,6 @@
+test_rust_typed_array_archive_includes_c_cleanup_without_c_build_units (__main__.NativeArtifactTests.test_rust_typed_array_archive_includes_c_cleanup_without_c_build_units) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.871s
+
+OK

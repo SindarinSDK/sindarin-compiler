@@ -1351,6 +1351,7 @@
         "{python}",
         "tests/package/native_artifacts.py",
         "NativeArtifactTests.test_generated_exports_are_independent_typed_abi_artifacts",
+        "NativeArtifactTests.test_rust_typed_array_archive_includes_c_cleanup_without_c_build_units",
         "NativeArtifactTests.test_multiple_go_build_units_produce_one_independent_archive",
         "NativeArtifactTests.test_generated_owned_string_arrays_have_wire_lifetime_contracts",
         "NativeArtifactTests.test_borrowed_string_array_provider_errors_aliases_and_lifetimes",
@@ -1362,6 +1363,19 @@
       "env": {
         "SN_CC": "gcc -fsanitize=address,undefined -fno-omit-frame-pointer",
         "ASAN_OPTIONS": "detect_leaks=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
+    },
+    {
+      "id": "typed-native-provider-sanitizers",
+      "name": "Rust/Go typed-array provider aliases, callbacks, errors and cleanup sanitizers",
+      "command": ["{python}", "tests/package/native_imports.py", "NativeImports.test_rust_go_typed_arrays_preserve_aliases_errors_callbacks_and_cleanup"],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
       },
       "group": "sanitizers",
       "linux_only": true

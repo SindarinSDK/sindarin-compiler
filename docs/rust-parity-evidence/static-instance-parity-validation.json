@@ -1,5 +1,5 @@
 {
-  "status": "integrated local validation complete; ready for hosted publication",
+  "status": "published; complete hosted validation pending",
   "dependency_revision": "0bcd8cbd96f8339b4640c05aa2a910abf193927b",
   "dependency_ci": 38121285417,
   "changes": [
@@ -38,5 +38,11 @@
     "rust_suite": 1097,
     "compiler_sha256": "f92b22ae36a1e57d8cdfbec8d64e23c37492a3097baad13347dc05c04ec552b2",
     "native_imports": 49
+  },
+  "published_revision": "3a8d675a457499b0a044fa1468773830ab1f9923",
+  "ci": {
+    "run": 38127775229,
+    "status": "in_progress",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38127775229"
   }
 }

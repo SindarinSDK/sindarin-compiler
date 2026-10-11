@@ -110,6 +110,51 @@ class NativeArtifactTests(unittest.TestCase):
         run=subprocess.run([str(executable)],capture_output=True,timeout=15)
         self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'))
 
+    def test_rust_typed_array_archive_includes_c_cleanup_without_c_build_units(self):
+        self.write('src/api.sn','native fn clone(a: int32[][]): int32[][]\n')
+        self.write('native/value.rs',
+            'use std::ffi::c_void;\n#[repr(C)] struct Shape { leaf: u32, rank: u32 }\nextern "C" {\n'
+            'fn sn_abi_v1_native_array_borrow(a:*mut c_void,t:Shape,out:*mut *mut c_void)->u32;\n'
+            'fn sn_abi_v1_native_array_copy(a:*mut c_void,out:*mut *mut c_void)->u32;\n'
+            'fn sn_abi_v1_native_array_take(a:*mut *mut c_void,t:Shape,out:*mut *mut c_void)->u32;\n'
+            'fn sn_abi_v1_release(a:*mut c_void); }\n'
+            'pub fn clone(a:*mut c_void)->*mut c_void { unsafe {\n'
+            'let mut view=std::ptr::null_mut(); let mut copy=std::ptr::null_mut(); let mut result=std::ptr::null_mut();\n'
+            'assert_eq!(sn_abi_v1_native_array_borrow(a,Shape{leaf:2,rank:2},&mut view),0);\n'
+            'assert_eq!(sn_abi_v1_native_array_copy(view,&mut copy),0);sn_abi_v1_release(view);\n'
+            'assert_eq!(sn_abi_v1_native_array_take(&mut copy,Shape{leaf:2,rank:2},&mut result),0);result } }\n')
+        self.write('sn.yaml','name: native-package\nruntime: RS\nnative:\n  abi: 1.7\n  declarations: [src/api.sn]\n'
+            '  builds:\n    - name: backing\n      language: RS\n      entry: native/value.rs\n      sources: [native/value.rs]\n'
+            '  bindings:\n    - declaration: src/api.sn::clone\n      function: clone\n      symbol: typed_array_clone\n'
+            '      build: backing\n      convention: C\n      failure: abort\n'
+            '      ownership: {parameters: {a: borrowed}, result: owned}\n')
+        summary,metadata=self.build()
+        self.assertEqual([u['language'] for u in metadata['units']],['RS'])
+        self.assertTrue({'cc','ar','rustc'}.issubset(metadata['provenance']['tools']))
+        header=COMPILER.parent/'include/runtime/sn_array.h'
+        self.assertEqual(metadata['dependency_sha256'][str(header.resolve())],hashlib.sha256(header.read_bytes()).hexdigest())
+        cached,_=self.build();self.assertTrue(cached['cache_hit'])
+        unavailable=subprocess.run([str(COMPILER),'--build-native',str(self.root/'sn.yaml'),'-o',str(self.output)],
+            capture_output=True,timeout=30,env=dict(os.environ,SN_CC=str(self.root/'missing-c-tool')))
+        self.assertNotEqual(unavailable.returncode,0);self.assertIn(b'native toolchain unavailable',unavailable.stderr)
+        self.write('typed-client.c','#include <assert.h>\n#include "sn_array.h"\n#include "sn_abi.h"\n'
+            'extern SnAbiValue *typed_array_clone(SnAbiValue *);\nint main(void) {\n'
+            'SnAbiNativeArrayType shape={SN_ABI_ARRAY_INT32,2};SnAbiValue *view=NULL,*copy;SnArray *root=NULL;\n'
+            'assert(sn_abi_v1_native_array_adopt(NULL,shape,&view)==0);copy=typed_array_clone(view);assert(!copy);\n'
+            'root=sn_array_new(sizeof(SnArray*),1);root->elem_tag=SN_TAG_ARRAY;\n'
+            'assert(sn_abi_v1_native_array_adopt(root,shape,&view)==0);copy=typed_array_clone(view);\n'
+            'SnArray *result=NULL;assert(sn_abi_v1_native_array_take(&copy,shape,&result)==0);\n'
+            'assert(result && result!=root && result->len==0);sn_abi_v1_release(view);sn_array_free(result); }\n')
+        cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+        unit=metadata['units'][0];client=self.root/'typed-client.exe'
+        command=(cc+['-std=c11','-D_GNU_SOURCE','-UNDEBUG']+shlex.split(os.environ.get('SN_CFLAGS',''))+
+            ['-I',str(header.parent),str(self.root/'typed-client.c'),str(Path(summary['assembly']).parent/unit['archive']),
+             metadata['shared_runtime']['archive']]+unit['native_link_flags']+['-o',str(client)])
+        compiled=subprocess.run(command,capture_output=True,timeout=90)
+        self.assertEqual(compiled.returncode,0,compiled.stderr.decode(errors='replace'))
+        run=subprocess.run([str(client)],capture_output=True,timeout=15)
+        self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'));self.assertEqual(run.stdout,b'');self.assertEqual(run.stderr,b'')
+
     def test_original_three_language_archives_link_in_c_and_rust(self):
         summary, metadata = self.build()
         self.assertFalse(metadata['complete_package'])

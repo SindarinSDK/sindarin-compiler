@@ -6,6 +6,7 @@ import subprocess
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[2]
 COMPILER=Path(os.environ.get('SN_COMPILER',ROOT/'bin'/('sn.exe' if os.name=='nt' else 'sn'))).resolve()
@@ -375,6 +376,75 @@ class NativeImports(unittest.TestCase):
                 for target in ('c','rust'):
                     with self.subTest(target=target,flags=flags,archive=archive):
                         self.execute(target,b'true\n42\n3\n42\n99\n',flags)
+
+    @patch.dict(os.environ, {'GOEXPERIMENT':'cgocheck2'})
+    def test_rust_go_typed_arrays_preserve_aliases_errors_callbacks_and_cleanup(self):
+        import hashlib,json,shlex
+        fixtures=ROOT/'tests/package/typed_arrays'
+        for language in ('RS','GO'):
+            name='typed'+language.lower();package=self.root/'.sn'/name
+            shutil.copytree(fixtures,package/'src')
+            self.write(f'.sn/{name}/src/api.sn','native fn provide(a: str[][], b: str[][], mode: int): str[][]\n'
+                'native fn provideInts(a: int32[][], b: int32[][]): int32[][]\n')
+            entry='src/backing.rs' if language=='RS' else 'src/go/main.go'
+            manifest=(f'name: {name}\nruntime: {language}\nnative:\n  abi: 1.7\n  declarations: [src/api.sn]\n'
+                f'  builds:\n    - name: backing\n      language: {language}\n      sources: [{entry}]\n      include_dirs: [src]\n')
+            if language=='RS':manifest+='      entry: src/backing.rs\n'
+            else:
+                manifest+='      module: src/go\n'
+                self.write(f'.sn/{name}/src/go/go.mod','module sindarin.test/'+name+'\n\ngo 1.26.0\n')
+            manifest+=('    - name: operations\n      language: C\n      sources: [src/ops.c]\n      include_dirs: [src]\n'
+                '  bindings:\n    - declaration: src/api.sn::provide\n'
+                '      function: '+('provide' if language=='RS' else 'Provide')+'\n'
+                '      symbol: typed_array_provide\n      build: backing\n      convention: C\n      failure: status\n'
+                '      ownership: {parameters: {a: borrowed, b: borrowed, mode: value}, result: owned}\n')
+            manifest+=('    - declaration: src/api.sn::provideInts\n'
+                '      function: '+('provide_ints' if language=='RS' else 'ProvideInts')+'\n'
+                '      symbol: typed_array_ints_provide\n      build: backing\n      convention: C\n      failure: status\n'
+                '      ownership: {parameters: {a: borrowed, b: borrowed}, result: owned}\n')
+            self.write(f'.sn/{name}/sn.yaml',manifest)
+            original_backings={p.relative_to(package):p.read_bytes() for p in (package/'src').rglob('*')
+                if p.is_file() and p.suffix in ('.c','.h','.rs','.go')}
+            self.write('main.sn',f'import "{name}/src/api"\nfn exercise(): str[][] =>\n'
+                '  var input: str[][] = {{"mutable"}}\n  var result: str[][] = provide(input,input,0)\n'
+                '  println(input[0].length)\n  println(input[0][0])\n  input[0][0]="changed"\n  return result\n'
+                'fn main(): void =>\n  println(provide(nil,nil,0)==nil)\n  var result: str[][] = exercise()\n'
+                '  println(result[0][0])\n  println(result[0][1])\n'
+                '  println(provideInts(nil,nil)==nil)\n  var ints: int32[][] = {{1,2}}\n'
+                '  var numbers: int32[][] = provideInts(ints,ints)\n  println(ints[0][0])\n  println(ints[0].length)\n'
+                '  ints[0][0]=7\n  println(numbers[0][0])\n  println(numbers[0][2])\n')
+            built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),'-o',str(package/'dist-build')],
+                cwd=self.root,capture_output=True,timeout=180)
+            self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+            assembly=Path(json.loads(built.stdout)['assembly']);metadata=json.loads(assembly.read_text())
+            cc=shlex.split(os.environ.get('SN_CC','clang' if os.name=='nt' or os.sys.platform=='darwin' else 'gcc'))
+            runtime=COMPILER.parent/'lib'/('clang' if os.name=='nt' else 'gcc')/'libsn_runtime_min.a'
+            client=self.root/'typed-client.exe'
+            links=[str(assembly.parent/u['archive']) for u in metadata['units']]
+            for unit in metadata['units']:
+                links+=unit['native_link_flags']+['-l'+lib for lib in unit['libraries']]
+            compiled=subprocess.run(cc+['-std=c11','-D_GNU_SOURCE','-UNDEBUG']+shlex.split(os.environ.get('SN_CFLAGS',''))+
+                ['-I',str(COMPILER.parent/'include/runtime'),'-I',str(package/'src'),str(fixtures/'client.c')]+
+                links+[str(runtime),'-o',str(client)],cwd=self.root,capture_output=True,timeout=90)
+            self.assertEqual(compiled.returncode,0,compiled.stderr.decode(errors='replace'))
+            run=subprocess.run([str(client)],cwd=self.root,capture_output=True,timeout=30,
+                env=dict(os.environ,GOEXPERIMENT='cgocheck2'))
+            self.assertEqual(run.returncode,0,run.stderr.decode(errors='replace'));self.assertEqual(run.stdout,b'')
+            if language=='RS':self.assertIn(b'typed provider panic',run.stderr)
+            else:self.assertEqual(run.stderr,b'')
+            modes=[(o,)+((a,) if a else ()) for o in ('-O0','-O1','-O2') for a in (None,'--checked','--unchecked')]
+            for archive in ('source','prebuilt'):
+                if archive=='prebuilt':
+                    for relative,original in original_backings.items():
+                        self.assertEqual((package/relative).read_bytes(),original)
+                    shutil.copytree(assembly.parent,package/'dist')
+                    (package/'sn.yaml').write_text(manifest.replace('  abi: 1.7\n','  abi: 1.7\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+                    for source in (package/'src').rglob('*'):
+                        if source.suffix in ('.c','.h','.rs','.go'):source.unlink()
+                for flags in modes:
+                    for target in ('c','rust'):
+                        with self.subTest(language=language,target=target,flags=flags,archive=archive):
+                            self.execute(target,b'true\n2\nMutable\nMutable\ntail\ntrue\n42\n3\n42\n99\n',flags)
 
     def test_native_byte_arrays_preserve_live_inputs_and_owned_results(self):
         import hashlib,json
