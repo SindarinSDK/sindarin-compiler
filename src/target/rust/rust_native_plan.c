@@ -1548,10 +1548,11 @@ bool rust_native_partition_model(json_object *rust_model,
                 ? alias : name;
             plan->declarations[native_index].rust_callable_name = strdup(name ? name : "");
             plan->declarations[native_index].c_link_symbol = strdup(symbol ? symbol : "");
-            /* Package-local C forwarding also materializes header-only inline
-             * declarations. Preserve the external backing symbol and source;
-             * only the generated callable entry receives the package namespace. */
-            bool forward = options->emit_source_bundle && options->package_native_namespace &&
+            /* C forwarding materializes header-only inline package and native
+             * namespace methods. Preserve the backing symbol and source;
+             * only the generated callable entry receives a private name. */
+            bool forward = ((options->emit_source_bundle && options->package_native_namespace) ||
+                native_bool(function, "rust_native_namespace_callable")) &&
                 !native_bool(function, "has_body") && !native_bool(function, "is_variadic");
             json_object *forward_params = native_record_child(function, "params");
             json_object *forward_result = native_record_child(function, "return_type");

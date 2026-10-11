@@ -212,9 +212,17 @@ static bool native_prepare_records(json_object *model)
         if (!type) goto fail;
         json_object_object_add(type, "kind", json_object_new_string("struct"));
         json_object_object_add(type, "name", json_object_new_string(native_string(structure, "name")));
-        bool supported = native_record_is_supported(model, type);
+        json_object *fields = native_record_child(structure, "fields");
+        const char *mode = native_string(structure, "mem_mode");
+        bool empty_namespace = fields && !json_object_array_length(fields) &&
+            (!mode || !strcmp(mode, "val")) && !native_bool(structure, "is_packed") &&
+            !native_bool(structure, "is_serializable") && !native_bool(structure, "rust_serializable") &&
+            !native_bool(structure, "has_user_copy_method");
+        bool supported = empty_namespace || native_record_is_supported(model, type);
         if (supported) json_object_object_add(structure, "rust_native_static_namespace", json_object_new_boolean(true));
-        bool registered = !supported || native_record_register(model, type, records);
+        /* Empty static owners have no native value transport to register.
+         * Their methods can still call ordinary native package adapters. */
+        bool registered = empty_namespace || !supported || native_record_register(model, type, records);
         json_object_put(type);
         if (!registered) goto fail;
     }

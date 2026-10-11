@@ -69,6 +69,8 @@ static bool native_handle_prepare_methods(json_object *model, json_object *handl
         json_object_object_add(function, "name", json_object_new_string(name));
         json_object_object_add(function, "is_native", json_object_new_boolean(true));
         json_object_object_add(function, "has_body", json_object_new_boolean(false));
+        if (native_bool(handle, "rust_native_static_namespace"))
+            json_object_object_add(function, "rust_native_namespace_callable", json_object_new_boolean(true));
         if (native_bool(method, "rust_native_serial_end"))
             json_object_object_add(function, "rust_native_serial_end", json_object_new_boolean(true));
         if (native_bool(method, "rust_native_serial_child"))

@@ -683,6 +683,7 @@ static bool rust_validate_structs(json_object *model)
 
         if ((json_boolean_property(structure, "is_native") &&
              !json_boolean_property(structure, "rust_native_value_record") &&
+             !json_boolean_property(structure, "rust_native_static_namespace") &&
              !json_boolean_property(structure, "rust_native_reference_handle")) ||
             json_boolean_property(structure, "is_packed") ||
             json_boolean_property(structure, "is_serializable") ||

@@ -1,0 +1,41 @@
+[
+  {
+    "case": "static_text",
+    "target": "c",
+    "compile_exit": 0,
+    "diagnostic": "\u001b[1mCompiling\u001b[0m /tmp/sindarin-empty-namespace-audit/static_text.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation... \u001b[1;36mdone\u001b[0m\n  Linking... \u001b[1;36mdone\u001b[0m\n\u001b[1;36mDone\u001b[0m: /tmp/sindarin-empty-namespace-audit/static_text-c (68.9 KB)\n",
+    "exit": 0,
+    "stdout_hex": "6e616d6573706163650a300a",
+    "stderr_hex": ""
+  },
+  {
+    "case": "static_text",
+    "target": "rust",
+    "compile_exit": 1,
+    "diagnostic": "\u001b[1mCompiling\u001b[0m /tmp/sindarin-empty-namespace-audit/static_text.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation...Error: Rust target currently supports only plain value struct 'Empty'\n \u001b[1;31mfailed\u001b[0m\n\n"
+  },
+  {
+    "case": "literal",
+    "target": "c",
+    "compile_exit": 1,
+    "diagnostic": "\u001b[1mCompiling\u001b[0m /tmp/sindarin-empty-namespace-audit/literal.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking...\n  \u001b[1;31merror\u001b[0m: Native struct 'Empty' can only be used in native function context. Declare the function with 'native fn':\n    native fn example(): void =>\n        var x: Empty = Empty { ... }\n    \u001b[1;34m-->\u001b[0m /tmp/sindarin-empty-namespace-audit/literal.sn:5:1\n          var value: Empty = Empty {}\n        \u001b[1;31m^^^^^\u001b[0m\n\n  Type checking \u001b[1;31mfailed\u001b[0m\n\n\u001b[1;31mCompilation failed\u001b[0m: 1 error\n"
+  },
+  {
+    "case": "literal",
+    "target": "rust",
+    "compile_exit": 1,
+    "diagnostic": "\u001b[1mCompiling\u001b[0m /tmp/sindarin-empty-namespace-audit/literal.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking...\n  \u001b[1;31merror\u001b[0m: Native struct 'Empty' can only be used in native function context. Declare the function with 'native fn':\n    native fn example(): void =>\n        var x: Empty = Empty { ... }\n    \u001b[1;34m-->\u001b[0m /tmp/sindarin-empty-namespace-audit/literal.sn:5:1\n          var value: Empty = Empty {}\n        \u001b[1;31m^^^^^\u001b[0m\n\n  Type checking \u001b[1;31mfailed\u001b[0m\n\n\u001b[1;31mCompilation failed\u001b[0m: 1 error\n"
+  },
+  {
+    "case": "static_native",
+    "target": "c",
+    "compile_exit": 1,
+    "diagnostic": "\u001b[1mCompiling\u001b[0m /tmp/sindarin-empty-namespace-audit/static_native.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation... \u001b[1;36mdone\u001b[0m\n  Linking...\nIn file included from .sn/build/static_native_202479/main.c:1:\n.sn/build/static_native_202479/sn_types.h:11:10: fatal error: ops.h: No such file or directory\n   11 | #include \"ops.h\"\n      |          ^~~~~~~\ncompilation terminated.\nError: failed to compile main.c\n \u001b[1;31mfailed\u001b[0m\n\n\u001b[1;31mCompilation failed\u001b[0m\n"
+  },
+  {
+    "case": "static_native",
+    "target": "rust",
+    "compile_exit": 1,
+    "diagnostic": "\u001b[1mCompiling\u001b[0m /tmp/sindarin-empty-namespace-audit/static_native.sn...\n  Parsing... \u001b[1;36mdone\u001b[0m\n  Type checking... \u001b[1;36mdone\u001b[0m\n  Code generation...Error: Rust target does not support native C source/include pragmas yet\n \u001b[1;31mfailed\u001b[0m\n\n"
+  }
+]

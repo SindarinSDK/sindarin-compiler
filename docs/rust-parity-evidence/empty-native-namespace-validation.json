@@ -1,0 +1,20 @@
+{
+  "counts": {
+    "c": 3242,
+    "rust": 1097
+  },
+  "namespace_mode_cases": 27,
+  "namespace_compilations": 54,
+  "normal_and_strict_passed": true,
+  "unchanged_SDK_Crypto_OS_checks": 36,
+  "native_value_record_mode_cases": 45,
+  "native_reference_record_mode_cases": 36,
+  "ci_helper_tests": 22,
+  "expected_complete_CI_groups": 26,
+  "expected_complete_CI_gates": 298,
+  "original_sources_oracles_snapshots_changed": false,
+  "complete_goal": false,
+  "hosted_acceptance": "Pending its own complete CI after publication",
+  "scope": "Native static owner declarations and C method forwarding; no new empty-record wire transport; complete SDK and wider ABI contracts remain required",
+  "existing_SDK_facade_import_controls": 3
+}

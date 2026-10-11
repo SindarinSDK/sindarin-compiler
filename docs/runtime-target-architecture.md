@@ -24,8 +24,10 @@ C/Rust Sindarin bodies use canonical byte storage. The unchanged SDK Bytes
 facade links to its original C decoder as independent archives. BinaryFile's
 unchanged facade now also consumes canonical C record storage and file operations,
 including live readInto buffer mutation and owned byte results surviving file
-cleanup. Its independent module is SDK-CI accepted; compiler artifact/adapter
-acceptance is pending. Crypto/network and complete SDK packaging still require
+cleanup. Its independent module and compiler adapters have complete hosted
+acceptance. Empty native static namespaces now support C-backed SDK method
+consumption locally, including the original Crypto/OS callers. Broader
+Crypto/network artifacts and complete SDK packaging still require
 migration.
 Package dependency lifecycle graphs, wider
 managed-body exports and complete record/interface contracts remain pending.

@@ -1377,6 +1377,13 @@
       "linux_only": false
     },
     {
+      "id": "native-static-namespaces",
+      "name": "empty native static namespaces: methods, byte ownership and C sizeof across modes",
+      "command": ["{python}", "scripts/check_native_static_namespaces.py"],
+      "group": "native",
+      "linux_only": false
+    },
+    {
       "id": "runtime-114",
       "name": "shared package lifecycle: concurrency and cleanup sanitizers",
       "command": [

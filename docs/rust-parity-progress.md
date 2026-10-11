@@ -7,6 +7,31 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Empty native static namespaces: local validation, 2026-10-11
+
+Rust now retains empty native static method owners such as Crypto and OS without
+requiring a foreign record value contract. Ordinary static bodies and native
+methods keep their original implementation; zero-field language sizeof remains
+the C result, zero. Empty record inputs/results still require wider ABI work.
+The existing declaration forwarding machinery now also materializes native
+namespace methods from C headers, preserving header-only inline definitions.
+
+Three focused controls cover 27 case/mode combinations and 54 C/Rust compilations
+for ordinary/native methods, exact sizeof and independent owned byte results.
+All pass normally and under strict address/undefined/leak checking. The unchanged
+SDK Crypto and OS callers pass 36 C/Rust checks across all nine modes. Existing
+native value/reference record gates pass 45/36 independent mode cases. Complete
+C/Rust suites pass 3,242/1,097 checks and CI-helper tests pass 22. A dedicated
+Linux/macOS/Windows gate brings the coverage inventory to 298 gates in 26 groups.
+Original SDK implementations, public modules, callers and oracles are unchanged.
+Hosted acceptance requires this feature's own complete CI after publication.
+The existing Bytes/TextFile/BinaryFile artifact-import controls also pass.
+Evidence: [namespace validation](rust-parity-evidence/empty-native-namespace-validation.json).
+
+The SDK artifact builder remains an unpublished prototype. Wider nested array,
+record/interface and complete SDK contracts, dependency lifecycle graphs and
+final original-corpus platform/mode acceptance remain required.
+
 ## Method qualifiers and independent API modules: local validation, 2026-10-11
 
 Broader SDK artifact construction exposed two compiler defects. The struct type
