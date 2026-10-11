@@ -7,6 +7,29 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Windows response-file lifecycle and verifier follow-up, 2026-10-11
+
+Correction `1dc9ce50` resolved the Windows SDK linker overflow: all 288 original
+SDK source/sealed mode cases passed on Windows, Linux and macOS. Its complete
+[CI 38118718703](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38118718703)
+still failed Windows verification. The link-contract capture saw response-file
+references instead of effective options; successful default builds left those
+new files behind; the archive-graph test inspected files without requesting
+retention; and a Unicode fixture used Windows' cp1252 default writer.
+
+The combined follow-up expands nested GNU response files in the capture recorder
+while preserving all prefix/library ordering checks, removes owned response files
+after successful default builds, requires their retention under `--keep-generated`,
+requests retention in the graph inspection test, and writes test source as UTF-8.
+The capture test deliberately passes CFLAGS through a response file on every
+platform so Linux also verifies the new recording path. All 12 toolchain/lifecycle
+checks, the complete 1,097-check Rust suite, all 21 artifact tests and CI helpers
+pass locally, together with all 49 package import tests.
+[Follow-up evidence](rust-parity-evidence/windows-response-followup-validation.json)
+records the source hashes and validation. Feature publication remains
+frozen until corrected integrated CI is fully green; all local feature work stays
+separate from this correction.
+
 ## Windows SDK archive linking: required CI correction, 2026-10-11
 
 `68cbbbcf` failed [CI 38115775862](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38115775862)
@@ -29,8 +52,9 @@ The initial concurrent suite startup deleted the C scratch directory; its isolat
 TMPDIR rerun passed. GCC and sanitizer response tests passed locally; local clang
 is unavailable, so its actual driver acceptance remains for hosted CI.
 [Correction evidence](rust-parity-evidence/windows-linker-correction-validation.json)
-retains the checks and source hashes. Hosted correction
-acceptance is unproven until its own required Windows/Linux/macOS CI passes.
+retains the checks and source hashes. Published correction `1dc9ce50` is pending
+[CI 38118718703](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38118718703).
+Hosted acceptance remains unproven until all required Windows/Linux/macOS checks pass.
 The Rust/Go provider feature remains unpublished in the development worktree.
 
 ## Typed canonical arrays and reusable SDK artifacts: local validation, 2026-10-11

@@ -1,5 +1,5 @@
 {
-  "status": "local correction; hosted acceptance pending",
+  "status": "published correction; hosted acceptance pending",
   "failed_revision": "68cbbbcfd54ded8b438f4a80b81b7c5a99e31cc6",
   "failed_ci": 38115775862,
   "cause": "Windows batch proxy expanded static 18-archive SDK graph plus rustc arguments beyond cmd.exe command limit",
@@ -27,5 +27,11 @@
     "tests/package/native_imports.py": "52867782f66b45557f8a31c853279fd914cbbc87b83062c83053c618bd85fa5a",
     "tests/package/native_artifacts.py": "cd78590f705e016e220047060c55079d78a8baf61436859e6f60795fdb32c2cc",
     "CMakeLists.txt": "7d21b1c28f9d204bb7a83192148f388ef58b9b0d6c0aa1e1fff0dda6ebdc7080"
+  },
+  "published_revision": "1dc9ce50e3f3b755da3d8abade52b1c47142611b",
+  "ci": {
+    "run": 38118718703,
+    "status": "in_progress",
+    "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38118718703"
   }
 }

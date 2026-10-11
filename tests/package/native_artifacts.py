@@ -35,7 +35,7 @@ class NativeArtifactTests(unittest.TestCase):
     def write(self, path, text):
         target = self.root / path
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(text)
+        target.write_text(text, encoding='utf-8')
 
     def manifest(self, languages):
         text = 'name: native-package\nversion: 1.0.0\nruntime: RS\nnative:\n  abi: 1.0\n'

@@ -14,6 +14,7 @@ import os
 import platform
 import signal
 import shutil
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -1006,27 +1007,29 @@ class TestRunner:
                     os.makedirs(wrapper_dir, exist_ok=True)
                     wrapper = os.path.join(wrapper_dir, 'clang capture.cmd' if is_windows() else 'cc capture')
                     cc_capture = os.path.join(temp_dir, 'native_cc_capture.log')
+                    capture_script = os.path.join(wrapper_dir, 'capture.py')
+                    Path(capture_script).write_text(
+                        'import os, pathlib, shlex, subprocess, sys\n'
+                        'def effective_arguments(arguments, depth=0):\n'
+                        '    if depth > 16: raise ValueError("recursive compiler response files")\n'
+                        '    for arg in arguments:\n'
+                        '        if arg.startswith("@") and pathlib.Path(arg[1:]).is_file():\n'
+                        '            text = pathlib.Path(arg[1:]).read_text(encoding="utf-8")\n'
+                        '            yield from effective_arguments(shlex.split(text, posix=True), depth+1)\n'
+                        '        else: yield arg\n'
+                        'with open(os.environ["SN_NATIVE_CC_CAPTURE"], "a", encoding="utf-8") as f:\n'
+                        '    f.write("INVOCATION\\n")\n'
+                        '    for arg in effective_arguments(sys.argv[1:]): f.write("ARG " + arg + "\\n")\n'
+                        'sys.exit(subprocess.call([os.environ["SN_NATIVE_REAL_CC"], *sys.argv[1:]]))\n',
+                        encoding='utf-8')
                     if is_windows():
-                        capture_script = os.path.join(wrapper_dir, 'capture.py')
-                        Path(capture_script).write_text(
-                            'import os, subprocess, sys\n'
-                            'with open(os.environ["SN_NATIVE_CC_CAPTURE"], "a", encoding="utf-8") as f:\n'
-                            '    f.write("INVOCATION\\n")\n'
-                            '    for arg in sys.argv[1:]: f.write("ARG " + arg + "\\n")\n'
-                            'sys.exit(subprocess.call([os.environ["SN_NATIVE_REAL_CC"], *sys.argv[1:]]))\n',
-                            encoding='utf-8')
                         Path(wrapper).write_text(
                             f'@echo off\n"{sys.executable}" "{capture_script}" %*\n'
                             'exit /b %errorlevel%\n', encoding='utf-8')
                     else:
                         Path(wrapper).write_text(
-                            '#!/bin/sh\n'
-                            '{\n'
-                            '  printf "%s\\n" INVOCATION\n'
-                            '  for arg do printf "ARG %s\\n" "$arg"; done\n'
-                            '} >> "$SN_NATIVE_CC_CAPTURE"\n'
-                            'exec "$SN_NATIVE_REAL_CC" "$@"\n',
-                            encoding='utf-8')
+                            '#!/bin/sh\nexec '+shlex.quote(sys.executable)+' '+
+                            shlex.quote(capture_script)+' "$@"\n', encoding='utf-8')
                         os.chmod(wrapper, 0o700)
                     real_cc = shutil.which(env.get('SN_CC') or ('clang' if is_windows() else 'cc'))
                     if not real_cc:
@@ -1037,7 +1040,10 @@ class TestRunner:
                         link_env['SN_NATIVE_REAL_CC'] = real_cc
                         link_env['SN_NATIVE_CC_CAPTURE'] = cc_capture
                         link_env['SN_RELEASE_CFLAGS'] = '-O1 -DSN_MODE_LINK_MARKER'
-                        link_env['SN_CFLAGS'] = env.get('SN_CFLAGS', '') + ' -DSN_CFLAGS_LINK_MARKER'
+                        cflags_response = os.path.join(temp_dir, 'configured C flags.rsp')
+                        Path(cflags_response).write_text(env.get('SN_CFLAGS', '') +
+                            ' -DSN_CFLAGS_LINK_MARKER\n', encoding='utf-8')
+                        link_env['SN_CFLAGS'] = '@"'+cflags_response+'"'
                         # Search-path markers are accepted by GNU, Apple and
                         # LLVM-MinGW drivers; assertions still pin exact forwarding/order.
                         ldlibs_marker = '-L' + os.path.join(temp_dir, 'ldlibs-marker')
@@ -1371,6 +1377,10 @@ class TestRunner:
                                                   else 'sn_rust_linker_proxy.sh')
                                     if not (build_dir / proxy_name).is_file():
                                         details.append(f'{label}: native linker proxy was not retained')
+                                    if is_windows():
+                                        responses = [build_dir / (proxy_name+suffix) for suffix in ('.prefix.rsp','.suffix.rsp')]
+                                        if not all(path.is_file() for path in responses):
+                                            details.append(f'{label}: native linker response files were not retained')
                                     if not list(build_dir.glob('sn_native_bridge_*.c')):
                                         details.append(f'{label}: native C body source was not retained')
                             else:

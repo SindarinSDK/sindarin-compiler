@@ -1576,7 +1576,8 @@ class NativeImports(unittest.TestCase):
                 (package/'sn.yaml').write_text(manifest.replace('  abi: 1.0\n','  abi: 1.0\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
                 for source in (package/'src').glob('*.c'):source.unlink()
             for target in ('c','rust'):
-                with self.subTest(target=target,archive=archive):self.execute(target,b'153\n')
+                flags=('--keep-generated',) if target=='rust' else ()
+                with self.subTest(target=target,archive=archive):self.execute(target,b'153\n',flags)
             if os.name=='nt':
                 proxies=list((self.root/'.sn/build/rust').glob('*/sn_rust_linker_proxy.cmd'))
                 self.assertTrue(proxies)

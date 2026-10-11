@@ -396,6 +396,18 @@ bool rust_native_build(const CompilerOptions *options, const char *build_dir,
         fprintf(stderr, "Error: rustc failed to link generated Rust and native C objects\n");
         return false;
     }
-    if (!options->keep_generated) remove(proxy_path);
+    if (!options->keep_generated)
+    {
+        remove(proxy_path);
+#ifdef _WIN32
+        char response_path[PATH_MAX];
+        const char *suffixes[] = {".prefix.rsp", ".suffix.rsp"};
+        for (size_t i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); i++)
+        {
+            int length = snprintf(response_path, sizeof(response_path), "%s%s", proxy_path, suffixes[i]);
+            if (length >= 0 && (size_t)length < sizeof(response_path)) remove(response_path);
+        }
+#endif
+    }
     return true;
 }

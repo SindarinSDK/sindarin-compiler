@@ -1,0 +1,28 @@
+{
+  "status": "local combined follow-up; hosted acceptance pending",
+  "baseline": "1dc9ce50e3f3b755da3d8abade52b1c47142611b",
+  "failed_ci": 38118718703,
+  "hosted_sdk_evidence": "288 original SDK source/sealed C/Rust mode cases passed on all three hosts in the failed run; failure was in verification/lifecycle checks",
+  "fixes": [
+    "capture effective nested GNU response options without weakening order assertions",
+    "remove compiler-owned response files after successful default builds",
+    "assert response files retained under keep-generated",
+    "request retention before inspecting archive graph artifacts",
+    "write Unicode test C source as UTF-8"
+  ],
+  "local": {
+    "rust_suite": 1097,
+    "toolchain_lifecycle": 12,
+    "native_artifacts": 21,
+    "native_imports": 49,
+    "ci_helpers": 22,
+    "formatting": true
+  },
+  "source_sha256": {
+    "src/target/rust/rust_native_build.c": "d6033083af47fc6f88c399aa0df59b32927729cd16ae96e4513919a0152fb72d",
+    "scripts/run_rust_tests.py": "6dad6da9036217bbbd352829a73e0928719f756e19eb752309b38af8f4706c3b",
+    "tests/package/native_imports.py": "ea3e73dff8a1c62ee4e1d2c354b14fae3a1bd6298c3f1c8c0453ca69217abf4e",
+    "tests/package/native_artifacts.py": "23309180d9f690bec9efb2406d1f51e5545c668b4e3ceb3997d749886ba74d07"
+  },
+  "scope": "CI correction only; local Rust/Go providers, SDK input coverage, canonical Time/Date and static/instance naming remain separate and unpublished"
+}

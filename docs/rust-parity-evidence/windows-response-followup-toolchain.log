@@ -1,0 +1,23 @@
+Compiler: /home/gavin/code/sindarin/sindarin-windows-linker-correction/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Toolchain and Artifact Lifecycle Tests
+============================================================
+  subprocess_utf8_boundary                      PASS  (26ms)
+  rustc_invocation_records                      PASS  (31ms)
+  pure_rust_has_no_c_dependency                 PASS  (10ms)
+  native_emit_requires_bundle                   PASS  (2ms)
+  native_c_link_driver_contract                 PASS  (499ms)
+  native_debug_sanitizer_link                   PASS  (307ms)
+  native_compile_and_link_failures              PASS  (363ms)
+  missing_rustc                                 PASS  (3ms)
+  failing_rustc                                 PASS  (2ms)
+  failing_rustc_build                           PASS  (18ms)
+  rust_generated_artifact_lifecycle             PASS  (14ms)
+  rust_native_artifact_lifecycle                PASS  (716ms)
+
+------------------------------------------------------------
+Results: 12 passed, 0 failed  (1.99s)
+
+All tests passed!  (total: 1.99s)
