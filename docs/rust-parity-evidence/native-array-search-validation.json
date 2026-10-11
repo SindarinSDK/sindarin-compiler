@@ -1,0 +1,38 @@
+{
+  "status": "integrated local validation complete; hosted verification pending",
+  "base_revision": "cf6f54f89a994ab71920c609a182edde20b57486",
+  "production_C_sources_unchanged": true,
+  "normal_C_Rust_mode_pairs": 9,
+  "sanitizer_C_Rust_mode_pairs": 9,
+  "Rust_checks": 1097,
+  "Rust_initial_setup_failure": "fake rustc fixture omitted from isolated bin; all other 1085 checks passed; fixture restored and all 12 toolchain checks rerun successfully",
+  "ci_helpers": 22,
+  "coverage_gates": 317,
+  "coverage_groups": 26,
+  "controls": [
+    "string equality by bytes rather than address",
+    "nil versus empty elements",
+    "first duplicate index and missing value",
+    "C string terminator semantics",
+    "char and boolean slots",
+    "receiver and search expression evaluation order"
+  ],
+  "source_sha256": {
+    "templates/rust/partials/expr/array_call_body.hbs": "4a2570ffb9d19f82b23876f09660c2b32e721a9519fbe9fddce940c11b792e41",
+    "templates/rust/partials/native_handle_array_support.hbs": "947c0d6e8dd00bdf02483ba268af42d4c03cb4d4cd79f62ba38c892125e8934e",
+    "scripts/check_native_array_search.py": "128098ae9794220093d8252c1f4003bb6001a273e9db2702f51b14848dc0dbac"
+  },
+  "remaining": [
+    "nested array and wider record search contracts",
+    "Random compiler hosted acceptance",
+    "whole SDK and final corpus/platform acceptance"
+  ],
+  "integrated_base": "16353208280f303b6e8a0791aa4aebdfd8a7b50a",
+  "integrated_Rust_checks": 1097,
+  "integrated_mode_pairs_normal": 9,
+  "integrated_mode_pairs_sanitized": 9,
+  "integrated_ci_helpers": 22,
+  "integrated_coverage_gates": 333,
+  "compiler_sha256": "3fa6fb9ca7c8f27dd0507de329293ba9a3dad59eb33adbe1d29d4e25e43b342c",
+  "independent_of_pending_opaque_feature": true
+}

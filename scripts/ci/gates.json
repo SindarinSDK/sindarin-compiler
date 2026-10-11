@@ -1571,6 +1571,32 @@
       },
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "native-array-search",
+      "name": "canonical string/char array contains and indexOf preserve C equality and order",
+      "command": [
+        "{python}",
+        "scripts/check_native_array_search.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "native-array-search-sanitizers",
+      "name": "canonical string/char array search lifetime sanitizers",
+      "command": [
+        "{python}",
+        "scripts/check_native_array_search.py"
+      ],
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

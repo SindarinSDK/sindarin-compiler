@@ -7,6 +7,25 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Canonical native array search: local validation, 2026-10-11
+
+The unchanged SDK Random caller exposed contains() falling through a Rust slice
+view for canonical C string slots. That panicked because C pointers are not Rust
+SnString values. Search now reads slots through their native codec; string slots
+compare C string bytes without constructing or retaining temporary values, char
+slots compare their physical byte, and indexOf returns the first matching slot.
+Normal and strict sanitizer controls pass all nine C/Rust mode pairs, covering
+nil/empty strings, duplicate and missing values, C string terminators, chars,
+booleans, and receiver/RHS evaluation order. All 1,097 Rust checks are accounted
+for: the isolated checkout initially lacked fake rustc; the other 1,085 checks
+passed and all 12 toolchain checks passed after restoring that fixture.
+The integrated main compiler also passes all 1,097 Rust checks, nine normal
+and nine sanitizer pairs, and 22 CI helpers with 333 gates in 26 groups.
+C production sources remain
+identical to the accepted base. Nested array/record search, wider package
+contracts, whole SDK and final corpus/platform acceptance remain required.
+
+
 ## Locally held SDK integration and UUID ownership repair, 2026-10-11
 
 Compiler worktree `development/opaque-resources-integrated` commits `947cd3e6`
@@ -17,7 +36,7 @@ and 108 sanitizer cases, native calendar passes 38 plus its actual-runtime
 sanitizer probe, and DTLS passes 19 plus its teardown sanitizer probe. Complete
 C/Rust suites pass 3,242/1,097; all 50 imports, 22 artifact tests and 22 CI helpers
 pass. Eight opaque/method tests pass normally and with strict sanitizers.
-This is held locally until the Stdio dependency finishes hosted validation.
+Published compiler batch `16353208` awaits CI 38140919031.
 
 The existing SDK UUID namespace constructors were also proven to overwrite a
 new allocation's credit with zero: a C control reports four zero credits and
@@ -147,8 +166,8 @@ Method repair `3a8d675a` passed all 34 hosted jobs, 26 groups and 304 gates in
 [Retained acceptance](rust-parity-evidence/static-instance-methods-ci-green.json)
 records the platform compiler hashes. Provider batch `2c0f1c08` also passed all 34 jobs in
 [CI 38128023413](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38128023413),
-with 26 groups and 305 gates. The selector correction passed all 34 jobs in CI 38134321189. Opaque/Time-Date
-work remains locally held until the two outstanding feature runs finish. Wider
+with 26 groups and 305 gates. The selector correction passed all 34 jobs in CI 38134321189. Opaque/Time-Date work is published as `16353208` and awaits
+[CI 38140919031](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38140919031). Wider
 record/interface/generic contracts, dependency lifecycle graphs, whole SDK and
 final original-corpus/platform acceptance remain required.
 

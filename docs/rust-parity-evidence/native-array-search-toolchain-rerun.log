@@ -1,0 +1,23 @@
+Compiler: /home/gavin/code/sindarin/sindarin-native-array-string-ops/bin/sn
+Platform: Linux
+Parallel: 20 workers
+
+Rust Toolchain and Artifact Lifecycle Tests
+============================================================
+  subprocess_utf8_boundary                      PASS  (25ms)
+  rustc_invocation_records                      PASS  (28ms)
+  pure_rust_has_no_c_dependency                 PASS  (7ms)
+  native_emit_requires_bundle                   PASS  (4ms)
+  native_c_link_driver_contract                 PASS  (476ms)
+  native_debug_sanitizer_link                   PASS  (236ms)
+  native_compile_and_link_failures              PASS  (389ms)
+  missing_rustc                                 PASS  (3ms)
+  failing_rustc                                 PASS  (3ms)
+  failing_rustc_build                           PASS  (18ms)
+  rust_generated_artifact_lifecycle             PASS  (17ms)
+  rust_native_artifact_lifecycle                PASS  (730ms)
+
+------------------------------------------------------------
+Results: 12 passed, 0 failed  (1.94s)
+
+All tests passed!  (total: 1.94s)

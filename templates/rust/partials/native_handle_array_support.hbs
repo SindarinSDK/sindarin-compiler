@@ -7,6 +7,7 @@ unsafe trait {{rust_ident trait}}: Clone + PartialEq {
     fn is_value_layout() -> bool { true }
     fn is_string_layout() -> bool { false }
     unsafe fn read_slot(pointer: *const std::ffi::c_void) -> Self { (&*pointer.cast::<Self>()).clone() }
+    unsafe fn slot_matches(pointer: *const std::ffi::c_void, value: &Self) -> bool { &*pointer.cast::<Self>() == value }
     unsafe fn take_slot(pointer: *const std::ffi::c_void) -> Self { pointer.cast::<Self>().read() }
     fn give_to_c<F: FnOnce(*const std::ffi::c_void)>(self, write: F) { let value = std::mem::ManuallyDrop::new(self); write((&*value as *const Self).cast()); }
 }
@@ -24,6 +25,7 @@ unsafe impl {{rust_ident trait}} for char {
     fn is_value_layout() -> bool { false }
     unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(8), 1); {{rust_ident primitive_new}}(8, capacity) }
     unsafe fn read_slot(pointer: *const std::ffi::c_void) -> Self { (*pointer.cast::<u8>()) as char }
+    unsafe fn slot_matches(pointer: *const std::ffi::c_void, value: &Self) -> bool { *pointer.cast::<u8>() == *value as u32 as u8 }
     unsafe fn take_slot(pointer: *const std::ffi::c_void) -> Self { Self::read_slot(pointer) }
     fn give_to_c<F: FnOnce(*const std::ffi::c_void)>(self, write: F) { let wire = self as u32 as u8; write((&wire as *const u8).cast()); }
 }
@@ -33,6 +35,12 @@ unsafe impl {{rust_ident trait}} for SnString {
     fn is_string_layout() -> bool { true }
     unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { assert_eq!({{rust_ident primitive_width}}(9), std::mem::size_of::<*mut std::ffi::c_char>()); {{rust_ident primitive_new}}(9, capacity) }
     unsafe fn read_slot(pointer: *const std::ffi::c_void) -> Self { let raw = *pointer.cast::<*mut std::ffi::c_char>(); if raw.is_null() { SnString::{{#if @root.rust_nullable_strings}}nil{{else}}new{{/if}}() } else { SnString::from_slice(std::ffi::CStr::from_ptr(raw).to_bytes()) } }
+    unsafe fn slot_matches(pointer: *const std::ffi::c_void, value: &Self) -> bool {
+        let raw = *pointer.cast::<*const std::ffi::c_char>();
+        if raw.is_null() { return {{#if @root.rust_nullable_strings}}value.is_nil(){{else}}false{{/if}}; }
+        {{#if @root.rust_nullable_strings}}if value.is_nil() { return false; }{{/if}}
+        std::ffi::CStr::from_ptr(raw).to_bytes() == value.as_bytes().split(|byte| *byte == 0).next().unwrap_or(&[])
+    }
     unsafe fn take_slot(pointer: *const std::ffi::c_void) -> Self { let result = Self::read_slot(pointer); {{rust_ident string_free}}(pointer as *mut std::ffi::c_void); result }
     fn give_to_c<F: FnOnce(*const std::ffi::c_void)>(self, write: F) {
         let mut bytes = self.as_bytes().to_vec(); bytes.push(0);
@@ -53,6 +61,7 @@ unsafe impl<T: {{rust_ident trait}}> {{rust_ident trait}} for {{rust_ident type}
     fn is_value_layout() -> bool { false }
     unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { {{rust_ident nested_new}}(capacity) }
     unsafe fn read_slot(slot: *const std::ffi::c_void) -> Self { Self::adopt({{rust_ident copy}}(*slot.cast::<*mut std::ffi::c_void>())) }
+    unsafe fn slot_matches(slot: *const std::ffi::c_void, value: &Self) -> bool { *slot.cast::<*mut std::ffi::c_void>() == value.pointer }
     unsafe fn take_slot(slot: *const std::ffi::c_void) -> Self { Self::adopt(*slot.cast::<*mut std::ffi::c_void>()) }
     fn give_to_c<F: FnOnce(*const std::ffi::c_void)>(self, write: F) { let pointer = self.into_raw(); write((&pointer as *const *mut std::ffi::c_void).cast()); }
 }
@@ -153,6 +162,11 @@ impl<T: {{rust_ident trait}}> {{rust_ident type}}<T> {
     // header throughout iteration and follows the C element lifetime contract.
     unsafe fn read_iteration_value(&self, index: usize) -> T { T::read_slot({{rust_ident data}}(self.pointer).cast::<u8>().add(index * {{rust_ident width}}(self.pointer)).cast()) }
     fn set_value(&mut self, index: usize, value: T) { assert!(index < self.len(), "native array index"); T::give_to_c(value, |element| unsafe { {{rust_ident set}}(self.pointer, index as i64, element, T::is_string_layout()); }); }
+    fn position_native(&self, value: &T) -> Option<usize> {
+        let width = unsafe { {{rust_ident width}}(self.pointer) };
+        let data = unsafe { {{rust_ident data}}(self.pointer) }.cast::<u8>();
+        (0..self.len()).find(|index| unsafe { T::slot_matches(data.add(index * width).cast(), value) })
+    }
     fn to_values(&self) -> Vec<T> { (0..self.len()).map(|index| self.read_value(index)).collect() }
     fn remove(&mut self, index: usize) { unsafe { {{rust_ident remove}}(self.pointer, index as i64); } }
     fn clear(&mut self) { assert!(!self.is_nil(), "cannot clear a nil C array"); unsafe { {{rust_ident clear}}(self.pointer); } }
