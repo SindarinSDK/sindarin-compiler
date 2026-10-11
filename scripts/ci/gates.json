@@ -2063,6 +2063,61 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "sdk-json-artifacts",
+      "name": "Canonical SDK Json artifacts aliases, child lifetimes and original C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_json_artifact.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-json-artifacts-sanitizers",
+      "name": "Canonical SDK Json artifacts aliases, child lifetimes and original C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_json_artifact.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "sdk-json-native",
+      "name": "Canonical SDK Json native aliases, child lifetimes and original C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "json"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-json-native-sanitizers",
+      "name": "Canonical SDK Json native aliases, child lifetimes and original C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "json",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

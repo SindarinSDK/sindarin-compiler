@@ -1,0 +1,40 @@
+{
+  "status": "Local opt-in Json/Env staging validated; unpublished; required compiler correction and SDK hosted acceptance pending",
+  "base": "757d9d0cc449cfd71ea1f63fadd69bded785d2ab",
+  "SDK_local_revision": "a25bc8f",
+  "units": 4,
+  "exports": 71,
+  "normal_mode_cases": 72,
+  "sanitizer_mode_cases": 72,
+  "native_cases": 20,
+  "native_runtime_sanitizer_cases": 1,
+  "ci_helpers": 22,
+  "registered_gates": 381,
+  "registered_groups": 26,
+  "default_module_count": 13,
+  "controls": [
+    "Original Json caller and oracle byte-identical",
+    "All public modules preserved",
+    "Object alias sees child mutation",
+    "Deep explicit copy preserves independent nested mutation",
+    "Child survives parent removal and repeated disposal",
+    "Owned producer result survives automatic cleanup",
+    "Owned string survives producer cleanup",
+    "Sealed consumption removes backing C sources",
+    "Hyphenated json-c library name preserved in generated manifest"
+  ],
+  "logs": {
+    "sindarin-sdk-json-artifact-normal.log": "96cf6c93bbb9e75b21a3b93f4d567c72e1e39926242f7b1cb070ced9dc9b6671",
+    "sindarin-sdk-json-artifact-san.log": "96cf6c93bbb9e75b21a3b93f4d567c72e1e39926242f7b1cb070ced9dc9b6671",
+    "sindarin-sdk-json-dispatch-final.log": "19cd6357b9a1c7c11ff788a94a063d93fc17bbde2b7ad933640d40431def8e96",
+    "sindarin-sdk-json-dispatch-final-san.log": "20ba9114539c1408d25697501bf7cab1b7823dbe42b35bfd6a8c45c2e1b2ff9c",
+    "sindarin-sdk-json-artifact-helpers.log": "5d9cd52e62f1ba8214aaa8b43cfe2191a682f2bbcf50aec299cf2313ffb15230"
+  },
+  "remaining": [
+    "Complete required corrected main CI acceptance",
+    "SDK Json hosted acceptance and exact-revision compiler pin",
+    "Compiler Json artifact hosted acceptance",
+    "Native language/package copy-hook integration",
+    "Whole SDK and final original corpus/platform proof"
+  ]
+}

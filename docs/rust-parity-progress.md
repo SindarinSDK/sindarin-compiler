@@ -134,6 +134,21 @@ full-goal proof remain required. Feature publication remains frozen while the
 integrated correction is pending. Evidence is retained in
 [sdk-process-artifact-local-validation.json](rust-parity-evidence/sdk-process-artifact-local-validation.json).
 
+## Json: canonical native storage and artifacts, local 2026-10-11
+
+SDK Json checkpoint `a25bc8f` preserves all 42 C operation bodies and the public
+module while adding canonical 32-byte storage and atomic credits. Independent
+C/Rust clients verify deep-copy isolation, object/array children surviving parent
+removal/disposal, owned strings, repeated dispose and exact native destruction.
+Twenty native/original cases, the actual-runtime sanitizer probe, 28 legacy SDK
+tests and seven helpers pass. The opt-in Json/Env stage has four C/Sindarin units
+and 71 exports; 72 source/sealed C/Rust cases pass normally and under sanitizers.
+The stager now preserves the full `@link json-c` token. Twenty-two CI helpers pass
+with 381 gates/26 groups. Default staging remains thirteen accepted modules.
+This work is held until correction and SDK hosted acceptance; broader contracts
+and final goal evidence remain required.
+Proof: [sdk-json-artifact-local-validation.json](rust-parity-evidence/sdk-json-artifact-local-validation.json).
+
 ## Current hosted queue, 2026-10-11
 
 Compiler record ownership revision `cbd2fbe9` awaits CI 38153082329; compiler
