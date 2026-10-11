@@ -326,14 +326,17 @@ The stager requires a fresh output outside the SDK checkout. `--modules` selects
 implemented modules; it validates every selected public method instead of
 silently dropping unsupported signatures. Use the generated manifest with
 `--build-native` / `--build-package`; seal `assembly.json` with its hash using
-normal artifact metadata. The durable checker exercises eight original SDK
+normal artifact metadata. The durable checker exercises nine original SDK
 callers/oracles against C/Rust in all nine modes, source and sealed builds after
-C source removal. Public SDK files are checked byte-for-byte. Stdio is built,
-while its interactive fixture is not part of this check. `--quick` selects O0
-and default arithmetic for focused validation.
+C source removal: 324 original cases. Public SDK files are checked byte-for-byte.
+The original Stdio caller is noninteractive and writes four exact stderr OK
+lines. Two separate controls cover all six stdin methods, empty/nonempty input,
+nil writes and an owned line surviving later reads, for another 72 cases and
+396 total. Both stdout and stderr are checked. `--fixtures io/stdio` selects its
+108-case original/input matrix; `--quick` selects O0/default arithmetic.
 
-Remaining SDK modules, broader record/interface/generic contracts, Rust/Go typed
-provider generation and dependency initialization graphs remain required. This
+Remaining SDK modules, broader record/interface/generic contracts, Rust generic
+body guards and dependency initialization graphs remain required. This
 stager is a reusable partial migration and does not establish whole-SDK acceptance.
 
 ## Rust/Go typed native providers

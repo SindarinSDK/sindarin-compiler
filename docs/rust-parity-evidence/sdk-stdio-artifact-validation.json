@@ -1,5 +1,5 @@
 {
-  "status": "local validated; held during SDK required CI correction freeze",
+  "status": "integrated local validation complete; hosted verification pending",
   "accepted_compiler_revision": "2c0f1c087cb887bfeead1e756756358881e6ddee",
   "sdk_revision": "89f3b83ee42e78e84b47d9979b3ec66fa305cbe5",
   "original_mode_cases": 324,
@@ -10,5 +10,14 @@
     "scripts/build_sdk_package.py": "51d1720acd0276e2fb7d8fb1de64e684ba228a2461291418bb976cc9533ce911",
     "tests/package/sdk_stdio_input.sn": "1405c09728c8c4893a0867b77429a61c1bb5842e967a9c1b1642aac05aee7ad3"
   },
-  "scope": "nine original SDK caller/oracle modules with exact stdout/stderr and explicit empty/nonempty stdin; whole SDK migration remains required"
+  "scope": "nine original SDK caller/oracle modules with exact stdout/stderr and explicit empty/nonempty stdin; whole SDK migration remains required",
+  "integration": {
+    "compiler_revision": "cf6f54f89a994ab71920c609a182edde20b57486",
+    "compiler_sha256": "74c34698a7cc06447e9b2461f4e78d45659a8537b27a70960a4db5e1834048bd",
+    "original_stdio_mode_cases": 36,
+    "stdin_mode_cases": 72,
+    "ci_helpers": 22,
+    "coverage_gates": 313,
+    "coverage_groups": 26
+  }
 }

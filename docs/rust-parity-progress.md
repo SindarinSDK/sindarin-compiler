@@ -47,7 +47,8 @@ failed because the new worktree lacked the pinned SDK checkout. That dependency
 is restored and those five pass, establishing all 50 import checks. The complete
 nine-module SDK source/sealed matrix also passes 324 originals and 72 stdin
 controls, for 396 cases. Required compiler wire-client correction CI 38134321189
-is accepted; this batch is ready for its own hosted verification. The two new gates bring
+is accepted. Published batch `cf6f54f8` awaits
+[CI 38136911450](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38136911450). The two new gates bring
 the local inventory to 313 in 26 groups. SDK `bd210cf` has full seven-job hosted
 acceptance; whole SDK migration, wider contracts and final corpus proof remain.
 
@@ -62,9 +63,12 @@ controls pass another 72 cases, for 396 total. Public modules and original stdou
 oracles are unchanged; sealed checks remove every backing C source.
 
 [Local evidence](rust-parity-evidence/sdk-stdio-artifact-validation.json) records
-accepted compiler `2c0f1c08` and SDK `89f3b83`. Publication stays held during the
-required SDK DTLS correction freeze. Whole SDK and final platform acceptance
-remain required.
+accepted compiler `2c0f1c08` and SDK `89f3b83`. The same complete 396-case
+SDK matrix passed the string-array compiler, and integrated main `cf6f54f8`
+passes 36 original Stdio cases plus all 72 stdin controls. CI helpers pass 22
+tests. The required correction is accepted; this independent coverage batch is
+ready for hosted validation and does not depend on the pending string-array
+feature. Whole SDK and final platform acceptance remain required.
 
 
 ## Package static/instance method selection: local validation, 2026-10-11

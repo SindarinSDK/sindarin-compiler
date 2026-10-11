@@ -1,5 +1,5 @@
 {
-  "status": "locally validated on accepted correction; hosted verification pending",
+  "status": "published; full integrated CI pending",
   "baseline": "002c4edce223bbca440b043584414a51be9285b5",
   "fix": "string array-producing calls wrap Vec results using their projected canonical native container instead of the nullable container",
   "local": {
@@ -34,5 +34,10 @@
     "coverage_gates": 313,
     "coverage_groups": 26,
     "format": true
+  },
+  "published_revision": "cf6f54f89a994ab71920c609a182edde20b57486",
+  "ci": {
+    "run": 38136911450,
+    "status": "in_progress"
   }
 }

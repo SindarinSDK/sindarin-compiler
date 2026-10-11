@@ -1,0 +1,41 @@
+test_rejects_artifacts_from_another_revision (test_ci_helpers.BuildBundleTests.test_rejects_artifacts_from_another_revision) ... ok
+test_restores_executables_dependencies_and_checksums (test_ci_helpers.BuildBundleTests.test_restores_executables_dependencies_and_checksums) ... ok
+test_complete_matrix_and_historical_gate_inventory (test_ci_helpers.CoverageTests.test_complete_matrix_and_historical_gate_inventory) ... ok
+test_missing_duplicate_or_failed_gate_fails (test_ci_helpers.CoverageTests.test_missing_duplicate_or_failed_gate_fails) ... ok
+test_missing_group_fails (test_ci_helpers.CoverageTests.test_missing_group_fails) ... ok
+test_mixed_compiler_binaries_fail (test_ci_helpers.CoverageTests.test_mixed_compiler_binaries_fail) ... ok
+test_c_rejection_does_not_count_as_promoted_parity (test_ci_helpers.ParityPromotionTests.test_c_rejection_does_not_count_as_promoted_parity) ... ok
+test_changed_historical_source_or_oracle_is_rejected (test_ci_helpers.ParityPromotionTests.test_changed_historical_source_or_oracle_is_rejected) ... ok
+test_failed_compile_and_stderr_do_not_count_as_parity (test_compound_comparison_oracles.CompoundComparisonOracleTests.test_failed_compile_and_stderr_do_not_count_as_parity) ... ok
+test_missing_case_and_separator_duplicate_are_rejected (test_compound_comparison_oracles.CompoundComparisonOracleTests.test_missing_case_and_separator_duplicate_are_rejected) ... ok
+test_normalized_paths_still_require_unchanged_source (test_compound_comparison_oracles.CompoundComparisonOracleTests.test_normalized_paths_still_require_unchanged_source) ... ok
+test_windows_paths_and_exact_crlf_transport (test_compound_comparison_oracles.CompoundComparisonOracleTests.test_windows_paths_and_exact_crlf_transport) ... ok
+test_windows_streams_are_not_newline_normalized (test_compound_comparison_oracles.CompoundComparisonOracleTests.test_windows_streams_are_not_newline_normalized) ... ok
+test_added_native_fixture_is_rejected_before_execution (test_fixture_inventory.FixtureInventoryTests.test_added_native_fixture_is_rejected_before_execution) ... ok
+test_every_strict_fixture_gate_matches_the_real_catalog (test_fixture_inventory.FixtureInventoryTests.test_every_strict_fixture_gate_matches_the_real_catalog) ... ok
+test_metadata_leak_or_failed_exit_still_fails (test_interface_lifetimes.InterfaceLifetimeStreamTests.test_metadata_leak_or_failed_exit_still_fails) ... ok
+test_unix_stdout_and_rust_stderr (test_interface_lifetimes.InterfaceLifetimeStreamTests.test_unix_stdout_and_rust_stderr) ... ok
+test_windows_crt_stdout_and_rust_stderr (test_interface_lifetimes.InterfaceLifetimeStreamTests.test_windows_crt_stdout_and_rust_stderr) ... ok
+test_wrong_stream_bytes_are_not_normalized (test_interface_lifetimes.InterfaceLifetimeStreamTests.test_wrong_stream_bytes_are_not_normalized) ... ok
+test_connection_resets_are_retried_before_validating_build_inputs (test_unix_dependency_setup.UnixDependencySetupTests.test_connection_resets_are_retried_before_validating_build_inputs) ... ok
+test_installer_failure_is_not_reported_as_success (test_unix_dependency_setup.UnixDependencySetupTests.test_installer_failure_is_not_reported_as_success) ... ok
+test_missing_build_inputs_fail_even_if_installer_returns_success (test_unix_dependency_setup.UnixDependencySetupTests.test_missing_build_inputs_fail_even_if_installer_returns_success) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 4.650s
+
+OK
+Packaged 1 files from old: bundle.tar.gz
+Packaged 2 files from revision: bundle.tar.gz
+Verified 2 build files and compiler 51ccaf15e8ee4db1770b938142f7e19c1b35e44616fae5bd385f3746608dec06
+{
+  "revision": "revision",
+  "groups": 26,
+  "gates": 313,
+  "compilers": {
+    "Linux": "Linux",
+    "Darwin": "Darwin",
+    "Windows": "Windows"
+  },
+  "passed": true
+}
