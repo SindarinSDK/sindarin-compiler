@@ -306,6 +306,19 @@ and wider value/interface/generic contracts remain unfinished.
 
 ## Staging the canonical SDK
 
+Random staging also supports explicit `--modules core/random` when the SDK
+contains its canonical Random C module. This adds two C/Sindarin units with all
+134 declared exports and keeps the public API unchanged. The default selection
+remains eleven modules until the Random SDK revision has hosted acceptance.
+`scripts/check_sdk_random_artifact.py --sdk /path/to/canonical-sdk` verifies
+72 source/sealed C/Rust cases across nine modes using the unchanged original
+caller and a lifetime control. Aliases share seeded state, repeated disposal is
+idempotent, and owned integer/string arrays survive cleanup of their producing
+Random instance and input array. Sealed consumption removes all backing C sources
+and checks every public Sindarin module byte-for-byte. Normal and sanitizer gates
+are registered locally; publication requires a pinned accepted SDK revision.
+
+
 With the canonical Time/Date SDK modules, explicit selection supports
 `--modules time/time` and `--modules time/date`. Date selection includes Time's
 storage contract for its unchanged owned opaque `toTime()` result. Staging keeps

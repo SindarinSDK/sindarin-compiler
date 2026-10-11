@@ -1,0 +1,620 @@
+{
+  "status": "Local validation passed; unpublished; compiler gates await accepted SDK pin",
+  "base": "4211bf0f37b2941faa4534e349aabf46697ba907",
+  "sdk_local_revision": "d829ebeae36ef0a0b684191d2150f2fb964ea509",
+  "normal_cases": 72,
+  "sanitizer_cases": 72,
+  "native_cases": 20,
+  "native_actual_runtime_sanitizer_cases": 1,
+  "unchanged_public_modules": 28,
+  "units": 2,
+  "exports": 134,
+  "controls": [
+    "seeded alias state and determinism",
+    "idempotent disposal",
+    "owned integer and string arrays outlive Random and input array",
+    "unchanged original source and expected output",
+    "sealed consumption without backing C sources"
+  ],
+  "remaining": [
+    "SDK hosted acceptance and compiler exact-revision SDK pin",
+    "integrated compiler hosted Linux macOS Windows acceptance",
+    "whole SDK and final corpus/platform proof"
+  ],
+  "logs": {
+    "sindarin-sdk-random-artifact-matrix.log": "639d2f3008d49bbd5590c4667617feec812fa867e9ae29994c147876580c2f6d",
+    "sindarin-sdk-random-artifact-sanitized.log": "639d2f3008d49bbd5590c4667617feec812fa867e9ae29994c147876580c2f6d",
+    "sindarin-random-dispatch.log": "7eb86791a0dc71c143349bc6e9fb094ff46d0c14967997a8cfd9c0248b9e92e4",
+    "sindarin-random-dispatch-san.log": "1304fd785f2428e96ec603d4685bfaecc3d5f54779a28fe64acf44e6b675523e"
+  },
+  "sanitized_report": {
+    "passed": true,
+    "cases": [
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "source",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "random",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O0",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O1",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "c",
+        "opt": "-O2",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O0",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O1",
+        "mode": "unchecked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "default",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "checked",
+        "passed": true
+      },
+      {
+        "case": "native-lifetime",
+        "artifact": "sealed",
+        "target": "rust",
+        "opt": "-O2",
+        "mode": "unchecked",
+        "passed": true
+      }
+    ],
+    "original_sources": {
+      "tests/core/test_random.sn": "ef21705cdec5cf4105bf1565e0e378acfec8b4dda51dda8daea795d24d85a72f",
+      "tests/core/test_random.expected": "db52e2a6098c2c3b1608eb7c726a64ede0f3e79c592eaf0cbb76eb9788a58286"
+    },
+    "unchanged_public_modules": 28,
+    "units": 2,
+    "exports": 134,
+    "compiler_sha256": "3fa6fb9ca7c8f27dd0507de329293ba9a3dad59eb33adbe1d29d4e25e43b342c"
+  },
+  "final_sanitizer_log_sha256": "639d2f3008d49bbd5590c4667617feec812fa867e9ae29994c147876580c2f6d"
+}

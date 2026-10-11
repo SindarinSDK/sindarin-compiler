@@ -1679,6 +1679,61 @@
       },
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "sdk-random-artifacts",
+      "name": "canonical SDK Random artifacts ownership and unchanged C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_random_artifact.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-random-artifacts-sanitizers",
+      "name": "canonical SDK Random artifacts ownership and unchanged C/Rust callers sanitizers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_random_artifact.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "sdk-random-native",
+      "name": "canonical SDK Random native ownership and unchanged C/Rust callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "random"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-random-native-sanitizers",
+      "name": "canonical SDK Random native ownership and unchanged C/Rust callers sanitizers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "random",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

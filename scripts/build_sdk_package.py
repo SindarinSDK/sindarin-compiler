@@ -15,12 +15,13 @@ from pathlib import Path
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
            'time/time', 'time/date')
-SUPPORTED_MODULES = MODULES
+SUPPORTED_MODULES = MODULES + ('core/random',)
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
     ('time/date', 'Date.toTime'): 'src/time/time.sn::Time',
 }
 RECORDS = {
+    'core/random': ('Random', 'SnSdkRandomRecord', 'sn_sdk_random'),
     'io/textfile': ('TextFile', 'SnSdkTextFileRecord', 'sn_sdk_text_file'),
     'io/binaryfile': ('BinaryFile', 'SnSdkBinaryFileRecord', 'sn_sdk_binary_file'),
     'time/time': ('Time', 'SnSdkTimeRecord', 'sn_sdk_time'),
