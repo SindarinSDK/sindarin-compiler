@@ -1,5 +1,5 @@
 {
-  "status": "Integrated local validation passed against accepted SDK; unpublished",
+  "status": "Published; required hosted acceptance pending",
   "base": "cbd2fbe956100419eb946bfd97b611566cee5fe7",
   "SDK_local_revision": "840f5ba",
   "units": 2,
@@ -46,5 +46,7 @@
     "sindarin-sdk-uuid-integrated-native.log": "0b6282b705c764ef679c4ab30e754ca94530c9a6b284b70924970901710c5ebb",
     "sindarin-sdk-uuid-integrated-native-san.log": "c4cd6267e3874da441a475ffad270160c4fa62a6f4607554adc70755d5328304",
     "sindarin-sdk-uuid-integrated-helpers.log": "20f1abb532406619a98fc9ceb06b33e1ccc2e6f1792f85e6972cf40c36b06a49"
-  }
+  },
+  "published_revision": "fbacb7841799b8074df9635ebf8a43a4212572a3",
+  "ci_run": 38154180258
 }

@@ -56,6 +56,17 @@ include 72 normal and 72 sanitizer archive cases, all 3,242 C and 1,097 Rust
 checks, 50 imports, 22 artifact checks and 22 CI helpers, plus retained Rust/Go
 record wire clients after the merge. Full goal completion remains unproven.
 
+## Current hosted queue, 2026-10-11
+
+Compiler record ownership revision `cbd2fbe9` awaits CI 38153082329; compiler
+UUID artifact revision `fbacb784` awaits CI 38154180258. These are the two
+independent pending feature batches. Their accepted dependencies include the
+34-job correction proof for `920f10f0` and seven-job SDK UUID proof for `840f5ba`.
+The copy contract is locally held at `963e6d18`, with complete C/Rust suites,
+54 normal and 54 sanitizer mode cases, 50 imports, 22 artifacts and 22 helpers.
+It remains unpublished until the record ownership dependency is accepted and
+subsequent integrated validation passes. Full goal scope remains required.
+
 ## Opaque Rust body acceptance correction, 2026-10-11
 
 Record revision `cbd2fbe9` failed its required Linux sanitizer job because an
