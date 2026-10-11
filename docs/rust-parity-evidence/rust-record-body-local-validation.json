@@ -1,5 +1,5 @@
 {
-  "status": "Local record ownership and artifact checks passed; unpublished; broader import suite still running",
+  "status": "Local validation passed; unpublished; hosted dependencies pending",
   "base": "c603d967f3ae539eaabd57125d85e727414bb510",
   "runtime": "RS Sindarin bodies with canonical C record storage",
   "normal_mode_cases": 72,
@@ -23,7 +23,6 @@
   "artifacts": 22,
   "mixed_app_rerun": "Passed after restoring the required accepted SDK checkout; first full import run records the missing fixture failure",
   "remaining": [
-    "Full package import suite completion",
     "hosted Linux/macOS/Windows acceptance",
     "direct record-parameter rebinding",
     "wider record/interface/generic contracts and dependency lifecycle graphs",
@@ -38,9 +37,16 @@
     "sindarin-c-record-body-credit-san.log": "db37516843f2c7c5d4cf0e63316372d046ef781c814092cc6f939f04c3937eaa",
     "sindarin-rust-record-body-artifacts.log": "b2f3bd1057264a64b3558e0107ae6be0fc19f01cd9f1ac47d8af5fbddf351312",
     "sindarin-rust-record-body-mixed-app.log": "46f46af7668553108aa4d8e39cb96472642171cb56e9c3da2b0d311dc61b8ff4",
-    "sindarin-rust-record-body-ci-helpers-final.log": "0817c6b0091a2f1748684d4438bf2ed326ae8c4ee20ebaa511a6d41d5aeb2a7d"
+    "sindarin-rust-record-body-ci-helpers-final.log": "0817c6b0091a2f1748684d4438bf2ed326ae8c4ee20ebaa511a6d41d5aeb2a7d",
+    "sindarin-rust-record-body-sdk-record-rerun.log": "75ac19c15146983258715f9d3eb71f2caec2c009c29a53d08389166e15fab13d"
   },
   "ci_helpers": 22,
   "registered_gates": 349,
-  "registered_groups": 26
+  "registered_groups": 26,
+  "imports": {
+    "accounted_for": 50,
+    "initial_passed": 48,
+    "missing_pinned_sdk_fixture": 2,
+    "focused_reruns_passed": 2
+  }
 }
