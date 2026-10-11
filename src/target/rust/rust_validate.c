@@ -386,6 +386,13 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                 json_object_object_add(param, "rust_native_record_parameter_rebind", json_object_new_boolean(true));
                 json_object_object_add(node, "rust_native_record_parameter_rebind", json_object_new_boolean(true));
             }
+            else if (json_boolean_property(param, "rust_thread_aggregate_param") &&
+                     json_string_property_equals(type, "kind", "struct") &&
+                     json_boolean_property(type, "pass_self_by_ref"))
+            {
+                json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
+                json_object_object_add(node, "rust_record_value_parameter_rebind", json_object_new_boolean(true));
+            }
             else
             {
                 if (!json_object_object_get_ex(param, "type", &type) ||

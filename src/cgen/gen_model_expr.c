@@ -64,12 +64,23 @@ static void c_model_borrowed_parameter_mutation(json_object *model, Expr *expr)
         if (strlen(text) != (size_t)target_name->length ||
             strncmp(text, target_name->start, target_name->length) != 0 ||
             strcmp(json_object_get_string(qual), "as_ref") == 0 ||
-            ((array || record) && strcmp(json_object_get_string(qual), "as_val") == 0)) continue;
+            (array && strcmp(json_object_get_string(qual), "as_val") == 0)) continue;
         char owner[96];
         snprintf(owner, sizeof(owner), "__sn_ci_%s_owner_l%d_p%zu", array ? "array" : record ? "record" : "string", c_lambda_parameter_id, i);
+        char *owned_record_guard = NULL;
+        if (record && strcmp(json_object_get_string(qual), "as_val") == 0)
+        {
+            size_t guard_size = strlen(text) + sizeof("__sn____pc");
+            owned_record_guard = malloc(guard_size);
+            if (!owned_record_guard) return;
+            snprintf(owned_record_guard, guard_size, "__sn__%s__pc", text);
+            json_object_object_add(param, "c_record_parameter_owned_input", json_object_new_boolean(true));
+        }
         const char *field = array ? "c_array_parameter_owner" : record ? "c_record_parameter_owner" : "c_string_parameter_owner";
-        json_object_object_add(param, field, json_object_new_string(owner));
-        json_object_object_add(model, field, json_object_new_string(owner));
+        const char *guard_name = owned_record_guard ? owned_record_guard : owner;
+        json_object_object_add(param, field, json_object_new_string(guard_name));
+        json_object_object_add(model, field, json_object_new_string(guard_name));
+        free(owned_record_guard);
         return;
     }
 }

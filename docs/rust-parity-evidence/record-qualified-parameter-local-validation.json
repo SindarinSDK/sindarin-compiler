@@ -1,0 +1,42 @@
+{
+  "status": "Local validation passed; unpublished; integrated hosted acceptance required",
+  "base": "2b81613e",
+  "normal_cases": 18,
+  "sanitizer_cases": 18,
+  "C_suite": 3242,
+  "Rust_suite": 1097,
+  "existing_rebind_cases": 72,
+  "existing_record_body_tests": 7,
+  "artifact_tests": 22,
+  "ci_helpers": 22,
+  "registered_gates": 357,
+  "controls": [
+    "ordinary default reference-record rebinding",
+    "redundant as-ref record qualifier",
+    "as-val deep string/array copy isolation",
+    "function and static/instance method rebinding",
+    "self-assignment and nil transitions",
+    "long parameter cleanup name"
+  ],
+  "before_C": "as-val local guard released the replaced copy at callable exit: heap-use-after-free",
+  "remaining": [
+    "integrated main and hosted platform proof",
+    "canonical package as-val copy adapter is still absent (C compile failure retained separately)",
+    "wider record/interface/generic contracts and dependency lifecycle graphs",
+    "whole SDK and final corpus/platform proof"
+  ],
+  "logs": {
+    "sindarin-qualified-record-final-normal.log": "f38bd56f0aa680096e32f446d3e0a2b2511922bc08eea1e45af9159a2603b45c",
+    "sindarin-qualified-record-final-sanitized.log": "f38bd56f0aa680096e32f446d3e0a2b2511922bc08eea1e45af9159a2603b45c",
+    "sindarin-qualified-record-full-c.log": "9e21f3a2cff31ff0af38615e59f4a8a6e6094a16ba25347e863bc86ae28e4455",
+    "sindarin-qualified-record-full-rust.log": "bfec82c25142311222cd504397f4e31820018f61fd2f42a4926761b7e185b89c",
+    "sindarin-qualified-record-ci-helpers.log": "3d623c90c62a747923e0d9960547c90354a1a47c28cf060a4f66c50e94d11d13",
+    "sindarin-qualified-record-existing-rebind.log": "d578a4ead741fd1ccd18a5ce6e541d3a097c93034e4da082c021c8cc347e2ee4",
+    "sindarin-qualified-record-existing-bodies.log": "20ddb31041833055c1d0e35086a609207fc936a3a8e2fae926e2f2bab871a120",
+    "sindarin-qualified-record-artifacts.log": "19e1bc8d1fc8637b91d6ba4be9cdc0c70dc27a6bf7e4104e113f95eb3fc6046c"
+  },
+  "before_logs": {
+    "sindarin-ordinary-qualified-before-c.log": "b531ba855f61e1b9b7680f7b66be550033696414874845e4564bbac75db9f2b7",
+    "sindarin-record-qualified-before-c.log": "bd327ead9bef7ca40506bc2d5403b33dfa1ece4e23e7e107623bd8ac1c7891e2"
+  }
+}

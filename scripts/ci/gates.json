@@ -1790,6 +1790,32 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "record-qualified-parameters",
+      "name": "Record parameter aliases, rebinding and as-val managed-field isolation (18 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_record_qualified_parameters.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "record-qualified-parameters-sanitizers",
+      "name": "Record parameter aliases, rebinding and as-val managed-field isolation (18 cases)",
+      "command": [
+        "{python}",
+        "scripts/check_record_qualified_parameters.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

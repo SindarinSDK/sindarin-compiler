@@ -1,0 +1,99 @@
+struct Node as ref =>
+  value: int
+  text: str
+  values: int[]
+
+  static fn changeValue(item: Node as val): Node =>
+    var alias: Node = item
+    item.value = 17
+    item.values[0] = 18
+    item.text = "changed"
+    println(alias.value)
+    println(alias.values[0])
+    println(alias.text)
+    var next: Node = {
+      value: 31,
+      text: "static",
+      values: {31}
+    }
+    item = next
+    item = item
+    return item
+
+  fn changeRef(item: Node as ref): Node =>
+    var alias: Node = item
+    item.value += 1
+    var next: Node = {
+      value: 41,
+      text: "instance",
+      values: {41}
+    }
+    item = next
+    println(alias.value)
+    return item
+
+fn borrowed(item: Node): Node =>
+  var alias: Node = item
+  item = item
+  item = nil
+  var next: Node = {
+    value: 51,
+    text: "borrowed",
+    values: {51}
+  }
+  item = next
+  println(alias.value)
+  return item
+
+fn owned(item: Node as val): Node =>
+  var alias: Node = item
+  item.value = 27
+  item.values[0] = 28
+  item.text = "owned"
+  println(alias.value)
+  println(alias.values[0])
+  println(alias.text)
+  var next: Node = {
+    value: 61,
+    text: "owned-result",
+    values: {61}
+  }
+  item = next
+  item = nil
+  item = next
+  return item
+
+fn namedGuard(record_parameter_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_: Node as val): Node =>
+  var next: Node = {
+    value: 71,
+    text: "named",
+    values: {71}
+  }
+  record_parameter_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ = next
+  return record_parameter_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_long_name_
+
+fn main(): void =>
+  var original: Node = {
+    value: 5,
+    text: "original",
+    values: {6}
+  }
+  var result: Node = borrowed(original)
+  println(original.value)
+  println(result.value)
+  var staticResult: Node = Node.changeValue(original)
+  println(original.value)
+  println(original.values[0])
+  println(original.text)
+  println(staticResult.value)
+  var instance: Node = original.changeRef(original)
+  println(original.value)
+  println(instance.value)
+  var copy: Node = owned(original)
+  println(original.value)
+  println(original.values[0])
+  println(original.text)
+  println(copy.value)
+  var named: Node = namedGuard(original)
+  println(original.value)
+  println(named.value)
