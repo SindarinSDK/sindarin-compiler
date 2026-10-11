@@ -42,3 +42,29 @@ unsafe impl {{rust_ident rust_native_handle_array_support.trait}} for {{rust_ide
     unsafe fn allocate_native_array(capacity: i64) -> *mut std::ffi::c_void { {{rust_ident rust_native_handle_array_new}}(capacity) }
 }
 {{/if}}
+
+{{#if rust_native_record_parameter_guard_used}}// A default parameter borrows its incoming credit and owns later bindings.
+struct {{rust_ident rust_native_handle_parameter_guard}} {
+    value: std::mem::ManuallyDrop<{{rust_ident name}}>,
+    owned: bool,
+}
+impl {{rust_ident rust_native_handle_parameter_guard}} {
+    fn borrowed(value: &{{rust_ident name}}) -> Self {
+        Self { value: value.{{rust_ident rust_native_handle_borrow}}(), owned: false }
+    }
+    fn rebind(&mut self, value: {{rust_ident name}}) {
+        if self.owned { unsafe { std::mem::ManuallyDrop::drop(&mut self.value); } }
+        self.value = std::mem::ManuallyDrop::new(value);
+        self.owned = true;
+    }
+}
+impl std::ops::Deref for {{rust_ident rust_native_handle_parameter_guard}} {
+    type Target = {{rust_ident name}};
+    fn deref(&self) -> &Self::Target { &self.value }
+}
+impl Drop for {{rust_ident rust_native_handle_parameter_guard}} {
+    fn drop(&mut self) {
+        if self.owned { unsafe { std::mem::ManuallyDrop::drop(&mut self.value); } }
+    }
+}
+{{/if}}

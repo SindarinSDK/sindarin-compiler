@@ -1764,6 +1764,32 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "record-parameter-rebind",
+      "name": "Borrowed C/Rust record parameter rebinding preserves aliases and owned replacements (72 cases)",
+      "command": [
+        "{python}",
+        "tests/package/record_parameter_rebind.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "record-parameter-rebind-sanitizers",
+      "name": "Borrowed C/Rust record parameter rebinding preserves aliases and owned replacements (72 cases)",
+      "command": [
+        "{python}",
+        "tests/package/record_parameter_rebind.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

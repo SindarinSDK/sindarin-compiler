@@ -414,3 +414,20 @@ validation, and returned records outliving input owners with one final destructi
 Host acceptance remains required. Direct record-parameter rebinding, wider
 value-record/interface/generic transport and dependency lifecycle graphs remain
 required work; existing explicit diagnostics receive no parity credit.
+
+
+## Default record parameter rebinding
+
+A default reference-record parameter borrows its incoming native pointer and
+owns only subsequent bindings. C named functions and methods track replacement
+ownership separately from the caller's record. Rust canonical record bodies use
+a private guard that releases only owned replacements. Repeated bindings,
+self-assignment and nil transitions preserve the original caller and aliases;
+returned replacements own a separate credit and survive callable cleanup.
+
+Local source/sealed controls cover C/RS body compilation, C/Rust consumers and
+all nine optimization/arithmetic modes, including ordinary application functions
+and static/instance methods. The C heap-use-after-free before the repair is
+retained as a lifetime defect, not as a valid behavioral oracle. Full hosted
+acceptance, as-val/as-ref rebinding, wider transport and final goal proof remain
+required.

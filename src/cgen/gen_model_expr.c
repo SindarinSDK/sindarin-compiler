@@ -50,8 +50,10 @@ static void c_model_borrowed_parameter_mutation(json_object *model, Expr *expr)
         parameter = expr->as.compound_assign.target->as.variable.is_param_ref;
     }
     if (!c_lambda_parameters || !target_name || !parameter || !expr->expr_type ||
-        (expr->expr_type->kind != TYPE_STRING && expr->expr_type->kind != TYPE_ARRAY)) return;
+        (expr->expr_type->kind != TYPE_STRING && expr->expr_type->kind != TYPE_ARRAY &&
+         !(expr->expr_type->kind == TYPE_STRUCT && expr->expr_type->as.struct_type.pass_self_by_ref))) return;
     bool array = expr->expr_type->kind == TYPE_ARRAY;
+    bool record = expr->expr_type->kind == TYPE_STRUCT;
     for (size_t i = 0; i < json_object_array_length(c_lambda_parameters); i++)
     {
         json_object *param = json_object_array_get_idx(c_lambda_parameters, i);
@@ -62,10 +64,10 @@ static void c_model_borrowed_parameter_mutation(json_object *model, Expr *expr)
         if (strlen(text) != (size_t)target_name->length ||
             strncmp(text, target_name->start, target_name->length) != 0 ||
             strcmp(json_object_get_string(qual), "as_ref") == 0 ||
-            (array && strcmp(json_object_get_string(qual), "as_val") == 0)) continue;
+            ((array || record) && strcmp(json_object_get_string(qual), "as_val") == 0)) continue;
         char owner[96];
-        snprintf(owner, sizeof(owner), "__sn_ci_%s_owner_l%d_p%zu", array ? "array" : "string", c_lambda_parameter_id, i);
-        const char *field = array ? "c_array_parameter_owner" : "c_string_parameter_owner";
+        snprintf(owner, sizeof(owner), "__sn_ci_%s_owner_l%d_p%zu", array ? "array" : record ? "record" : "string", c_lambda_parameter_id, i);
+        const char *field = array ? "c_array_parameter_owner" : record ? "c_record_parameter_owner" : "c_string_parameter_owner";
         json_object_object_add(param, field, json_object_new_string(owner));
         json_object_object_add(model, field, json_object_new_string(owner));
         return;

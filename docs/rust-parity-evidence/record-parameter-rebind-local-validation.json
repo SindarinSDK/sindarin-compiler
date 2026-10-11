@@ -1,0 +1,41 @@
+{
+  "status": "Local default record rebinding validated; unpublished; broader package checks running",
+  "base": "e02dd159",
+  "normal_cases": 72,
+  "sanitizer_cases": 72,
+  "C_suite": 3242,
+  "Rust_suite": 1097,
+  "ci_helpers": 22,
+  "C_before": "heap-use-after-free: rebinding a borrowed record released caller ownership",
+  "controls": [
+    "default borrowed inputs retain caller identity",
+    "owned replacement cleanup",
+    "self-assignment",
+    "nil transitions",
+    "ordinary functions",
+    "static and instance methods",
+    "C and RS package bodies",
+    "source and sealed artifacts",
+    "nine arithmetic/optimization modes",
+    "nine exact final native destructions"
+  ],
+  "remaining": [
+    "broader package imports/artifact completion",
+    "integrated hosted acceptance after required correction is green",
+    "as-val/as-ref record rebinding and wider record/interface/generic contracts",
+    "whole SDK and final corpus/platform proof"
+  ],
+  "logs": {
+    "sindarin-record-parameter-rebind-normal.log": "b7decf1eec7994a93468e680d7256bfd6560997dc2c6b63edb83de1b571baf4a",
+    "sindarin-record-parameter-rebind-sanitized.log": "9a801bfe4d154c8aa6bd26eaf82032389d9fafa65ad75cbd457631791a48c4f8",
+    "sindarin-record-rebind-full-c.log": "adf0ece16b8ca016f4887194eab5c3cbada5b8c492ec9b749f9258c5f3857dfb",
+    "sindarin-record-rebind-full-rust.log": "5e7c07e0e785cb7c28252d2f85724859c9b07a1bae2ef4a075bdb3179369bc15",
+    "sindarin-record-rebind-ci-helpers.log": "b85a2a2a41f2e3f5e3231f165b42c5bfea4ea7a8482b99fcddfccbe9e4d91adc",
+    "sindarin-record-rebind-artifacts.log": "7071dde2499cf303e18f231cfaf58ae2053bd37e34a75af3252be449c0bf68bd"
+  },
+  "before_log_sha256": "c59af3813513c4b60cf1b14d857458e658ed2e570c13b3feb2709720c75089ca",
+  "artifact_tests": 22,
+  "existing_record_body_tests": 7,
+  "registered_gates": 353,
+  "registered_groups": 26
+}

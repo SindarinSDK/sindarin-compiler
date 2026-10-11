@@ -270,6 +270,7 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
             }
         }
 
+        GenModelBorrowedParamContext borrowed_context = gen_model_borrowed_parameters_enter(params);
         if (m->body)
         {
             for (int j = 0; j < m->body_count; j++)
@@ -278,6 +279,7 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
                     gen_model_stmt(arena, m->body[j], symbol_table, arithmetic_mode));
             }
         }
+        gen_model_borrowed_parameters_restore(borrowed_context);
         json_object_object_add(method, "body", body);
 
         /* Restore outer as-ref param state */
