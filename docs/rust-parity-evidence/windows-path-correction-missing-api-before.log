@@ -1,0 +1,72 @@
+test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) ... 
+  test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='c', mode=None) ... FAIL
+  test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='c', mode='--emit-source') ... FAIL
+  test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='c', mode='--emit-model') ... FAIL
+  test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='rust', mode=None) ... FAIL
+  test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='rust', mode='--emit-source') ... FAIL
+  test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='rust', mode='--emit-model') ... FAIL
+
+======================================================================
+FAIL: test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='c', mode=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 157, in test_root_native_declaration_must_be_a_file
+    self.assert_rejected(target, 'requires a supported native declaration', mode)
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 57, in assert_rejected
+    self.assertIn(diagnostic, build.stderr.decode(errors='replace'))
+AssertionError: 'requires a supported native declaration' not found in '\x1b[1mCompiling\x1b[0m src/main.sn...\n  Parsing... \x1b[1;36mdone\x1b[0m\n  Type checking...error: native package import adapter: native input is missing: /tmp/sn-package-runtime-kuqzn7ir/src/value.c\n \x1b[1;31mfailed\x1b[0m\n\n\x1b[1;31mCompilation failed\x1b[0m\n'
+
+======================================================================
+FAIL: test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='c', mode='--emit-source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 157, in test_root_native_declaration_must_be_a_file
+    self.assert_rejected(target, 'requires a supported native declaration', mode)
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 57, in assert_rejected
+    self.assertIn(diagnostic, build.stderr.decode(errors='replace'))
+AssertionError: 'requires a supported native declaration' not found in '\x1b[1mCompiling\x1b[0m src/main.sn...\n  Parsing... \x1b[1;36mdone\x1b[0m\n  Type checking...error: native package import adapter: native input is missing: /tmp/sn-package-runtime-kuqzn7ir/src/value.c\n \x1b[1;31mfailed\x1b[0m\n\n\x1b[1;31mCompilation failed\x1b[0m\n'
+
+======================================================================
+FAIL: test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='c', mode='--emit-model')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 157, in test_root_native_declaration_must_be_a_file
+    self.assert_rejected(target, 'requires a supported native declaration', mode)
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 57, in assert_rejected
+    self.assertIn(diagnostic, build.stderr.decode(errors='replace'))
+AssertionError: 'requires a supported native declaration' not found in '\x1b[1mCompiling\x1b[0m src/main.sn...\n  Parsing... \x1b[1;36mdone\x1b[0m\n  Type checking...error: native package import adapter: native input is missing: /tmp/sn-package-runtime-kuqzn7ir/src/value.c\n \x1b[1;31mfailed\x1b[0m\n\n\x1b[1;31mCompilation failed\x1b[0m\n'
+
+======================================================================
+FAIL: test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='rust', mode=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 157, in test_root_native_declaration_must_be_a_file
+    self.assert_rejected(target, 'requires a supported native declaration', mode)
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 57, in assert_rejected
+    self.assertIn(diagnostic, build.stderr.decode(errors='replace'))
+AssertionError: 'requires a supported native declaration' not found in '\x1b[1mCompiling\x1b[0m src/main.sn...\n  Parsing... \x1b[1;36mdone\x1b[0m\n  Type checking...error: native package import adapter: native input is missing: /tmp/sn-package-runtime-kuqzn7ir/src/value.c\n \x1b[1;31mfailed\x1b[0m\n\n\x1b[1;31mCompilation failed\x1b[0m\n'
+
+======================================================================
+FAIL: test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='rust', mode='--emit-source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 157, in test_root_native_declaration_must_be_a_file
+    self.assert_rejected(target, 'requires a supported native declaration', mode)
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 57, in assert_rejected
+    self.assertIn(diagnostic, build.stderr.decode(errors='replace'))
+AssertionError: 'requires a supported native declaration' not found in '\x1b[1mCompiling\x1b[0m src/main.sn...\n  Parsing... \x1b[1;36mdone\x1b[0m\n  Type checking...error: native package import adapter: native input is missing: /tmp/sn-package-runtime-kuqzn7ir/src/value.c\n \x1b[1;31mfailed\x1b[0m\n\n\x1b[1;31mCompilation failed\x1b[0m\n'
+
+======================================================================
+FAIL: test_root_native_declaration_must_be_a_file (__main__.PackageRuntimeTests.test_root_native_declaration_must_be_a_file) (target='rust', mode='--emit-model')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 157, in test_root_native_declaration_must_be_a_file
+    self.assert_rejected(target, 'requires a supported native declaration', mode)
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/tests/package/runtime_contract.py", line 57, in assert_rejected
+    self.assertIn(diagnostic, build.stderr.decode(errors='replace'))
+AssertionError: 'requires a supported native declaration' not found in '\x1b[1mCompiling\x1b[0m src/main.sn...\n  Parsing... \x1b[1;36mdone\x1b[0m\n  Type checking...error: native package import adapter: native input is missing: /tmp/sn-package-runtime-kuqzn7ir/src/value.c\n \x1b[1;31mfailed\x1b[0m\n\n\x1b[1;31mCompilation failed\x1b[0m\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.315s
+
+FAILED (failures=6)

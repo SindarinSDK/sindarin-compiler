@@ -2,6 +2,7 @@
 #include "package_native_command.h"
 #include "package_native_types.h"
 #include "package_callable.h"
+#include "../platform/platform.h"
 #include "../package.h"
 #include "../cgen/gen_model.h"
 #include <json-c/json.h>
@@ -23,10 +24,18 @@
 static char *import_absolute(const char *path)
 {
 #ifdef _WIN32
-    return _fullpath(NULL, path, 0);
+    char *absolute = _fullpath(NULL, path, 0);
 #else
-    return realpath(path, NULL);
+    char *absolute = realpath(path, NULL);
 #endif
+    /* _fullpath normalizes even missing paths; realpath also accepts directory
+     * names. Only existing declaration files may be skipped as unloaded APIs. */
+    struct stat status;
+    if (!absolute || stat(absolute, &status) != 0 || !S_ISREG(status.st_mode)) {
+        free(absolute);
+        return NULL;
+    }
+    return absolute;
 }
 
 static bool import_same(const char *left, const char *right)

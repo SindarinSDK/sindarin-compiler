@@ -1,0 +1,35 @@
+{
+  "failed_revisions": [
+    "fb1e8cc6",
+    "3d059a09"
+  ],
+  "failure_runs": [
+    38111625738,
+    38112343192
+  ],
+  "fixes": [
+    "require regular declaration files before skipping inactive APIs",
+    "preserve absolute header origins in private C projection"
+  ],
+  "counts": {
+    "c": 3242,
+    "rust": 1097
+  },
+  "runtime_contract_tests": 15,
+  "ci_helper_tests": 22,
+  "namespace_normal_and_sanitized_mode_cases": 27,
+  "regressions": "Both Windows failures reproduce on POSIX with directory declarations and shadow headers; original diagnostic/output oracles preserved",
+  "held_feature_stash": "e321f77de55d91427c3a9969f07784bad7ebbce3",
+  "hosted_acceptance": "Correction pending complete Linux/macOS/Windows CI; feature publication frozen",
+  "original_DSL_sources_oracles_snapshots_changed": false,
+  "complete_goal": false,
+  "source_sha256": {
+    "src/package/package_import.c": "3fbe1b6286dc7481ae3da19b7103775e32a2c54a636d53618f45958794e2a15d",
+    "src/target/rust/rust_native_plan.c": "795334154b45780f506fe6ecfbbdde553b3f89429d86218b6ee62b5b0c91ebfc",
+    "tests/package/runtime_contract.py": "313b8b37ddce3afc1c5a7b103350abeff2ebd021d5710322827ccea4ac2da9e1",
+    "scripts/check_native_static_namespaces.py": "8a1513d8c3f90dd8d4e69e64e91ab063cfbc348f5c83dfd00c6f0175081b615e"
+  },
+  "package_import_tests": 46,
+  "runtime_ABI_clients": 12,
+  "sanitized_C_ABI_clients": 5
+}

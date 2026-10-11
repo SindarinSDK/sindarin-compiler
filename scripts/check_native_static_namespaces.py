@@ -23,6 +23,13 @@ def main():
             'static inline SnArray *namespace_bytes(void) { SnArray *a=sn_array_new(1,3); '
             'a->elem_tag=SN_TAG_BYTE; unsigned char bytes[]={0,128,255}; '
             'for(int i=0;i<3;i++) sn_array_push(a,&bytes[i]); return a; }\n')
+        if os.name != 'nt':
+            # The old resolver prepended the source directory to absolute
+            # headers. Give that wrong path a real file so POSIX reproduces the
+            # Windows failure instead of silently retaining the original path.
+            shadow = work/header.as_posix().lstrip('/')
+            shadow.parent.mkdir(parents=True)
+            shadow.write_text('#error absolute header was incorrectly joined to its source directory\n')
         include = '@include '+json.dumps(header.as_posix())+'\n'
         cases = {
             'ordinary_static': ('native struct Empty =>\n  static fn text(): str =>\n'

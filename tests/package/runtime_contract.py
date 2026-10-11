@@ -146,6 +146,16 @@ class PackageRuntimeTests(unittest.TestCase):
         self.write('sn.yaml', 'name: application\n' + self.native_contract())
         self.assert_rejected('rust', 'requires a supported native declaration')
 
+    def test_root_native_declaration_must_be_a_file(self):
+        self.write('sn.yaml', 'name: application\n' + self.native_contract())
+        # Windows _fullpath also resolves missing names. An existing directory
+        # reproduces the unchecked-path failure on POSIX without host mocking.
+        (self.project / 'src/value.sn').mkdir()
+        for target in ('c', 'rust'):
+            for mode in (None, '--emit-source', '--emit-model'):
+                with self.subTest(target=target, mode=mode):
+                    self.assert_rejected(target, 'requires a supported native declaration', mode)
+
     def test_symlink_import_uses_dependency_manifest(self):
         if os.name == 'nt':
             self.skipTest('symlink creation needs Windows host privileges; other ownership cases remain required')

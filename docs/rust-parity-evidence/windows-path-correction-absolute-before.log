@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/scripts/check_native_static_namespaces.py", line 71, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/home/gavin/code/sindarin/sindarin-rust-parity-goal/scripts/check_native_static_namespaces.py", line 57, in main
+    if built.returncode: raise ValueError(f'{name}/{target}/{opt}/{mode}: '+built.stderr.decode(errors='replace'))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: native_static/rust/-O0/default: [1mCompiling[0m main.sn...
+  Parsing... [1;36mdone[0m
+  Type checking... [1;36mdone[0m
+  Code generation... [1;36mdone[0m
+  Linking...
+In file included from .sn/build/rust/main_468139/sn_types.h:11,
+                 from .sn/build/rust/main_468139/sn_native_declarations.c:1:
+/tmp/sn-empty-native-namespace-5e8jorqm/tmp/sn-empty-native-namespace-5e8jorqm/operations.h:1:2: error: #error absolute header was incorrectly joined to its source directory
+    1 | #error absolute header was incorrectly joined to its source directory
+      |  ^~~~~
+Error: failed to compile sn_native_declarations.c
+ [1;31mfailed[0m
+
+[1;31mCompilation failed[0m
+

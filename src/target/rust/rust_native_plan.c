@@ -909,6 +909,14 @@ static void resolve_private_include_origins(json_object *model)
         size_t length = value ? strlen(value) : 0;
         if (!origin || length < 2 || value[0] != '"' || value[length - 1] != '"')
             continue;
+        /* Absolute header names already identify their owner. Joining them to
+         * source_dir can select a shadow file on POSIX, or fabricate a doubled
+         * drive-qualified path on Windows where _fullpath accepts missing names. */
+        bool absolute = value[1] == '/' || value[1] == '\\' ||
+            (length >= 5 && ((value[1] >= 'A' && value[1] <= 'Z') ||
+                            (value[1] >= 'a' && value[1] <= 'z')) &&
+             value[2] == ':' && (value[3] == '/' || value[3] == '\\'));
+        if (absolute) continue;
 
         char relative[PATH_MAX];
         int written = snprintf(relative, sizeof(relative), "%s/%.*s", origin,

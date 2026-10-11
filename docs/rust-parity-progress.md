@@ -7,6 +7,37 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
+## Windows path handling: required CI correction, 2026-10-11
+
+Compiler revision `fb1e8cc6` failed Windows core validation in
+[CI 38111625738](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38111625738).
+The root native-contract diagnostic changed because `_fullpath` normalizes even
+missing declaration paths. The importer then skipped that nonexistent API as an
+unloaded module and failed later on a missing backing source. Declaration path
+resolution now requires an existing regular file. A directory at the declaration
+path reproduces this bug on POSIX; all six C/Rust normal/source/model controls
+fail before the repair and preserve the required diagnostic afterward.
+
+Namespace revision `3d059a09` also failed Windows native validation in
+[CI 38112343192](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38112343192).
+Its private C projection prepended source_dir to an absolute drive-qualified
+header, producing a doubled drive path. Absolute POSIX, drive-qualified and UNC
+header names now remain absolute. A POSIX shadow header at the wrongly joined
+path reproduces this failure locally; the exact namespace controls retain
+their original outputs and pass after the repair, normally and under sanitizers.
+
+Feature publication remains frozen until complete corrected Linux/macOS/Windows
+CI accepts the integrated main. Both repairs will be published as one correction.
+Complete local C/Rust suites pass 3,242/1,097 checks; package imports pass 46,
+runtime contracts 15 and CI helpers 22. Twelve ABI clients and five sanitized C
+ABI clients pass. Namespace path controls pass 27 normal and strict mode cases.
+Evidence: [combined correction validation](rust-parity-evidence/windows-path-correction-validation.json).
+The typed native-array ABI prototype is held separately in task stash
+`e321f77de55d91427c3a9969f07784bad7ebbce3`; its 14 runtime clients and six C
+sanitizer clients passed locally, but it is unpublished and not hosted-accepted.
+Complete SDK, wider ABI/package contracts and final corpus acceptance remain
+required.
+
 ## Empty native static namespaces: local validation, 2026-10-11
 
 Rust now retains empty native static method owners such as Crypto and OS without
