@@ -56,6 +56,44 @@ include 72 normal and 72 sanitizer archive cases, all 3,242 C and 1,097 Rust
 checks, 50 imports, 22 artifact checks and 22 CI helpers, plus retained Rust/Go
 record wire clients after the merge. Full goal completion remains unproven.
 
+## UUID SDK artifacts: integrated validation and publication, 2026-10-11
+
+The compiler's thirteen-module SDK stage now uses accepted SDK `840f5ba`,
+validated in all seven hosted SDK jobs. Twenty-six C/Sindarin units pass 468
+unchanged original source/sealed C/Rust caller cases plus 72 stdin controls,
+540 total. Focused UUID artifacts pass 72 normal and 72 sanitizer cases; native
+UUID checks pass 20 cases plus the actual-runtime sanitizer probe. Twenty-two
+helpers pass with 373 gates in 26 groups. The compiler SDK pin is exact and
+accepted; this independent artifact batch still requires its hosted validation.
+The public modules, original C operations and original caller oracles remain
+unchanged. Wider SDK migration, copy contracts and final goal proof remain work.
+
+## Canonical record copies: local checkpoint, 2026-10-11
+
+Checkpoint `58935df9` on `development/canonical-record-copy-contract` adds
+an optional, prototype/export-checked C copy capability to canonical records.
+C/Rust ordinary as-val calls preserve distinct identity and original fields;
+direct/function-value calls, static/instance methods, nil and rebinding pass
+36 source/sealed cases normally and with sanitizers. Accepted SDK UUID copies
+also pass 18 language cases normally and with sanitizers. Complete C/Rust suites
+pass 3,242/1,097; 22 artifacts and 22 helpers pass, with 369 locally registered
+gates. The full 50-test import suite is still running. This checkpoint remains
+unpublished pending its record ownership dependency's hosted acceptance and
+subsequent integrated validation. Exported package qualifiers, callbacks, wider
+contracts and final goal proof remain required.
+
+## Published record ownership and UUID SDK batches, 2026-10-11
+
+Record ownership revision `cbd2fbe9` is published and awaits compiler CI
+38153082329, registering 365 gates in 26 groups. Its exact accepted base is
+correction `920f10f0`; its SDK pin stays at accepted `d829ebe`. UUID SDK revision
+`840f5ba` is published and passed all seven jobs in SDK CI 38152925411; native
+reports are retained in `sdk-uuid-canonical-ci-green.json`. The independently
+held UUID artifact batch is being integrated on current compiler main with the
+accepted SDK pin, thirteen-module staging and a 540-case SDK matrix. Canonical
+copy-contract work is still local and incomplete; it depends on accepted record
+ownership. Full goal acceptance remains unproven.
+
 ## Record ownership: publication batch, 2026-10-11
 
 The integrated record implementation on `development/record-body-ownership-integrated`

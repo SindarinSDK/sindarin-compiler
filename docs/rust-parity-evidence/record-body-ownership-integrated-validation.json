@@ -1,5 +1,5 @@
 {
-  "status": "Integrated local validation passed; unpublished; required main correction CI must pass first",
+  "status": "Published; required hosted acceptance pending",
   "base": "920f10f042db6fc96202dd21f9d1bee0c8d034d8",
   "sdk_accepted_revision": "d829ebeae36ef0a0b684191d2150f2fb964ea509",
   "C_suite": 3242,
@@ -41,5 +41,7 @@
     "sindarin-record-integrated-artifacts.log": "bf1d1fb928e92a37f9e7b72839932e371cddbebb44723b28cbcc58778faf1403",
     "sindarin-record-integrated-imports.log": "8b80a70372966d671df23f6a41e2d26c45130fa90c85106bfce3eb35ace8acf8",
     "sindarin-record-integrated-sdk504.log": "aa72aea8ae7efb6502e57314de53a5ee7481ad6de1ae6da29d89ae0583caa6da"
-  }
+  },
+  "published_revision": "cbd2fbe956100419eb946bfd97b611566cee5fe7",
+  "ci_run": 38153082329
 }

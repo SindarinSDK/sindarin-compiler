@@ -1,0 +1,85 @@
+{
+  "conclusion": "success",
+  "headSha": "840f5ba6aac34018659542458c3f5894cc9b9e57",
+  "jobs": [
+    {
+      "name": "Canonical Time/Date (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38152925411/job/114509922322"
+    },
+    {
+      "name": "Canonical Time/Date (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38152925411/job/114509922446"
+    },
+    {
+      "name": "Canonical Time/Date (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38152925411/job/114509922502"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (windows-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38152925411/job/114509922529"
+    },
+    {
+      "name": "Native text oracle contract",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38152925411/job/114509922534"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (ubuntu-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38152925411/job/114509922661"
+    },
+    {
+      "name": "sindarin-pkg-test / Test (macos-latest)",
+      "conclusion": "success",
+      "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38152925411/job/114509922683"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/38152925411",
+  "UUID_reports": {
+    "time-date-native-macos-latest/uuid-credit-validation.json": {
+      "passed": true,
+      "cases": 36,
+      "compiler_sha256": "f8fe7496d5756127bc5250c65b0ac350e05afeb707426782141ad3d0d2df5099"
+    },
+    "time-date-native-macos-latest/uuid-native.json": {
+      "passed": true,
+      "cases": 20,
+      "compiler_sha256": "f8fe7496d5756127bc5250c65b0ac350e05afeb707426782141ad3d0d2df5099"
+    },
+    "time-date-native-windows-latest/uuid-credit-validation.json": {
+      "passed": true,
+      "cases": 36,
+      "compiler_sha256": "81654986aa5f951ea1af933ff72633627b044e30cc7b5898fcd0b6bd127f7040"
+    },
+    "time-date-native-windows-latest/uuid-native.json": {
+      "passed": true,
+      "cases": 20,
+      "compiler_sha256": "81654986aa5f951ea1af933ff72633627b044e30cc7b5898fcd0b6bd127f7040"
+    },
+    "time-date-native-ubuntu-latest/uuid-credit-validation-sanitized.json": {
+      "passed": true,
+      "cases": 36,
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    },
+    "time-date-native-ubuntu-latest/uuid-credit-validation.json": {
+      "passed": true,
+      "cases": 36,
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    },
+    "time-date-native-ubuntu-latest/uuid-native.json": {
+      "passed": true,
+      "cases": 20,
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    },
+    "time-date-native-ubuntu-latest/uuid-sanitizers.json": {
+      "passed": true,
+      "cases": 1,
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684"
+    }
+  }
+}
