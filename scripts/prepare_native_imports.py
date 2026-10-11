@@ -181,7 +181,8 @@ def main():
         source_lines+=headers
         record_headers+=headers
         for record in planned['plan']['native'].get('types',[]):
-            for role in ('create','retain','release','refs'):
+            for role in ('create','retain','release','refs','copy'):
+                if role not in record: continue
                 symbol=record[role]
                 previous=exports.get(symbol)
                 if previous and previous!=package['manifest']:

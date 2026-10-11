@@ -22,7 +22,7 @@ def contracts(native, unit):
     records = record_types(signatures)
     if records and unit['language'] not in ('C','SN','RS','GO'):
         raise ValueError('package-owned record provider generation requires a native C storage contract')
-    lifecycle_functions = {r[field] for r in records for field in ('create','retain','release','refs')}
+    lifecycle_functions = {r[field] for r in records for field in ('create','retain','release','refs','copy') if field in r}
     for s in signatures:
         validate(s)
         binding = s['binding']

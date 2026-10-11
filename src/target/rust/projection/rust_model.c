@@ -1,5 +1,6 @@
 /* Rust-private projection, migrated from main 7af0d192. */
 #include "target/rust/projection/rust_model.h"
+#include "cgen/gen_model.h"
 #include "type_checker/type_checker_generics.h"
 #include "type_checker/stmt/type_checker_stmt_func.h"
 #include <stdio.h>
@@ -801,6 +802,7 @@ json_object *rust_gen_model_build(Arena *arena, Module *module, SymbolTable *sym
     json_object_object_add(root, "fn_wrappers", rust_g_model_fn_wrappers);
     rust_g_model_fn_wrappers = NULL;
 
+    if (!gen_model_validate_record_copies(root, root)) { json_object_put(root); return NULL; }
     return root;
 }
 

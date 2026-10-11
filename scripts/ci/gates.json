@@ -1340,7 +1340,10 @@
     {
       "id": "sdk-artifact-callers",
       "name": "canonical SDK artifact: unchanged callers across modes and sealed source-free consumption",
-      "command": ["{python}", "scripts/check_sdk_artifact.py"],
+      "command": [
+        "{python}",
+        "scripts/check_sdk_artifact.py"
+      ],
       "group": "core",
       "linux_only": false
     },
@@ -1370,7 +1373,11 @@
     {
       "id": "typed-native-provider-sanitizers",
       "name": "Rust/Go typed-array provider aliases, callbacks, errors and cleanup sanitizers",
-      "command": ["{python}", "tests/package/native_imports.py", "NativeImports.test_rust_go_typed_arrays_preserve_aliases_errors_callbacks_and_cleanup"],
+      "command": [
+        "{python}",
+        "tests/package/native_imports.py",
+        "NativeImports.test_rust_go_typed_arrays_preserve_aliases_errors_callbacks_and_cleanup"
+      ],
       "env": {
         "SN_CC": "gcc",
         "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
@@ -1393,14 +1400,20 @@
     {
       "id": "native-entrypoints",
       "name": "native entrypoints: argv, lifetime, initialization and exit parity across modes",
-      "command": ["{python}", "scripts/check_native_entrypoints.py"],
+      "command": [
+        "{python}",
+        "scripts/check_native_entrypoints.py"
+      ],
       "group": "native",
       "linux_only": false
     },
     {
       "id": "native-static-namespaces",
       "name": "empty native static namespaces: methods, byte ownership and C sizeof across modes",
-      "command": ["{python}", "scripts/check_native_static_namespaces.py"],
+      "command": [
+        "{python}",
+        "scripts/check_native_static_namespaces.py"
+      ],
       "group": "native",
       "linux_only": false
     },
@@ -1418,14 +1431,20 @@
     {
       "id": "native-string-array-results",
       "name": "string-produced arrays retain canonical native storage and copy semantics",
-      "command": ["{python}", "scripts/check_native_string_array_results.py"],
+      "command": [
+        "{python}",
+        "scripts/check_native_string_array_results.py"
+      ],
       "group": "native",
       "linux_only": false
     },
     {
       "id": "native-string-array-result-sanitizers",
       "name": "canonical string-produced array ownership sanitizers",
-      "command": ["{python}", "scripts/check_native_string_array_results.py"],
+      "command": [
+        "{python}",
+        "scripts/check_native_string_array_results.py"
+      ],
       "env": {
         "SN_CC": "gcc",
         "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
@@ -1438,14 +1457,20 @@
     {
       "id": "package-callable-methods",
       "name": "package static/instance selectors, aliases and sealed cleanup (36 mode cases)",
-      "command": ["{python}", "tests/package/callable_methods.py"],
+      "command": [
+        "{python}",
+        "tests/package/callable_methods.py"
+      ],
       "group": "core",
       "linux_only": false
     },
     {
       "id": "package-callable-method-sanitizers",
       "name": "package static/instance selectors and shared storage cleanup sanitizers",
-      "command": ["{python}", "tests/package/callable_methods.py"],
+      "command": [
+        "{python}",
+        "tests/package/callable_methods.py"
+      ],
       "env": {
         "SN_CC": "gcc",
         "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
@@ -1458,7 +1483,10 @@
     {
       "id": "static-instance-methods",
       "name": "static/instance method name parity and native self storage",
-      "command": ["{python}", "scripts/check_static_instance_methods.py"],
+      "command": [
+        "{python}",
+        "scripts/check_static_instance_methods.py"
+      ],
       "group": "native",
       "linux_only": false
     },
@@ -1862,6 +1890,34 @@
         "scripts/check_sdk_native.py",
         "uuid",
         "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "canonical-record-copy",
+      "name": "Canonical C record as-val copies preserve isolation, signatures and sealed ownership (54 cases including accepted SDK UUID)",
+      "command": [
+        "{python}",
+        "tests/package/record_copy_contract.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "canonical-record-copy-sanitizers",
+      "name": "Canonical C record as-val copies preserve isolation, signatures and sealed ownership (54 cases including accepted SDK UUID)",
+      "command": [
+        "{python}",
+        "tests/package/record_copy_contract.py",
+        "RecordCopyTests.test_canonical_copy_survives_source_and_sealed_consumption",
+        "RecordCopyTests.test_accepted_sdk_uuid_copy_keeps_original_fields"
       ],
       "group": "sanitizers",
       "linux_only": true,

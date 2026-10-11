@@ -131,8 +131,10 @@ static char *rust_closure_parameter_type(json_object *type)
         if (result) sprintf(result, "*mut %s", value);
         free(value); return result;
     }
-    json_object *native_handle = NULL;
-    if (value && json_object_object_get_ex(type, "rust_native_reference_handle", &native_handle) && json_object_get_boolean(native_handle))
+    json_object *native_handle = NULL, *native_value = NULL;
+    bool owned_native = json_object_object_get_ex(type, "rust_native_handle_value_parameter", &native_value) && json_object_get_boolean(native_value);
+    if (value && json_object_object_get_ex(type, "rust_native_reference_handle", &native_handle) && json_object_get_boolean(native_handle) &&
+        !owned_native)
     {
         char *borrowed = malloc(strlen(value) + 2);
         if (borrowed) sprintf(borrowed, "&%s", value);
@@ -464,6 +466,19 @@ static char *helper_rust_clone_suffix(json_object **params, int param_count,
     if (json_object_object_get_ex(params[0], "rust_interface_argument", &interface) &&
         json_object_get_boolean(interface)) return strdup("");
 
+    json_object *copy_argument = NULL;
+    if (json_object_object_get_ex(params[0], "rust_native_handle_copy_arg", &copy_argument) && json_object_get_boolean(copy_argument))
+    {
+        json_object *type = NULL;
+        json_object_object_get_ex(params[0], "type", &type);
+        const char *method = json_string_property(type, "rust_native_handle_copy");
+        if (method)
+        {
+            char *suffix = malloc(strlen(method) + 4);
+            if (suffix) sprintf(suffix, ".%s()", method);
+            return suffix;
+        }
+    }
     json_object *owned = NULL, *borrowed = NULL, *acquired = NULL;
     if ((json_object_object_get_ex(params[0], "rust_native_handle_owned_read", &owned) && json_object_get_boolean(owned)) ||
         (json_object_object_get_ex(params[0], "rust_native_handle_borrow_arg", &borrowed) && json_object_get_boolean(borrowed)) ||

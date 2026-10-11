@@ -135,7 +135,7 @@ static bool validate_native_plan(json_object *plan, const char *path)
     json_object *records = NULL;
     if (json_object_object_get_ex(plan, "types", &records)) {
         static const char *const fields[] = {"declaration", "identity", "c_type", "header",
-                                             "create", "retain", "release", "refs", "owner", NULL};
+                                             "create", "retain", "release", "refs", "owner", "copy", NULL};
         if ((strcmp(abi, "1.5") && strcmp(abi, "1.6") && strcmp(abi, "1.7")) || !json_object_is_type(records, json_type_array) || !json_object_array_length(records))
             return yaml_config_error(path, "native record types require ABI 1.5 or 1.6 and a nonempty sequence");
         for (size_t i = 0; i < json_object_array_length(records); i++) {
@@ -148,6 +148,10 @@ static bool validate_native_plan(json_object *plan, const char *path)
                 !native_identifier(native_text(record, "create")) || !native_identifier(native_text(record, "retain")) ||
                 !native_identifier(native_text(record, "release")) || !native_identifier(native_text(record, "refs")))
                 return yaml_config_error(path, "native record requires declaration, identity, public header/C type, create/retain/release/refs and owner atomic");
+            json_object *copy = NULL;
+            if (json_object_object_get_ex(record, "copy", &copy) &&
+                !native_identifier(native_text(record, "copy")))
+                return yaml_config_error(path, "native record copy requires a C function identifier");
             json_object *declarations = NULL;
             json_object_object_get_ex(plan, "declarations", &declarations);
             bool listed = false;

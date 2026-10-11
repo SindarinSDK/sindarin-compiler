@@ -27,7 +27,7 @@ static void native_handle_mark_types(json_object *node, json_object *handles)
             }
             json_object_object_add(node, "rust_native_reference_handle", json_object_new_boolean(true));
             const char *keys[] = {"rust_native_handle_field", "rust_native_handle_adopt",
-                "rust_native_handle_retain", "rust_native_handle_release", "rust_native_handle_refs", "rust_native_handle_borrow", "rust_native_handle_parameter_guard", NULL};
+                "rust_native_handle_retain", "rust_native_handle_release", "rust_native_handle_refs", "rust_native_handle_borrow", "rust_native_handle_parameter_guard", "rust_native_handle_copy", NULL};
             for (int k = 0; keys[k]; k++)
                 json_object_object_add(node, keys[k], json_object_new_string(native_string(handle, keys[k])));
             break;
@@ -174,8 +174,8 @@ static bool native_prepare_handles(json_object *model, RustNativePlan *plan)
             native_bool(structure, "is_packed") || native_bool(structure, "is_serializable") ||
             native_bool(structure, "has_user_copy_method")) continue;
         const char *keys[] = {"rust_native_handle_field", "rust_native_handle_adopt", "rust_native_handle_retain",
-            "rust_native_handle_release", "rust_native_handle_refs", "rust_native_handle_parameter_guard", NULL};
-        const char *roles[] = {"pointer", "adopt", "retain", "release", "refs", "parameter_guard"};
+            "rust_native_handle_release", "rust_native_handle_refs", "rust_native_handle_parameter_guard", "rust_native_handle_copy", NULL};
+        const char *roles[] = {"pointer", "adopt", "retain", "release", "refs", "parameter_guard", "copy"};
         for (int k = 0; keys[k]; k++) {
             char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_%zu_%s", i, roles[k]);
             char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), structures,

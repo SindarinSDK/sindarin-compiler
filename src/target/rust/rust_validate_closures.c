@@ -126,7 +126,7 @@ static bool rust_closure_type_supported(json_object *type)
             ? json_object_get_string(json_object_array_get_idx(quals, i)) : "default";
         if (strcmp(qual, "default") != 0 &&
             !(strcmp(qual, "as_val") == 0 && (rust_closure_array_type(param) || rust_closure_scalar_type(param) || rust_closure_string_type(param) ||
-                                           rust_auto_copy_plain_value_struct_type(param, NULL))) &&
+                                           rust_auto_copy_plain_value_struct_type(param, NULL) || json_boolean_property(param, "rust_native_reference_handle"))) &&
             !(strcmp(qual, "as_ref") == 0 && rust_closure_scalar_type(param))) return false;
         if (strcmp(qual, "as_ref") == 0 && rust_closure_scalar_type(param))
         {
@@ -134,7 +134,9 @@ static bool rust_closure_type_supported(json_object *type)
             json_object_object_add(param, "rust_closure_param_share", json_object_new_boolean(true));
         }
         if (!rust_closure_owned_type(param)) return false;
-        if (rust_closure_array_type(param) || rust_closure_reference_record_type(param))
+        bool native_value = strcmp(qual, "as_val") == 0 && json_boolean_property(param, "rust_native_reference_handle");
+        if (native_value) json_object_object_add(param, "rust_native_handle_value_parameter", json_object_new_boolean(true));
+        if (!native_value && (rust_closure_array_type(param) || rust_closure_reference_record_type(param)))
             json_object_object_add(param, "rust_closure_param_share", json_object_new_boolean(true));
         else if (json_boolean_property(param, "pass_by_ptr") &&
                  rust_auto_copy_plain_value_struct_type(param, NULL))
@@ -171,7 +173,9 @@ static bool rust_closure_same_type(json_object *a, json_object *b)
             ? json_object_get_string(json_object_array_get_idx(aq, i)) : "default";
         const char *bqual = i < rust_closure_length(bq)
             ? json_object_get_string(json_object_array_get_idx(bq, i)) : "default";
-        if ((strcmp(aqual, "as_ref") == 0) != (strcmp(bqual, "as_ref") == 0) ||
+        if ((json_boolean_property(json_object_array_get_idx(ap, i), "rust_native_reference_handle") &&
+             ((strcmp(aqual, "as_val") == 0) != (strcmp(bqual, "as_val") == 0))) ||
+            (strcmp(aqual, "as_ref") == 0) != (strcmp(bqual, "as_ref") == 0) ||
             !rust_closure_same_type(json_object_array_get_idx(ap, i),
                                    json_object_array_get_idx(bp, i))) return false;
     }

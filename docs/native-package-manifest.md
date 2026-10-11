@@ -284,3 +284,22 @@ canonical C header transport, borrowed inputs and owned results. C native, Rust/
 arrays. Rust generic Sindarin providers still receive an explicit unsupported
 body-contract diagnostic.
 Flat string/byte contracts and earlier ABI versions preserve their behavior.
+
+
+### Canonical record copy capability
+
+A `native.types` entry may declare `copy: record_copy`. Its public C prototype
+must be `CType *record_copy(const CType *)`. It borrows the input, preserves nil,
+and returns a distinct record with one owned native credit and copied values.
+The package retains responsibility for private resource/string/array copy rules;
+consumers call this C implementation instead of duplicating the foreign record.
+The builder checks the prototype and exported symbol, captures the contract in
+source/sealed metadata, and rejects conflicting public lifecycle/copy symbols.
+
+C and Rust ordinary Sindarin `as val` calls use the declared function for
+canonical record inputs. Normal assignment and borrowed calls keep retain/share
+semantics. Copy requests without this capability produce an explicit diagnostic.
+Local checks include direct/function-value calls, static/instance methods, nil,
+rebinding, separate identity and exact final destruction. Exported package-body
+parameter qualifiers, callbacks, wider copy hooks and hosted acceptance remain
+required work; this capability does not imply those wider contracts are complete.

@@ -1,0 +1,1 @@
+{{#if rust_native_handle_copy_arg}}({{> expr this}}).{{rust_ident type.rust_native_handle_copy}}(){{else}}{{> expr this}}{{rust_clone_suffix this is_copy_arg}}{{/if}}

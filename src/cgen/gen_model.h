@@ -197,4 +197,6 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
 extern const char *g_lock_var_names[MAX_LOCK_DEPTH];
 extern int g_lock_depth;
 
+bool gen_model_validate_record_copies(json_object *model, json_object *node);
+
 #endif

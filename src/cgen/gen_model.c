@@ -443,6 +443,39 @@ static void emit_ns_import_recursive(
     g_model_canonical_prefix = old_canonical;
 }
 
+bool gen_model_validate_record_copies(json_object *model, json_object *node)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (!gen_model_validate_record_copies(model, json_object_array_get_idx(node, i))) return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+    json_object *copy_arg = NULL, *name = NULL, *structs = NULL;
+    if (json_object_object_get_ex(node, "is_copy_arg", &copy_arg) && json_object_get_boolean(copy_arg) &&
+        json_object_object_get_ex(node, "copy_type_name", &name) &&
+        json_object_object_get_ex(model, "structs", &structs))
+    {
+        for (size_t i = 0; i < json_object_array_length(structs); i++)
+        {
+            json_object *structure = json_object_array_get_idx(structs, i), *actual = NULL, *record = NULL, *copy = NULL;
+            if (json_object_object_get_ex(structure, "name", &actual) &&
+                !strcmp(json_object_get_string(actual), json_object_get_string(name)) &&
+                json_object_object_get_ex(structure, "native_record", &record) &&
+                !json_object_object_get_ex(record, "copy", &copy))
+            {
+                fprintf(stderr, "Error: canonical record '%s' as-val copy requires a native.types copy contract\n", json_object_get_string(name));
+                return false;
+            }
+        }
+    }
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0 && !gen_model_validate_record_copies(model, child)) return false;
+    return true;
+}
+
 json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_table,
                              ArithmeticMode arithmetic_mode)
 {
@@ -802,6 +835,7 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     json_object_object_add(root, "fn_wrappers", g_model_fn_wrappers);
     g_model_fn_wrappers = NULL;
 
+    if (!gen_model_validate_record_copies(root, root)) { json_object_put(root); return NULL; }
     return root;
 }
 

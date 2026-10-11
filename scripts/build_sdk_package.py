@@ -119,6 +119,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                       '      identity: SindarinSDK/sindarin-pkg-sdk:'+module.rsplit('/', 1)[0].replace('/', '.')+'.'+name+'@1',
                       '      c_type: '+c_type, '      header: src/'+module+'.native.h']
             lines += ['      '+field+': '+prefix+'_'+field for field in ('create','retain','release','refs')]
+            if module == 'core/uuid': lines.append('      copy: sn_sdk_uuid_copy')
             lines.append('      owner: atomic')
     lines.append('  builds:')
     bindings = []

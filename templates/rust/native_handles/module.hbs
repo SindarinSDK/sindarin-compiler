@@ -78,6 +78,10 @@ void *{{rust_native_handle_array_new}}(long long capacity) {
     return value;
 }
 {{/if}}
+{{#if native_record.copy}}void *{{rust_native_handle_copy}}(const void *pointer) {
+    return {{native_record.copy}}((const __sn__{{name}} *)pointer);
+}
+{{/if}}
 void {{rust_native_handle_retain}}(void *pointer) {
 {{#if rust_native_serial_handle}}    (void)pointer; /* Rust owns the shared opaque serialization object. */
 {{else}}

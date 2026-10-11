@@ -362,6 +362,7 @@ def build(args):
                 c_type = record['c_type']
                 expected = {'create':c_type+' *(*)(void)', 'retain':c_type+' *(*)( '+c_type+' *)',
                             'release':'void (*)( '+c_type+' *)', 'refs':'int (*)( '+c_type+' *)'}
+                if 'copy' in record: expected['copy']=c_type+' *(*)(const '+c_type+' *)'
                 for role,signature in expected.items():
                     lines.append(f'_Static_assert(_Generic(&{record[role]}, {signature}: 1, default: 0), "record {role} prototype differs");')
             probe.write_text('\n'.join(lines)+'\n')
@@ -530,7 +531,8 @@ def build(args):
                         if name not in symbols and '_'+name not in symbols:raise ValueError('package lifecycle export missing: '+name)
                     units[-1]['package_lifecycle']=lifecycle
         for record in native.get('types',[]):
-            for role in ('create','retain','release','refs'):
+            for role in ('create','retain','release','refs','copy'):
+                if role not in record: continue
                 symbol=record[role]
                 if symbol not in defined_symbols and '_'+symbol not in defined_symbols:
                     raise ValueError(f'native record lifecycle export missing: {record["declaration"]}::{role} ({symbol})')

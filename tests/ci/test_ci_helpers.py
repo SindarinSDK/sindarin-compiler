@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 373)
+        self.assertEqual(report['gates'], 377)
         for name in ('artifacts', 'native'):
             for sanitized in (False, True):
                 identity = 'sdk-random-' + name + ('-sanitizers' if sanitized else '')
