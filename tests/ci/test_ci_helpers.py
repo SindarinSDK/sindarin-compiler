@@ -1,5 +1,6 @@
 import contextlib
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -157,6 +158,14 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(len(sdk), 1)
         self.assertEqual(sdk[0]['group'], 'core')
         self.assertFalse(sdk[0]['linux_only'])
+
+        spec = importlib.util.spec_from_file_location('sdk_native_dispatch', ROOT / 'scripts/check_sdk_native.py')
+        dispatcher = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(dispatcher)
+        for gate in self.catalog['gates']:
+            command = gate['command']
+            if command[:2] == ['{python}', 'scripts/check_sdk_native.py']:
+                self.assertIn(command[2], dispatcher.CHECKS, gate['id'])
 
         for ident in ('sdk-time-date-artifacts', 'sdk-time-date-native', 'sdk-dtls-lifecycle',
                       'canonical-record-copy', 'sdk-record-copies',
