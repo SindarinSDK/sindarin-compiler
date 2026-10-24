@@ -182,6 +182,7 @@ jobs:
           .sn/rust-parity-*.json
           .sn/*-lifetimes.json
           .sn/runtime-abi*.json
+          .sn/rust-record-body-dispatch*.json
           .sn/sdk-artifact-validation.json
           .sn/sdk-math-artifact*.json
           .sn/native-header-aliases*.json

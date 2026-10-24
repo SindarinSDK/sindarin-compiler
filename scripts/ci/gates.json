@@ -1770,7 +1770,7 @@
     },
     {
       "id": "rust-sindarin-record-bodies",
-      "name": "Rust Sindarin canonical record body ownership and sealed aliases (72 mode cases)",
+      "name": "Rust Sindarin canonical record body ownership, provider dispatch and sealed aliases (144 mode cases)",
       "command": [
         "{python}",
         "tests/package/rust_record_bodies.py"
@@ -1780,7 +1780,7 @@
     },
     {
       "id": "rust-sindarin-record-bodies-sanitizers",
-      "name": "Rust Sindarin canonical record body ownership and sealed aliases (72 mode cases)",
+      "name": "Rust Sindarin canonical record body ownership, provider dispatch and sealed aliases (144 mode cases)",
       "command": [
         "{python}",
         "tests/package/rust_record_bodies.py",

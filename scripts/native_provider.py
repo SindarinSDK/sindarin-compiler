@@ -562,7 +562,7 @@ def go_provider(signatures, module, main=True, root=None):
     return '\n'.join(lines)+'\n'
 
 
-def c_consumer(signature, package):
+def c_consumer(signature, package, *, retain_record_inputs=True):
     binding = signature['binding']
     symbol, alias = binding['symbol'], signature['adapter']
     if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', symbol):
@@ -624,8 +624,14 @@ def c_consumer(signature, package):
         elif kind(p['type']) == 'record':
             record = p['type']['native_record']
             destroy = records.index(record)
-            code += [f'  SnAbiValue *w{i} = NULL;', f'  if (p{i}) {{ {record["retain"]}(p{i});',
-                     f'    if (sn_abi_v1_resource_new_typed({json.dumps(record["identity"])}, p{i}, {alias}_record_destroy_{destroy}, 0, &w{i}) != SN_ABI_OK) {{ {record["release"]}(p{i}); abort(); }}', '  }']
+            if retain_record_inputs:
+                code += [f'  SnAbiValue *w{i} = NULL;', f'  if (p{i}) {{ {record["retain"]}(p{i});',
+                         f'    if (sn_abi_v1_resource_new_typed({json.dumps(record["identity"])}, p{i}, {alias}_record_destroy_{destroy}, 0, &w{i}) != SN_ABI_OK) {{ {record["release"]}(p{i}); abort(); }}', '  }']
+            else:
+                # An internal body call already has a caller/export loan. Its
+                # wire shell borrows that record without adding a visible credit.
+                code += [f'  SnAbiValue *w{i} = NULL;',
+                         f'  if (p{i} && sn_abi_v1_resource_new_typed({json.dumps(record["identity"])}, p{i}, NULL, 0, &w{i}) != SN_ABI_OK) abort();']
     arguments = [f'w{i}' if kind(p['type']) in ('string','string_array','byte_array','native_array','record') else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
     if result != 'void': code += [f'  {TYPES[result][1]} wire_result = {{0}};']
     if status:

@@ -77,6 +77,14 @@ record fields. Native function references use the same provider adapters. This
 applies to both C and Rust package bodies; generated C implementation namespaces
 are introduced after the original includes.
 
+Private calls to generated raw backing functions reuse the body's existing
+record loans. Their temporary wire shells add no extra visible C record credit;
+export/input leases still protect the caller's value through reentrant calls.
+Handwritten wire exports receive owning record transports, so explicitly
+retaining an input wire keeps its C object alive after the body returns. Both
+forms use the declared provider, including bindings without a `function` field.
+Borrowed record results acquire their output credit before input cleanup.
+
 Header-only native declarations can retain their original `@include` and `@link`
 directives without a fabricated backing C sidecar. The Math SDK stage exports
 all 145 original functions: 70 native C math bindings, including float aliases,

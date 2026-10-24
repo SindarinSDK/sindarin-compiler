@@ -3,6 +3,7 @@
 #include "target/rust/rust_native.h"
 #include "target/rust/rust_native_internal.h"
 #include "target/rust/projection/rust_model.h"
+#include "cgen/gen_model.h"
 #include "debug.h"
 #include <ctype.h>
 #include <limits.h>

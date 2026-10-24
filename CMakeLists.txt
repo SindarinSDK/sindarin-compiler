@@ -58,6 +58,12 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wno-typedef-redefinition)
 endif()
 
+# Keep the Rust emitter's shared-model API calls checked on GCC as on Clang.
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    set_property(SOURCE src/target/rust/rust_target.c APPEND PROPERTY
+        COMPILE_OPTIONS -Werror=implicit-function-declaration)
+endif()
+
 # Define _GNU_SOURCE for Linux extensions
 add_compile_definitions(_GNU_SOURCE)
 

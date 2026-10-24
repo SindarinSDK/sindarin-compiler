@@ -1,0 +1,198 @@
+{
+  "status": "Complete local validation of combined Math correction; complete corrected hosted CI still required",
+  "base": "8f30280d144bd23b73840d7b197594ff5499be0a",
+  "failed_CI": 40139366314,
+  "failed_CI_jobs_observed": 47,
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "compiler_sha256": "43884d26b822f6aa01d36bb22e968bb1a06bf6efb05c2f2f846ee9e48248371b",
+  "code_sha256": {
+    "CMakeLists.txt": "3ee0e611ed404c6f947c0265fa278195fbcce6306ffdf01907193b0288e9606f",
+    "scripts/ci/gates.json": "d3865e0c211e5ad8283a7602f05f9351a9dedd06ecbf74cb3796a337a8d9c762",
+    "scripts/native_provider.py": "a98462f2ff92a54f9f829cdba694a530266a00f327979ac9643afc9e914676e8",
+    "scripts/sindarin_library.py": "eedfe1ab115c8cd4186bb72f135eed66d8a04bfdb9906a0ec8a22ab337142e30",
+    "src/target/rust/rust_target.c": "7694859b3610de5fdd7b59d7a98ca78361dd9a12913b4d506aed6a4935636b23",
+    "tests/package/rust_record_bodies.py": "5fe46501e7ef96a453f479093f64c531e4d82061c1de5c03126642f53f9fd8ab"
+  },
+  "root_causes": [
+    {
+      "failure": "Windows/macOS Clang rejects undeclared gen_model_bind_package_natives in Rust emitter",
+      "fix": "Include shared model API header; both GCC compiler/test Rust emitter objects enforce Werror=implicit-function-declaration; strict local before fails/after passes"
+    },
+    {
+      "failure": "Linux provider/SAN record body getter observes3credits instead of existing2",
+      "fix": "Private generated raw providers borrow existing caller/export record loans instead of adding native credits. Logical provider dispatch remains active; original oracle unchanged."
+    }
+  ],
+  "additional_contract_regression": {
+    "old_behavior": "Handwritten wire bindings were omitted from body imports because provider signatures cover only generated functions",
+    "fix": "Resolve manual wire import types from checked model; keep owning record transport for wire providers, supporting retained input wires after return"
+  },
+  "record_body_tests_normal": 10,
+  "record_body_tests_SAN": 10,
+  "record_mode_cases_normal": 144,
+  "record_mode_cases_SAN": 144,
+  "new_record_wire_clients_per_environment": 4,
+  "record_oracles": {
+    "existing_count": 2,
+    "selected_raw_provider_count": 102,
+    "in_call_owner_release_raw_wire_count": 101,
+    "owned_wire_escape_count": 102,
+    "final_destroyed": 1
+  },
+  "Math_header_focused_normal": 144,
+  "Math_header_focused_C_SAN": 144,
+  "full_C": 3243,
+  "full_Rust": 1099,
+  "SDK_smoke_cases": 84,
+  "SDK_smoke_modules": 19,
+  "prior_full_SDK_cases": 756,
+  "prior_full_SDK_evidence": "docs/rust-parity-evidence/math-SDK19-local.json.gz",
+  "package_imports": 52,
+  "native_artifacts": 22,
+  "CI_helpers": 27,
+  "formatting": "passed",
+  "platform_gate_executions": 449,
+  "platform_groups": 41,
+  "catalog": "All193 IDs/commands/environments/platform selections preserved; two descriptions update record mode count to144",
+  "source_preservation": "No existing Sindarin programs or original behavioral/diagnostic oracles changed. Prior1365/1158/281input equality proof retained on base.",
+  "retained": {
+    "failed-CI-run.json": {
+      "path": "docs/rust-parity-evidence/math-correction-failed-CI-run.json.gz",
+      "sha256": "fbf6fabea90d7b2055cc82b6077644123361b93fed8b02503654c44a17e6233d"
+    },
+    "Build-Windows.log": {
+      "path": "docs/rust-parity-evidence/math-correction-Build-Windows.log.gz",
+      "sha256": "0cef7ae19d0d9a613c73fa7486a87400c526c623937e87fee3043cccee1d899d"
+    },
+    "Build-Darwin.log": {
+      "path": "docs/rust-parity-evidence/math-correction-Build-Darwin.log.gz",
+      "sha256": "7283950175f99c84fc9870acbf4c2b474601b673f98c4fe928ba6cbcd297cde1"
+    },
+    "providers-Linux.log": {
+      "path": "docs/rust-parity-evidence/math-correction-providers-Linux.log.gz",
+      "sha256": "838a57b8f2aed12bf2ff1d61e884f309fb03137ebbb46c1c658549c54e01477a"
+    },
+    "sanitizers-Linux.log": {
+      "path": "docs/rust-parity-evidence/math-correction-sanitizers-Linux.log.gz",
+      "sha256": "889219dffd398020a14e8a08ec2f0e68d3ffd0c30d23d52af84f304984fa9a02"
+    },
+    "strict-before.log": {
+      "path": "docs/rust-parity-evidence/math-correction-strict-before.log.gz",
+      "sha256": "8c96037bd7a0dd94ba4519a11e9030b5ba66a4bcdd2ead21a223fd0ccfa4f18e"
+    },
+    "strict-after.log": {
+      "path": "docs/rust-parity-evidence/math-correction-strict-after.log.gz",
+      "sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    "strict-compile-commands.log": {
+      "path": "docs/rust-parity-evidence/math-correction-strict-compile-commands.log.gz",
+      "sha256": "d15ea1b5eadf4909b97a165765a4fde945420e56a0431f6eb1ff54e554b9078c"
+    },
+    "record-body-repro.log": {
+      "path": "docs/rust-parity-evidence/math-correction-record-body-repro.log.gz",
+      "sha256": "273a5bf5c44eb6c6b790e483d4113cb92957fa69b1254714d2356a3f0c33b154"
+    },
+    "record-body-after.log": {
+      "path": "docs/rust-parity-evidence/math-correction-record-body-after.log.gz",
+      "sha256": "0d1cbd4932973dbc2672afa712b101131678630926f4f09762548fadbaee634a"
+    },
+    "record-bodies-final4-normal.log": {
+      "path": "docs/rust-parity-evidence/math-correction-record-bodies-final4-normal.log.gz",
+      "sha256": "ff7ec2be7125cf4d251c174054d40ab1566766e4ec414a3ce2561dd8fa7dc69d"
+    },
+    "record-bodies-final4-sanitized.log": {
+      "path": "docs/rust-parity-evidence/math-correction-record-bodies-final4-sanitized.log.gz",
+      "sha256": "7bc8119a8df56699856c1c88772b3ed280eda9a9586b7c867dd589399e0a633e"
+    },
+    "custom-wire-final3-normal.log": {
+      "path": "docs/rust-parity-evidence/math-correction-custom-wire-final3-normal.log.gz",
+      "sha256": "97e3926f8288068d124d92cb76e8440b29ae95c9288a7a5c071293c0c9e42b23"
+    },
+    "custom-wire-final3-sanitized.log": {
+      "path": "docs/rust-parity-evidence/math-correction-custom-wire-final3-sanitized.log.gz",
+      "sha256": "4dadcee905c3ba9ddf89c30f4fccd9af7f921ae26e4f64c787b241ed2cc7abd2"
+    },
+    "correction-final-core-C.log": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-final-core-C.log.gz",
+      "sha256": "4eedf4be1c10e0883e3ffa1f07ce72a9aaccde9d687e1cbf2185fcc3118c3395"
+    },
+    "correction-final-core-Rust.log": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-final-core-Rust.log.gz",
+      "sha256": "8132a6f2dd0275dc0c5ae7eaa6e6e5056946a1a89c6e7d36dbf12d0c2eb6cb60"
+    },
+    "correction-wire-final-imports.log": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-wire-final-imports.log.gz",
+      "sha256": "13f0b3f50cff68c136c158bf0da5c549ea85767026467f6d62d41cc71ca83115"
+    },
+    "correction-wire-final-artifacts.log": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-wire-final-artifacts.log.gz",
+      "sha256": "a12e543ec02899f590cc82c5a836736f0380276c7ac60e37a5f534f1bffee2a3"
+    },
+    "correction-wire-final-CI-helpers.log": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-wire-final-CI-helpers.log.gz",
+      "sha256": "2e824d3dadd81403e016990072a0207e2a364bf4cd2dfc95382b488f6b016107"
+    },
+    "correction-wire-final-format.log": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-wire-final-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    "correction-status.json": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-status.json.gz",
+      "sha256": "b0e89b7a1f033e136b0d760903f536415784ec58476e6dac0df38998a63db0fa"
+    },
+    "correction-final-broad-status.json": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-final-broad-status.json.gz",
+      "sha256": "6eb4314c1b4c5966acf5de3f516cd2439d0d73cc46c476ae295c7a4e45953741"
+    },
+    "correction-final-focused-status.json": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-final-focused-status.json.gz",
+      "sha256": "82b42629cd11aa0654cbd6a33c957d9640e07dca504698fc6aab39ef134c83e6"
+    },
+    "correction-wire-final-status.json": {
+      "path": "docs/rust-parity-evidence/math-correction-correction-wire-final-status.json.gz",
+      "sha256": "d8266150d5b4250540a394b9f68db1911cfe34587e35dfeff8e82b5547a85274"
+    },
+    "sdk-math-artifact.json": {
+      "path": "docs/rust-parity-evidence/math-correction-sdk-math-artifact.json.gz",
+      "sha256": "319fb788c2ad84693089488c99b5c59331789c322e01c3371502828d90919c26"
+    },
+    "sdk-math-artifact-sanitized.json": {
+      "path": "docs/rust-parity-evidence/math-correction-sdk-math-artifact-sanitized.json.gz",
+      "sha256": "ece80b9ebae260220597373e2ab0a818ac09015953c57b0c856dca0194b2c04e"
+    },
+    "native-header-aliases.json": {
+      "path": "docs/rust-parity-evidence/math-correction-native-header-aliases.json.gz",
+      "sha256": "eb19b7f7e1319ba47636866dd713ae6ce6b3e57ccfbe7c930e0f928ec0e5f63a"
+    },
+    "native-header-aliases-sanitized.json": {
+      "path": "docs/rust-parity-evidence/math-correction-native-header-aliases-sanitized.json.gz",
+      "sha256": "f48b93025be1bdfea1b6c45f55f725e95b7d1db357ac0c48ac0219d4972ccf6e"
+    },
+    "sdk-artifact-validation.json": {
+      "path": "docs/rust-parity-evidence/math-correction-sdk-artifact-validation.json.gz",
+      "sha256": "00f0f4cc6d5de3075792c32fc412c7f794394a250d95187f23a29791174498ba"
+    },
+    "runtime-abi.json": {
+      "path": "docs/rust-parity-evidence/math-correction-runtime-abi.json.gz",
+      "sha256": "f2893d3b00460eae6800ef9298715918432680ceb2e073c29379e2db9c2b6362"
+    },
+    "rust-record-body-dispatch.json": {
+      "path": "docs/rust-parity-evidence/math-correction-rust-record-body-dispatch.json.gz",
+      "sha256": "9199fe455c6d2ec28ff9eacae356f9eb798a349cc95a9486a2ff27e324cf5999"
+    },
+    "rust-record-body-dispatch-sanitized.json": {
+      "path": "docs/rust-parity-evidence/math-correction-rust-record-body-dispatch-sanitized.json.gz",
+      "sha256": "cfdff207b23629ae71fcf2ae8b3bb866086eb5c5ed6322c59a18aa472f710c17"
+    },
+    "rust-record-body-dispatch-C.json": {
+      "path": "docs/rust-parity-evidence/math-correction-rust-record-body-dispatch-C.json.gz",
+      "sha256": "a46ede77b2517dca512cbfbd0137278b80c00dc225bc6c9501d0b549296278b2"
+    },
+    "rust-record-body-dispatch-C-sanitized.json": {
+      "path": "docs/rust-parity-evidence/math-correction-rust-record-body-dispatch-C-sanitized.json.gz",
+      "sha256": "0b79adc48989ee0fe038b567d5a78340c54b99b514bd84a261423413e293471e"
+    }
+  },
+  "scope": "This correction closes these observed regressions and wire input contract; full SDK/ownership/generic/native qualifier/original corpus mode-platform goal remains open. Feature pushes frozen until corrected main complete CI green.",
+  "ABI_clients_unchanged_runtime": 17
+}
