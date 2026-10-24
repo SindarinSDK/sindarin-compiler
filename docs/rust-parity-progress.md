@@ -1,3 +1,12 @@
+## Void reflection and character iterators: combined validation pending, 2026-10-24
+
+The two locally validated language repairs are composed on corrected main
+3a9dd77b. Every existing gate is preserved; four new gate definitions require
+429 platform executions in 41 groups. Original sources and diagnostic oracles
+remain untouched. Fresh combined oracle, sanitizer and complete C/Rust suites
+are required before publication. Correction CI 40128862955 remains pending,
+so this batch is local.
+
 ## Character iterator bindings: complete local validation, 2026-10-24
 
 Rust now accepts postfix increment/decrement of character iterator bindings.
@@ -18,6 +27,40 @@ existing gate; two new gates add four platform executions, for 425 gates in 41
 groups. Publication remains held until correction CI 40128862955 is completely
 accepted and the feature has publication capacity. No existing Sindarin source
 is rewritten. Evidence: [character-iterator-local-validation.json](rust-parity-evidence/character-iterator-local-validation.json).
+
+## Void reflection on corrected main: complete local validation, 2026-10-24
+
+Composition `61d0705f` includes corrected main `3a9dd77b`. All 27 independent
+reflection cases pass normally and with C sanitizers; complete suites pass
+3,243 C and 1,099 Rust checks. All 27 CI helpers and formatting pass. Original
+Sindarin source and diagnostics remain unchanged. The feature retains every
+existing gate and adds four platform executions, for 425 gates in 41 groups.
+Publication remains held until correction CI 40128862955 is completely green;
+the feature still needs its own complete hosted acceptance.
+Evidence: [void-reflection-composed-local-validation.json](rust-parity-evidence/void-reflection-composed-local-validation.json).
+
+## Void reflection: local validation, publication held, 2026-10-24
+
+Rust now accepts `typeOf` on a void-returning expression and emits the existing
+compile-time TypeInfo metadata. Calls, mutation, printing and exit in the
+operand remain unevaluated, matching the C contract. The original rejected
+program and diagnostic oracle retain their exact bytes; a promotion marker
+records the successful output contract.
+
+All 27 independent output-oracle mode cases pass normally and with C address,
+undefined and leak checks. Controls cover original scalar/array/record metadata,
+void metadata through a function result, reference arguments and non-evaluated
+printing/exit. Complete local suites pass 3,243 C and 1,099 Rust checks, with
+25 CI helper tests and formatting passing. Two new gates require 425 platform
+executions across the existing 41 groups. This isolated feature remains local
+until the required CI correction is accepted and must compose onto corrected
+main before publication. No existing Sindarin source is rewritten.
+
+A scratch control that reads the length of empty TypeInfo.fields exposes an
+existing C null dereference in sn_array_length. Its source and sanitizer evidence
+are retained separately and receive no defined-C parity credit. The final
+controls inspect fieldCount and type metadata without dereferencing that null
+array. Evidence: [void-reflection-local-validation.json](rust-parity-evidence/void-reflection-local-validation.json).
 
 ## CI dependency correction: feature publication frozen, 2026-10-24
 

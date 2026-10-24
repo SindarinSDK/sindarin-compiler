@@ -1,0 +1,48 @@
+{
+  "base": "3e969e2d",
+  "publication": "held during required CI correction freeze; compose onto accepted corrected main before publishing",
+  "original_source": "tests/rgen/errors/typeof_void.sn",
+  "source_and_diagnostic_unchanged": true,
+  "normal_independent_oracle_cases": 27,
+  "sanitizer_independent_oracle_cases": 27,
+  "CI_helper_tests": 25,
+  "required_platform_gates": 425,
+  "platform_groups": 41,
+  "full_C_and_Rust": "passed",
+  "validation_sessions": {
+    "full_Rust": 24690,
+    "full_C": 85884
+  },
+  "scratch_C_failure": {
+    "source": ".sn/void-effects.sn",
+    "diagnostic": ".sn/void-effects-sanitizer-run.log",
+    "cause": "C sn_array_length(NULL) when inspecting an empty TypeInfo.fields array",
+    "status": "retained separately; no defined-C parity credit"
+  },
+  "initial_harness_failure": {
+    "report": ".sn/void-reflection-harness-collision.json",
+    "cause": "Dotted executable stems reused rustc intermediate names across concurrent modes",
+    "correction": "unique numeric executable identities; all 27 normal and sanitizer cases pass"
+  },
+  "C_checks": 3243,
+  "Rust_checks": 1099,
+  "compiler_sha256": "a8bd8e2344eb733c15cf9b6174b7f778d33f601daf319c12fd1b9b5b12cc6438",
+  "reports": [
+    {
+      "path": "docs/rust-parity-evidence/void-reflection-local.json.gz",
+      "sha256": "06bbff4521c510c334d929a83f9acd1af74fe4891049fac4329adb2670d7cace"
+    },
+    {
+      "path": "docs/rust-parity-evidence/void-reflection-sanitizers-local.json.gz",
+      "sha256": "9422ff3943cceab142385e49a87951309298a7430d0b3f6b848f23696a484fd7"
+    }
+  ],
+  "logs": {
+    "void-full-c": "85c30823417b6f874d345e5592c83ce34e55894d13545f6704105b53a667a877",
+    "void-full-rust": "cf61c74e8dbc4fb27f7fd4b5d24eb56fb7e4b2d728c71458fd998c72509d59a2",
+    "void-ci-helpers": "78d442b904427a38ad658f12c0c5068a39949f1d90494f4fee1746b50c1bf98a",
+    "void-format": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+    "void-oracles": "3e2983cc9c997c43af843e1170f8af56af2ad130d0ead0fc0a2161776941f304",
+    "void-oracles-sanitizers": "f762118805f2e960d4f7ad115385edeb25e9f6d5725c7be87f369a9dc3cf62ab"
+  }
+}

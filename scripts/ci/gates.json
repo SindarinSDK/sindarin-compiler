@@ -2258,6 +2258,27 @@
       ],
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "void-reflection",
+      "name": "Void typeOf metadata and unevaluated calls, output, mutation and exit",
+      "command": [
+        "{python}",
+        "scripts/check_rust_void_reflection.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "void-reflection-sanitizers",
+      "name": "Void typeOf metadata and unevaluated calls, output, mutation and exit with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_void_reflection.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }

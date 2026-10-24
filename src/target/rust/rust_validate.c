@@ -138,18 +138,11 @@ static bool rust_typeof_type_supported(json_object *type)
         strcmp(kind, "uint32") == 0 || strcmp(kind, "double") == 0 ||
         strcmp(kind, "float") == 0 || strcmp(kind, "bool") == 0 ||
         strcmp(kind, "char") == 0 || strcmp(kind, "byte") == 0 ||
-        strcmp(kind, "string") == 0;
+        strcmp(kind, "string") == 0 || strcmp(kind, "void") == 0;
 }
 
 static bool rust_validate_typeof_operand(json_object *reflected_type)
 {
-    const char *kind = json_string_property(reflected_type, "kind");
-    if (kind && strcmp(kind, "void") == 0)
-    {
-        fprintf(stderr,
-                "Error: Rust target does not support typeOf for void operands\n");
-        return false;
-    }
     if (!rust_typeof_type_supported(reflected_type))
     {
         fprintf(stderr,

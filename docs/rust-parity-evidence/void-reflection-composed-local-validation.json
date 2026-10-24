@@ -1,0 +1,37 @@
+{
+  "revision": "61d0705fccd01da5c2cc0b610e24eed326dcef1c",
+  "corrected_main": "3a9dd77bd4fc9acd17baf27d52096ec4b29be1aa",
+  "status": "Complete local composed validation; no hosted feature acceptance or final parity claimed",
+  "full_suites": {
+    "c": 3243,
+    "rust": 1099
+  },
+  "CI_helpers": 27,
+  "platform_gates": 425,
+  "platform_groups": 41,
+  "existing_Sindarin_source_and_original_oracles_changed": false,
+  "publication": "Held until correction CI40128862955 passes; feature requires its own complete hosted CI",
+  "reports": {
+    "void-reflection": {
+      "path": "docs/rust-parity-evidence/void-reflection-composed-local.json.gz",
+      "sha256": "d56a1fb2f3b33a0633318975087620bd1c808767a3d6510aa4eac5b7d5889cde",
+      "compiler_sha256": "a8bd8e2344eb733c15cf9b6174b7f778d33f601daf319c12fd1b9b5b12cc6438",
+      "cases": 27
+    },
+    "void-reflection-sanitizers": {
+      "path": "docs/rust-parity-evidence/void-reflection-sanitizers-composed-local.json.gz",
+      "sha256": "f18b94ddbfee92b1121b8ade88bbfe1fc469956e17ad37ce213516c9dbe0e1b9",
+      "compiler_sha256": "a8bd8e2344eb733c15cf9b6174b7f778d33f601daf319c12fd1b9b5b12cc6438",
+      "cases": 27
+    }
+  },
+  "log_sha256": {
+    "build": "be9deed967f59c614b326757bc30243da54642205c43410dc88a6f8c2243afb6",
+    "ci-helpers": "928ba1dacf01c58b43b7048579c8780bcc2ef328ad4df93b1992407563fb5abf",
+    "format": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+    "oracles": "3216eb3823a76782be8d637e6117352dbfe23f346e4838baba08c8c00402afb0",
+    "oracles-sanitizers": "425bfa58c85e20aa113f703658defe0b4ced5a109ed0a7d685ce1db102bf0d4b",
+    "full-c": "b972ba8b8a34773d458542779643cb2fd229a93fad5e62ce48627c52b4fdc103",
+    "full-rust": "509fa4363b36a8c03fdcaf084b6657bf0fe20de240dd1d123f45dd5689d6bfe0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "source_sha256": "1d973522b707d06ecf8b4c43d5e9fa5ea6270bd162b48edb97d4775589c4bd4c",
+  "legacy_oracle_sha256": "665a8839da19cb928c37185ccea66f3b29768424e602969648087631ba5e99fa",
+  "stdout_hex": "766f69640a",
+  "exit": 0,
+  "reason": "typeOf resolves void metadata at compile time without evaluating its operand"
+}
