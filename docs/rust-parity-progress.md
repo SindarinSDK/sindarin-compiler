@@ -1,3 +1,22 @@
+## CI core partition: locally validated, 2026-10-24
+
+The current core jobs serialize package imports, native providers and all SDK
+artifact/native checks; Windows and macOS core remain live after nearly an
+hour. A local CI-only batch partitions these commands into packages, providers,
+SDK corpus, SDK artifacts and SDK native groups. All 179 gate definitions remain
+identical and in order apart from their group: commands, flags, environment,
+fixture counts and platform policy have the same sealed contract hash. The
+required platform-gate count remains 421; platform groups increase from 26 to
+41 (49 complete CI jobs). No compiler, runtime, template or Sindarin source changes.
+
+All 25 CI helper tests pass, including missing/duplicate/failed/wrong-revision
+and mixed-compiler report rejection. The actual workflow matrix matches the
+catalog, moved groups retain Go/SDK requirements, and ABI/full SDK report files
+are now retained explicitly. Workflow YAML parses. This batch remains local
+while both independent feature slots are occupied; hosted acceptance is still
+required. Evidence:
+[ci-core-partition-local-validation.json](rust-parity-evidence/ci-core-partition-local-validation.json).
+
 ## SDK Yaml correction accepted; XML composition published, 2026-10-24
 
 SDK corrected main `db7dfe9` passes all seven required jobs in
