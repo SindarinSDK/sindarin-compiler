@@ -2239,6 +2239,61 @@
       "linux_only": true
     },
     {
+      "id": "sdk-yaml-artifacts",
+      "name": "Canonical Yaml artifacts: unchanged API, node aliases, copies and nil behavior",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_yaml_artifact.py"
+      ],
+      "group": "sdk-artifacts",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-yaml-artifacts-sanitizers",
+      "name": "Canonical Yaml artifacts: unchanged API, node aliases, copies and nil behavior with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_yaml_artifact.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "sdk-yaml-native",
+      "name": "Canonical Yaml native: unchanged API, node aliases, copies and nil behavior",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "yaml"
+      ],
+      "group": "sdk-native",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-yaml-native-sanitizers",
+      "name": "Canonical Yaml native: unchanged API, node aliases, copies and nil behavior with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "yaml",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
       "id": "character-iterator",
       "name": "Character iterator postfix byte domain, result values, forwarding and nested control flow",
       "command": [

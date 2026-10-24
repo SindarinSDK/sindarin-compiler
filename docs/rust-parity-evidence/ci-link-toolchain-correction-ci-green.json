@@ -1,0 +1,31 @@
+{
+  "revision": "3a9dd77bd4fc9acd17baf27d52096ec4b29be1aa",
+  "CI": 40128862955,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40128862955",
+  "required_jobs": 49,
+  "successful_jobs": 49,
+  "coverage": {
+    "revision": "3a9dd77bd4fc9acd17baf27d52096ec4b29be1aa",
+    "groups": 41,
+    "gates": 421,
+    "compilers": {
+      "Linux": "a58fd16da823c96d4c495f4b474235c95aa2602ab2674f7f4384f8659de9bc46",
+      "Darwin": "32c156d7d030e86a7b17025cac18bd429171f246eec903fd9b3ec3e2d496cd9d",
+      "Windows": "34889bb043e13bef8b09c3a89d355454f7de6b8aa74cfb15b0eb725a3f725a9f"
+    },
+    "passed": true
+  },
+  "catalog_sha256": "a9a5a9676033b67d7c232073e76041d7e5ce4a45f922509c2073f384f29fda79",
+  "SDK_pin": "0b71e84694230f5745bac5254d3811e696f892f5",
+  "all_original_gate_commands_flags_and_fixtures_preserved": true,
+  "source_preservation": "All 1365 original program sources unchanged from accepted goal-start835; no existing SDK Sindarin declaration or original oracle rewritten",
+  "accepted_scope": "Corrected integrated compiler, XML/record arrays/internal native package calls, dynamic scalar match, CI group partition and platform library resolution; full remaining Rust/C goal not complete",
+  "historical_failed_runs_preserved": [
+    40124214770,
+    40126421775
+  ],
+  "retained_run": {
+    "path": "docs/rust-parity-evidence/ci-link-toolchain-correction-ci-run.json.gz",
+    "sha256": "d49dd08e685db4b89138a996b047ab6195b37d601ddc5e8fe17e7b739321e154"
+  }
+}

@@ -1,3 +1,13 @@
+## Three language repairs composed with Yaml main: verification pending, 2026-10-24
+
+The void reflection, character iterator and scalar parameter RHS repairs are
+locally composed with published Yaml main bf648b47. Every existing gate remains
+identical; six language gates add twelve platform executions, for 441 in 41
+groups. Existing Sindarin sources and original diagnostic oracles are unchanged.
+Fresh combined focused/sanitizer, complete C/Rust, eighteen-module SDK smoke and
+shared ABI validation is required before publication. The independent Yaml batch
+continues its own complete CI 40131368626.
+
 ## Scalar value-parameter assignment after reference calls: local validation, 2026-10-24
 
 Direct assignment can now finish a call borrowing a scalar value parameter
@@ -98,6 +108,63 @@ existing C null dereference in sn_array_length. Its source and sanitizer evidenc
 are retained separately and receive no defined-C parity credit. The final
 controls inspect fieldCount and type metadata without dereferencing that null
 array. Evidence: [void-reflection-local-validation.json](rust-parity-evidence/void-reflection-local-validation.json).
+
+## Corrected compiler accepted; Yaml published for CI, 2026-10-24
+
+Corrected main `3a9dd77b` passes all 49 required jobs in
+[CI 40128862955](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40128862955).
+Retained coverage verifies all 421 gates in 41 platform groups and exactly one
+compiler hash on Linux/macOS/Windows. Go setup, platform library mapping and
+canonical fixture path corrections are accepted. The original XML and partition
+runs remain failed historical evidence; their known causes are repaired in the
+accepted integrated revision. The feature publication freeze is lifted.
+Evidence: [ci-link-toolchain-correction-ci-green.json](rust-parity-evidence/ci-link-toolchain-correction-ci-green.json).
+
+The composed Yaml artifact batch is now published for complete hosted CI. Its
+18 modules/36 units pass 720 local caller/stdin cases, 72 focused normal and 72
+sanitizer cases, full C/Rust suites and seventeen ABI clients on accepted SDK
+db7dfe9. All existing gate definitions are preserved; four Yaml gates bring the
+required platform total to 429 in the same 41 groups. Existing Sindarin source,
+SDK declarations and original oracles remain unchanged. Whole SDK, remaining
+language/package contracts and final corpus/platform proof remain open.
+
+## Yaml composition on corrected main: complete local validation, 2026-10-24
+
+The Yaml artifact branch is locally composed with corrected main `3a9dd77b`.
+It preserves the new CI group split, pinned Go setup, canonical fixture paths
+and native-consumer library resolution. All 179 existing gate definitions are
+identical; the four Yaml gates add eight platform executions for 429 in 41
+groups. All 27 CI helpers pass, including both newly added correction regressions.
+The SDK pin is accepted `db7dfe9`. No existing Sindarin source changes.
+
+Fresh composed validation passes all 720 SDK cases (648 unchanged original
+callers and 72 stdin controls), 72 focused normal/72 focused sanitizer cases,
+3,243 C/1,099 Rust checks and all seventeen ABI clients. Every retained report
+uses the one composed compiler hash. All SDK input files match accepted db7.
+The earlier isolated 720-case result is retained separately. Corrected main
+passes all 49 jobs in CI 40128862955. This Yaml batch is published for its own
+complete hosted compiler validation.
+Evidence: [sdk-yaml-artifacts-composed-local-validation.json](rust-parity-evidence/sdk-yaml-artifacts-composed-local-validation.json).
+
+## Yaml compiler artifacts: complete local SDK checkpoint, 2026-10-24
+
+The local `development/sdk-yaml-artifacts` branch stages all eighteen modules
+and 36 C/Sindarin units without altering public source. All 720 original caller
+and stdin cases pass from source and sealed archives across both app targets
+and all nine optimization/arithmetic modes. Focused Yaml/Environment archives
+retain all 54 exports in four units, passing 72 normal and 72 strict sanitizer
+cases. Controls cover parent cleanup, removed/replaced aliases, deep copies,
+ordinary/indirect as-val calls, copyOf and typed/literal nil behavior. The
+original Yaml caller imports Environment; its source is preserved and the
+artifact manifest supplies that dependency. All 23 CI helpers pass.
+
+SDK source `f8fefe1` is identical to accepted correction `db7dfe9` for all native
+and Sindarin implementation files; the correction has complete SDK CI acceptance
+in 40122926614. Compiler XML dependency `a6ccac70` still awaits CI 40124214770.
+This branch remains local. Current-main/CI-partition composition, relevant full
+regressions and required hosted compiler acceptance remain work; no overall
+SDK or backend completion is claimed. Evidence:
+[sdk-yaml-artifacts-local-validation.json](rust-parity-evidence/sdk-yaml-artifacts-local-validation.json).
 
 ## CI dependency correction: feature publication frozen, 2026-10-24
 

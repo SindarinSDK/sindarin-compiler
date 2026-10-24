@@ -15,7 +15,7 @@ from pathlib import Path
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
            'time/time', 'time/date', 'core/random', 'core/uuid',
-           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml')
+           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml')
 SUPPORTED_MODULES = MODULES
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
@@ -26,6 +26,7 @@ RECORDS = {
     'os/process': ('Process', 'SnSdkProcessRecord', 'sn_sdk_process'),
     'encoding/json': ('Json', 'SnSdkJsonRecord', 'sn_sdk_json'),
     'encoding/xml': ('Xml', 'SnSdkXmlRecord', 'sn_sdk_xml'),
+    'encoding/yaml': ('Yaml', 'SnSdkYamlRecord', 'sn_sdk_yaml'),
     'core/uuid': ('UUID', 'SnSdkUuidRecord', 'sn_sdk_uuid'),
     'core/random': ('Random', 'SnSdkRandomRecord', 'sn_sdk_random'),
     'io/textfile': ('TextFile', 'SnSdkTextFileRecord', 'sn_sdk_text_file'),
@@ -131,7 +132,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                       '      identity: SindarinSDK/sindarin-pkg-sdk:'+module.rsplit('/', 1)[0].replace('/', '.')+'.'+name+'@1',
                       '      c_type: '+c_type, '      header: src/'+module+'.native.h']
             lines += ['      '+field+': '+prefix+'_'+field for field in ('create','retain','release','refs')]
-            if module in ('core/uuid', 'encoding/text', 'os/process', 'encoding/json', 'encoding/xml'): lines.append('      copy: '+prefix+'_copy')
+            if module in ('core/uuid', 'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml'): lines.append('      copy: '+prefix+'_copy')
             lines.append('      owner: atomic')
     lines.append('  builds:')
     bindings = []
