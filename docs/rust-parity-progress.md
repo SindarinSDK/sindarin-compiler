@@ -1,3 +1,16 @@
+## Combined language admission refresh: local characterization, 2026-10-24
+
+The frozen sixty-program rejection review now has 47 C-sanitizer-passing Rust
+rejection candidates and thirteen admitted programs on the local composed
+language batch. The two newly admitted originals are void reflection and
+character iterator postfix. All source and original diagnostic hashes remain
+unchanged; the report records actual C compile/sanitizer execution and Rust
+emission. The new admissions separately pass the 63-case normal/sanitizer
+regressions. The remaining 47 are programs, not distinct features, and still
+need semantic review; sanitizer success alone does not prove C behavior defined.
+No hosted feature acceptance is claimed. Evidence:
+[language-admission-candidate-refresh.json](rust-parity-evidence/language-admission-candidate-refresh.json).
+
 ## Void reflection and character iterators: complete combined local validation, 2026-10-24
 
 The two locally validated language repairs are composed on corrected main

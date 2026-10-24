@@ -1,0 +1,18 @@
+{
+  "revision": "a17ebd66721746f719403098ab6fb57d59c3b798",
+  "compiler_sha256": "aa608b1685a631172983150cfd97f80250b294a9f486afa47c9e2d86835fbce1",
+  "counts": {
+    "C sanitizer-passing Rust rejection candidate; semantic/behavioral review required": 47,
+    "Rust now admitted; runtime parity still needs its regression gates": 13
+  },
+  "scope": "Historical 60 C-success candidates only; no source or oracle rewriting; sanitizer success alone does not prove C behavior defined",
+  "retained_report": {
+    "path": "docs/rust-parity-evidence/language-admission-candidate-refresh.json.gz",
+    "sha256": "09419126b786c29ff115d0948ba616039095edaa7870d66c0de41ed0643a9bda"
+  },
+  "new_local_admissions": [
+    "tests/rgen/errors/typeof_void.sn",
+    "tests/rgen/errors/iterator_protocol_char_postfix.sn"
+  ],
+  "independent_regressions": "63 normal and63 C sanitizer mode cases and fullC3243/Rust1099 pass on combined language batch; hosted feature CI required"
+}
