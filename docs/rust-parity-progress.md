@@ -1,3 +1,26 @@
+## Void reflection: local validation, publication held, 2026-10-24
+
+Rust now accepts `typeOf` on a void-returning expression and emits the existing
+compile-time TypeInfo metadata. Calls, mutation, printing and exit in the
+operand remain unevaluated, matching the C contract. The original rejected
+program and diagnostic oracle retain their exact bytes; a promotion marker
+records the successful output contract.
+
+All 27 independent output-oracle mode cases pass normally and with C address,
+undefined and leak checks. Controls cover original scalar/array/record metadata,
+void metadata through a function result, reference arguments and non-evaluated
+printing/exit. Complete local suites pass 3,243 C and 1,099 Rust checks, with
+25 CI helper tests and formatting passing. Two new gates require 425 platform
+executions across the existing 41 groups. This isolated feature remains local
+until the required CI correction is accepted and must compose onto corrected
+main before publication. No existing Sindarin source is rewritten.
+
+A scratch control that reads the length of empty TypeInfo.fields exposes an
+existing C null dereference in sn_array_length. Its source and sanitizer evidence
+are retained separately and receive no defined-C parity credit. The final
+controls inspect fieldCount and type metadata without dereferencing that null
+array. Evidence: [void-reflection-local-validation.json](rust-parity-evidence/void-reflection-local-validation.json).
+
 ## Dynamic scalar match: complete hosted acceptance, 2026-10-24
 
 Compiler `e3426a75` passes all 34 required jobs in
