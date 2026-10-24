@@ -1,3 +1,28 @@
+## SDK Yaml correction accepted; XML composition published, 2026-10-24
+
+SDK corrected main `db7dfe9` passes all seven required jobs in
+[CI 40122926614](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/40122926614).
+Retained Linux/macOS/Windows Yaml reports each pass twenty cases, including
+independent C/Rust archives and eighteen unchanged original caller mode cases.
+Linux's actual-runtime address/undefined/leak client passes. Every retained
+Yaml source hash matches committed source or its Windows checkout form.
+All original SDK Sindarin declarations and caller/oracle sources remain intact.
+Evidence: [sdk-yaml-correction-ci-green.json](rust-parity-evidence/sdk-yaml-correction-ci-green.json).
+
+The diagnostic retention defect is repaired. Corrected main's unchanged macOS
+TLS test and complete SDK suite pass. The earlier TLS read/write failure remains
+unexplained historical evidence: no TLS fix or accepted rerun of the failed
+predecessor is claimed. Current required SDK CI is green and the publication
+freeze is lifted.
+
+XML/record-array/dynamic composition `a6ccac70` is published and awaits
+[CI 40124214770](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40124214770).
+It retains accepted SDK `0b71e84`; compiler dynamic-match `e3426a75` still awaits
+CI 40120530371. Both feature slots are occupied. Yaml compiler artifacts remain
+local and depend on XML adapter acceptance. Whole SDK, remaining language/package
+contracts and final original corpus proof remain open. No existing Sindarin
+source is changed by either compiler batch or the SDK work.
+
 ## Record-array/XML and dynamic-match composition: locally verified, 2026-10-24
 
 Composition `e27fcfb1` preserves both independent batches. Complete local suites
