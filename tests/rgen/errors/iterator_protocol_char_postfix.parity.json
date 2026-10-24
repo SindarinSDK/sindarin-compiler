@@ -1,0 +1,7 @@
+{
+  "source_sha256": "149c6c049722a5280c81bec05593a91bc7a202ddf2cd0b6d8a993b2e4c4fadca",
+  "legacy_oracle_sha256": "c8f6dce06cce8d3fc0ea48628d18a00828c5ccbfedb70142c7b0060c7ad4984b",
+  "stdout_hex": "",
+  "exit": 0,
+  "reason": "Iterator char bindings are local byte-domain values with ordinary postfix semantics"
+}

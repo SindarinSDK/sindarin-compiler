@@ -1,3 +1,24 @@
+## Character iterator bindings: complete local validation, 2026-10-24
+
+Rust now accepts postfix increment/decrement of character iterator bindings.
+These bindings are local copies of next() results and use the existing
+byte-domain character lowering. The original rejected source and diagnostic
+retain their exact bytes; a promotion marker records the successful contract.
+
+All 36 independent mode cases pass normally and with C address/undefined/leak
+checks. Controls cover every byte, wrapping boundaries, postfix result values,
+reference forwarding, source iterator isolation, nested/repeated binding names,
+early return, break and continue. Existing 256-byte reference/parameter behavior
+is checked alongside the new iterator path. Complete local suites pass 3,243 C
+and 1,099 Rust checks; all 27 CI helpers and formatting pass. The current main
+compiler reproduces the original rejection before this repair.
+
+This isolated branch is based on corrected main 3a9dd77b and preserves every
+existing gate; two new gates add four platform executions, for 425 gates in 41
+groups. Publication remains held until correction CI 40128862955 is completely
+accepted and the feature has publication capacity. No existing Sindarin source
+is rewritten. Evidence: [character-iterator-local-validation.json](rust-parity-evidence/character-iterator-local-validation.json).
+
 ## CI dependency correction: feature publication frozen, 2026-10-24
 
 Required [CI 40126421775](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40126421775)

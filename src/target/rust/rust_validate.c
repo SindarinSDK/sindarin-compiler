@@ -2034,10 +2034,11 @@ static bool rust_validate_expr(json_object *expr)
         operand_type_kind = json_string_property(operand_type, "kind");
         if (iterator_binding_mutation &&
             !rust_integer_type(operand_type_kind) &&
-            !rust_float_type(operand_type_kind))
+            !rust_float_type(operand_type_kind) &&
+            !json_string_property_equals(operand_type, "kind", "char"))
         {
             fprintf(stderr,
-                    "Error: Rust target supports iterator-protocol increment/decrement only for int, long, int32, byte, uint32, uint, float, or double bindings\n");
+                    "Error: Rust target supports iterator-protocol increment/decrement only for int, long, int32, byte, uint32, uint, float, double, or char bindings\n");
             return false;
         }
         if (json_string_property_equals(expr, "mutation_storage", "parameter"))

@@ -1,0 +1,48 @@
+{
+  "base": "3a9dd77bd4fc9acd17baf27d52096ec4b29be1aa",
+  "scope": "Admit char iterator binding postfix mutations through existing char lowering; byte-domain output and local iterator storage unchanged",
+  "status": "Complete local validation; feature publication held until correction CI green and publication capacity available",
+  "source_and_legacy_diagnostic_unchanged": {
+    "source_sha256": "149c6c049722a5280c81bec05593a91bc7a202ddf2cd0b6d8a993b2e4c4fadca",
+    "legacy_oracle_sha256": "c8f6dce06cce8d3fc0ea48628d18a00828c5ccbfedb70142c7b0060c7ad4984b",
+    "stdout_hex": "",
+    "exit": 0,
+    "reason": "Iterator char bindings are local byte-domain values with ordinary postfix semantics"
+  },
+  "full_suites": {
+    "c": 3243,
+    "rust": 1099
+  },
+  "CI_helpers": 27,
+  "platform_gates": 425,
+  "platform_groups": 41,
+  "before_fix": {
+    "compiler_sha256": "53bd0a70c40be81efeee9ea6fb70de75fc60c9a39d8bd5313f7a7a89fbeb7b57",
+    "status": 1,
+    "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f6974657261746f725f70726f746f636f6c5f636861725f706f73746669782e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420737570706f727473206974657261746f722d70726f746f636f6c20696e6372656d656e742f64656372656d656e74206f6e6c7920666f7220696e742c206c6f6e672c20696e7433322c20627974652c2075696e7433322c2075696e742c20666c6f61742c206f7220646f75626c652062696e64696e67730a4572726f723a20527573742074617267657420656e636f756e746572656420616e20756e737570706f7274656420636f6e73747275637420696e2066756e6374696f6e20276d61696e270a201b5b313b33316d6661696c65641b5b306d0a0a"
+  },
+  "reports": {
+    "character-iterator": {
+      "path": "docs/rust-parity-evidence/character-iterator-local.json.gz",
+      "sha256": "75b189ad22fc89f01ca515cc3dccf43e4422a9e5933217af42ef60ca5ad3e93c",
+      "compiler_sha256": "a01741a837961ad2eab6879340c180fb1b55ededc4055944575e939fd69b7645",
+      "cases": 36
+    },
+    "character-iterator-sanitizers": {
+      "path": "docs/rust-parity-evidence/character-iterator-sanitizers-local.json.gz",
+      "sha256": "e7a3cdc9a878c890be805d45584255525bc52a3c567a4ccc15c339438b4fc042",
+      "compiler_sha256": "a01741a837961ad2eab6879340c180fb1b55ededc4055944575e939fd69b7645",
+      "cases": 36
+    }
+  },
+  "log_sha256": {
+    "build": "cace2c0bde8abe5bc152bae086f6ffff3ee82609e3823c49c2cf82f82d49bd78",
+    "initial": "b74d7ddcd40774d10ffca548d61edd673a56c95ea836237027101b389e6c9a28",
+    "ci-helpers": "4961f0e80fd49ae98a98928d3a3bbb3ce651cc88ccf278101f0ad038ddff3730",
+    "format": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+    "oracles": "f8c0146774f791aab9cf9d04d4f7b7f18a1b85bafc25eae77092c9f8a9fa341e",
+    "oracles-sanitizers": "5beaae71ef796f0e0ebbe83aaadab5a537afffe1456edd3d52e86e82b8da11a5",
+    "full-c": "fb90fa547d29a929c8b01155816f931618bdaec8e5ed0206ac5677428cb1a566",
+    "full-rust": "13a92f58a79dc1868ccc0b783b555c8695891dd2ab1a7c0df0ca2372ae3c3d25"
+  }
+}

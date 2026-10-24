@@ -2237,6 +2237,27 @@
       ],
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "character-iterator",
+      "name": "Character iterator postfix byte domain, result values, forwarding and nested control flow",
+      "command": [
+        "{python}",
+        "scripts/check_rust_character_iterator.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "character-iterator-sanitizers",
+      "name": "Character iterator postfix byte domain, result values, forwarding and nested control flow with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_character_iterator.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }
