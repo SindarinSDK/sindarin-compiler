@@ -260,6 +260,21 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
     {
         json_object *callee = rust_nullable_child(node, "callee");
         json_object *receiver = rust_nullable_child(callee, "object");
+        bool search = json_string_property_equals(callee, "member_name", "contains") ||
+                      json_string_property_equals(callee, "member_name", "indexOf");
+        if (search && json_boolean_property(rust_nullable_child(receiver, "type"), "rust_native_array_codec"))
+        {
+            const char *roles[] = {"array", "value"};
+            for (size_t i = 0; i < 2; i++)
+            {
+                char key[96], stem[96], name[96];
+                snprintf(key, sizeof(key), "rust_native_search_%s_name", roles[i]);
+                if (rust_nullable_child(node, key)) continue;
+                snprintf(stem, sizeof(stem), "__sn_native_search_%s", roles[i]);
+                if (!rust_allocate_helper_name(model, stem, name, sizeof(name))) return;
+                json_object_object_add(node, key, json_object_new_string(name));
+            }
+        }
         json_object *base = receiver;
         while (json_string_property_equals(base, "kind", "member"))
             base = rust_nullable_child(base, "object");
@@ -267,14 +282,21 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
          * A default array argument may mutate the very header being searched. */
         if (json_string_property_equals(base, "kind", "variable") &&
             json_boolean_property(rust_nullable_child(receiver, "type"), "rust_native_array_codec") &&
-            (json_string_property_equals(callee, "member_name", "contains") ||
-             json_string_property_equals(callee, "member_name", "indexOf")))
+            search)
             json_object_object_add(node, "rust_native_search_defer_receiver", json_object_new_boolean(true));
     }
     bool handle = rust_native_handle_type(rust_nullable_child(node, "type"));
     if (json_boolean_property(node, "rust_native_handle_borrow_arg")) borrow = true;
     if (json_boolean_property(node, "rust_default_array_ref_arg") &&
-        json_boolean_property(rust_nullable_child(node, "type"), "rust_native_handle_array")) borrow = true;
+        json_boolean_property(rust_nullable_child(node, "type"), "rust_native_handle_array"))
+    {
+        borrow = true;
+        /* Closure cells retain the existing statement-spanning place loan.
+         * Direct calls use a temporary header view without borrowing its owner. */
+        if (!json_boolean_property(node, "rust_closure_array_cell_bind") &&
+            !json_boolean_property(node, "rust_closure_array_parameter"))
+            json_object_object_add(node, "rust_native_default_array_loan", json_object_new_boolean(true));
+    }
     const char *kind = json_string_property(node, "kind");
     bool read = kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 || strcmp(kind, "array_access") == 0);
     if (kind && (!strcmp(kind, "array_access") || !strcmp(kind, "index_assign")) &&

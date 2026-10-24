@@ -11,6 +11,8 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 ORIGINAL = 'tests/rgen/errors/array_search_nested_array_elements.sn'
 SOURCE_SHA256 = '06a604c7d8e37134f885c229fc7cc5aa3754da0ccbf8be9bf7ac8bdebe334980'
+EXTRA_ORIGINAL = 'tests/rgen/errors/value_match_prefix_lexical_order.sn'
+EXTRA_SHA256 = '3a52d11efb0c2ee548508e01dcf73d842063fd0eacb2e712f2b7c60bc63ccb46'
 
 
 def identity_control():
@@ -46,8 +48,27 @@ def identity_control():
               '  println(borrowed(forwarded,forwarded[0]))',
               '  var calls: int = 0', '  println(borrowed(forwarded,forwarded[next(calls)]))',
               '  println(calls)', '  println(borrowed(make(),needle))',
-              '  println(mutate(forwarded,forwarded[0]))', '  println(forwarded[0].length)']
-    expected += ['true','0','false','-1','true','1','false','true','true','1','false','true','2']
+              '  println(mutate(forwarded,forwarded[0]))', '  println(forwarded[0].length)',
+              '  var __sn_array: int[] = {1}', '  var __sn_array_search: int[] = {1}',
+              '  var __sn_native_search_array_0: int[] = {1}',
+              '  var __sn_native_search_value_0: int[] = {1}',
+              '  var owners: int[][][] = {{{1}}}',
+              '  println(owners[0].contains(__sn_array))',
+              '  println(owners[0].indexOf(__sn_array_search))',
+              '  println(owners[0].contains(__sn_native_search_array_0))',
+              '  println(owners[0].indexOf(__sn_native_search_value_0))',
+              '  var choose: fn(int[][], int[]): bool = fn(rows: int[][], item: int[]): bool =>',
+              '    return rows.contains(item)',
+              '  println(choose(forwarded,forwarded[0]))',
+              '  var picks: int = 0',
+              '  println(choose(forwarded,forwarded[next(picks)]))', '  println(picks)',
+              '  println(choose(make(),needle))',
+              '  println(choose(make(),make()[next(picks)]))', '  println(picks)',
+              '  var private = fn(rows: int[][] as val, item: int[]): bool =>',
+              '    return rows.contains(item)',
+              '  println(private(forwarded,forwarded[0]))']
+    expected += ['true','0','false','-1','true','1','false','true','true','1','false','true','2',
+                 'false','-1','false','-1','true','true','1','false','false','2','false']
     return '\n'.join(lines)+'\n', ('\n'.join(expected)+'\n').encode()
 
 
@@ -120,7 +141,11 @@ def main():
     original = ROOT/ORIGINAL
     if hashlib.sha256(original.read_bytes()).hexdigest() != SOURCE_SHA256:
         raise ValueError('frozen original nested-array search source changed')
+    extra_original=ROOT/EXTRA_ORIGINAL
+    if hashlib.sha256(extra_original.read_bytes()).hexdigest()!=EXTRA_SHA256:
+        raise ValueError('frozen match-prefix source changed')
     controls = [('original', original.read_text(), b''),
+                ('original-prefix', extra_original.read_text(), b'10\n'),
                 ('identity', *identity_control()), ('ranks2-32', *rank_control()),
                 ('effects', EFFECTS, EFFECTS_EXPECTED)]
     modes = [('-O0','default')] if args.quick else [(o,m) for o in ('-O0','-O1','-O2')
@@ -128,7 +153,8 @@ def main():
     report = {'passed': False, 'cases': [], 'compiler_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest(),
               'oracle_script_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               'original_source_sha256': SOURCE_SHA256,
-              'controls': {name: source for name,source,_ in controls if name!='original'},
+              'controls': {name: source for name,source,_ in controls if not name.startswith('original')},
+              'additional_original_source_sha256': {EXTRA_ORIGINAL: EXTRA_SHA256},
               'scope': 'Nested canonical C array header identity/copies/default loans/nil inner slots/ranks2-32 and receiver/argument effects. Nil outer dereference and unsupported unrelated contracts receive no parity credit.',
               'environment': {name: os.environ.get(name) for name in ('SN_CC','SN_CFLAGS','SN_RELEASE_CFLAGS',
                              'SN_RUSTFLAGS','ASAN_OPTIONS','UBSAN_OPTIONS')}}
@@ -138,8 +164,8 @@ def main():
     with tempfile.TemporaryDirectory(prefix='sn-nested-array-search-') as folder:
         work = Path(folder)
         for name,source,expected in controls:
-            source_path = original if name=='original' else work/'main.sn'
-            if name!='original':source_path.write_text(source)
+            source_path = original if name=='original' else extra_original if name=='original-prefix' else work/'main.sn'
+            if not name.startswith('original'):source_path.write_text(source)
             if os.name=='nt':expected=expected.replace(b'\n',b'\r\n')
             for opt,mode in modes:
                 case = {'name':name,'opt':opt,'mode':mode,'source_sha256':hashlib.sha256(source.encode()).hexdigest(),
