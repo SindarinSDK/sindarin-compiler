@@ -5,6 +5,12 @@ C, using the shared C runtime and mixed-language package architecture defined in
 `docs/runtime-target-architecture.md`. Preserve the existing language contract,
 public SDK API, legacy package behaviour and C as the default target.
 
+## Source preservation: explicit user constraint, 2026-10-24
+
+Do not change existing Sindarin source to obtain Rust support. Implement parity
+in the compiler, runtime, native C backing and generated package adapters.
+Preserve original programs, public Sindarin APIs and behavioral oracles.
+
 ## Required outcomes
 
 1. **Define and implement the shared ABI.** Establish a versioned, documented C

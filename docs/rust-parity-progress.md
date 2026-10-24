@@ -1,3 +1,71 @@
+## Record-array/XML integration: complete local checkpoint, 2026-10-24
+
+Integration `8bf30521` on accepted `835a1ca0` passes all 432 normal and 432
+address/undefined/leak record-array/provider/body mode cases, plus six normal
+and six sanitizer callback wire clients. The complete seventeen-module SDK
+stage passes 684 original-caller/stdin cases from source and sealed archives.
+All 51 import tests, 22 artifact tests, 3,243 C checks, 1,097 Rust checks and
+23 CI helpers pass. ABI clients pass 17 normal and eight actual-runtime
+sanitizer cases. All 1,365 corpus source paths equal accepted main; no existing
+Sindarin source is changed. Evidence:
+[record-array-xml-integrated-local-validation.json](rust-parity-evidence/record-array-xml-integrated-local-validation.json).
+
+This is independent local evidence before composing dynamic-match main. That
+composition and complete hosted compiler CI remain required. Feature publication
+is frozen for the required SDK TLS failure; the diagnostic-only correction
+`db7dfe9` awaits SDK CI 40122926614. The original TLS failure remains unresolved.
+
+## Source constraint and required SDK CI failure, 2026-10-24
+
+The user explicitly requires existing Sindarin source to remain unchanged.
+Published compiler `e3426a75` adds two regression programs and changes no existing
+`.sn` source; SDK `f8fefe1` and the local record-array/XML integration change no
+`.sn` files. Parity repairs stay in compiler/runtime/native C/adapters.
+
+SDK Yaml batch `f8fefe1` is published in CI 40122131569. Its macOS legacy SDK
+job fails the original `test_tls_read_write` after the connect test passes.
+The diagnostic wrapper then loses its output directory during dependency
+installation and incorrectly probes DTLS rather than TLS. TLS's actual stderr
+is not retained. Feature publication is frozen. Diagnose and repair the
+failure without changing the original TLS program or its oracle; diagnostic
+reruns cannot provide acceptance credit.
+
+## Goal resumed: integrated record-array/XML validation, 2026-10-24
+
+The full Rust completion goal is active again. Integration branch
+`development/record-array-sdk-integrated` combines accepted main `835a1ca0`
+with the existing ABI 1.8 runtime, generated record-array providers/consumers,
+XML SDK artifacts, package-internal native adapters and XML CI dispatch repair.
+The SDK source pin remains accepted `0b71e84`. The integrated compiler builds;
+local package, ABI/lifetime, SDK and full compiler validation is in progress.
+This integration has no hosted acceptance yet and does not complete the goal.
+
+Independent dynamic scalar match batch `e3426a75` is published on main and
+awaits [CI 40120530371](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40120530371).
+Its complete local suites pass 3,243 C/1,099 Rust checks and 72 normal/72
+sanitizer independent mode cases, with six frozen rejection sources promoted.
+It occupies one publication slot; no hosted feature acceptance is credited yet.
+
+The next work remains full SDK coverage, exported qualifier/callback and wider
+record/interface/generic contracts, dependency lifecycle graphs, remaining
+language rejections and final original-corpus oracle/mode/platform acceptance.
+The historical entries below retain their original checkpoint scope; the latest
+accepted platform correction supersedes their publication freezes.
+
+## Platform correction: hosted acceptance, 2026-10-12
+
+Compiler revision `835a1ca07430e6d10f4988fcf6778ccb71b1646d` passes all 34
+required jobs in [CI 38168393142](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38168393142).
+Retained coverage verifies 405 gates/26 groups and exact compiler hashes across
+Linux/macOS/Windows. Both previously failing macOS record-rebinding and Windows
+complete SDK artifact gates pass in the retained platform reports. Evidence:
+[sdk-resources-platform-correction-ci-green.json](rust-parity-evidence/sdk-resources-platform-correction-ci-green.json).
+
+The correction is accepted and feature publication is unfrozen. ABI 1.8 record
+arrays, XML artifacts and internal-native-call work remain local and require
+integration validation and their own full hosted CI. Wider goal completion
+remains unproven. Earlier pending/frozen entries describe historical states.
+
 ## Internal native package calls: local validation, 2026-10-11
 
 C/Rust Sindarin bodies now generate private import adapters for calls to other
@@ -104,40 +172,14 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-Current publication state (2026-10-11): compiler `f5e88911` failed CI
-38162607031. macOS core failed its existing 72-case record-parameter-rebinding
-gate because recursive annotation resized an ancestor JSON table during its
-active iteration. The original fixture reproduces a compiler heap-use-after-free
-under ASAN/UBSAN on Linux. Windows core failed the complete SDK artifact gate
-because the C link command exceeded cmd.exe's limit. All other core gates in
-each retained report passed; Linux core passed. Failed integrated CI receives
-no acceptance credit. Feature publication is frozen while one combined platform
-correction is prepared and awaits complete required hosted acceptance.
-
-The correction collects record-guard names before modifying structures. A new
-unit forces the exact shared-ancestor resize and is independently proven to fail
-with the old production traversal under ASAN; the corrected helper passes with
-address/undefined/leak checks. Windows GCC/Clang C links move the full argument
-list into a response file while keeping stderr redirection in the short driver
-command. Regression coverage includes 48 independent archives with a combined
-path length above 8,191 characters and actual C-driver response argument parsing.
-
-Compiler `757d9d0c` remains the previously accepted integrated head (34 jobs,
-373 gates/26 groups). SDK resource correction `2152da2` remains accepted in
-CI 38161748979 and remains the correction's exact compiler CI pin. SDK XML
-correction `0b71e84` is accepted in CI 38164835929. Canonical XML's 40-byte layout,
-parent/child document ownership, removed/replaced aliases, merged text, exact
-cleanup and original caller behavior have hosted SDK acceptance. Compiler XML
-artifact integration still requires its own hosted proof.
-
-Local feature branch `development/canonical-record-array-abi` is held at
-`e84239c8`: ABI 1.8 runtime, generated C/RS/GO record-array adapters, C/RS bodies,
-complete XML staging and private internal native package calls. Its 216 normal/
-216 sanitizer package-call cases plus six normal/six sanitizer callback wire
-clients pass; seventeen modules/34 units pass 684 unchanged SDK artifact/stdin
-cases. These are local checkpoints, not hosted acceptance. No feature push is
-allowed until this correction is completely accepted. Whole SDK, wider language/
-package contracts and final 1,365-source platform/mode/oracle proof remain open.
+Current publication state (2026-10-24): accepted main `835a1ca0` has all 34
+required hosted jobs green (405 gates/26 platform groups). The prior macOS
+record-guard and Windows SDK link failures are repaired and accepted. Feature
+publication is open. SDK resource `2152da2` and XML `0b71e84` corrections have
+hosted acceptance. The record-array/XML/internal-native-call integration above
+is undergoing local validation and requires its own complete hosted acceptance.
+Whole SDK, wider language/package contracts and final 1,365-source proof remain
+open. Local evidence and raw C/Rust matches do not establish goal completion.
 
 ## Historical local checkpoints (superseded)
 

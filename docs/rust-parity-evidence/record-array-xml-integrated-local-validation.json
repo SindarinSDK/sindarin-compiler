@@ -1,0 +1,214 @@
+{
+  "revision": "8bf30521eda362fa80137ea260a1d04de45c5f2b",
+  "compiler_sha256": "8645ec53a03e7fc95a69cd67b18c2bc55045811b6b2da1f061dc3e7dd7403f99",
+  "pid": 288103,
+  "started": 1792865637.2057998,
+  "steps": [
+    {
+      "name": "ci-helpers",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/ci",
+        "-v"
+      ],
+      "environment": {},
+      "started": 1792865637.208606,
+      "status": 0,
+      "seconds": 4.74,
+      "log_sha256": "5374a21729f6b1b1df26217abbafaef7d24156f312889136f848d1cc4c316a97"
+    },
+    {
+      "name": "format",
+      "command": [
+        "bin/sn",
+        "--format",
+        "--check"
+      ],
+      "environment": {},
+      "started": 1792865641.9441173,
+      "status": 0,
+      "seconds": 0.9,
+      "log_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+    },
+    {
+      "name": "runtime-abi",
+      "command": [
+        "python3",
+        "scripts/check_runtime_abi.py"
+      ],
+      "environment": {},
+      "started": 1792865642.8461134,
+      "status": 0,
+      "seconds": 10.19,
+      "log_sha256": "399faa77c8b99c9cb8319b95472dd6ebb9b248f95631691e0ee9752b645c83d0"
+    },
+    {
+      "name": "runtime-abi-sanitizers",
+      "command": [
+        "python3",
+        "scripts/check_runtime_abi.py",
+        "--sanitize"
+      ],
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "started": 1792865653.0397737,
+      "status": 0,
+      "seconds": 5.93,
+      "log_sha256": "3c5852e9cdd73bfe2ed7a77c980afd6f7c00d69994089636766fa4bfbd86cc78"
+    },
+    {
+      "name": "record-arrays",
+      "command": [
+        "python3",
+        "tests/package/record_arrays.py"
+      ],
+      "environment": {
+        "GOEXPERIMENT": "cgocheck2"
+      },
+      "started": 1792865658.9655678,
+      "status": 0,
+      "seconds": 404.61,
+      "log_sha256": "1a40d8c2ce100f7d0e2fc2f2f114215766e1b10f078c7c867c0b9e2822607878"
+    },
+    {
+      "name": "record-arrays-sanitizers",
+      "command": [
+        "python3",
+        "tests/package/record_arrays.py"
+      ],
+      "environment": {
+        "GOEXPERIMENT": "cgocheck2",
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "started": 1792866063.571932,
+      "status": 0,
+      "seconds": 508.82,
+      "log_sha256": "d35bdd8ecd62ca182f1f49dfd86dd9b94adeb89a604c4b84afcae0c809c82bec"
+    },
+    {
+      "name": "sdk-xml",
+      "command": [
+        "python3",
+        "scripts/check_sdk_native.py",
+        "xml"
+      ],
+      "environment": {},
+      "started": 1792866572.392765,
+      "status": 0,
+      "seconds": 26.77,
+      "log_sha256": "3e0d9151913d7b54934974b3bbc3be219c3156c2cf734500d9f56f602e14df94"
+    },
+    {
+      "name": "sdk-xml-sanitizers",
+      "command": [
+        "python3",
+        "scripts/check_sdk_native.py",
+        "xml",
+        "--sanitize"
+      ],
+      "environment": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      },
+      "started": 1792866599.159824,
+      "status": 0,
+      "seconds": 0.95,
+      "log_sha256": "20b2cc69a6c7473c81b014d140d8033c39422e772d1ee81b08bb4c257be6a634"
+    },
+    {
+      "name": "sdk-artifacts",
+      "command": [
+        "python3",
+        "scripts/check_sdk_artifact.py"
+      ],
+      "environment": {},
+      "started": 1792866600.1084528,
+      "status": 0,
+      "seconds": 949.36,
+      "log_sha256": "04fa40811bdb337a373b7a90ef79f754c830247d1cb95b0280c16baedd468241"
+    },
+    {
+      "name": "package-imports",
+      "command": [
+        "python3",
+        "tests/package/native_imports.py"
+      ],
+      "environment": {},
+      "started": 1792867549.4664793,
+      "status": 0,
+      "seconds": 520.62,
+      "log_sha256": "637977ef967e161283091b846395863dee3edd56f610b542d89016b31d880072"
+    },
+    {
+      "name": "package-artifacts",
+      "command": [
+        "python3",
+        "tests/package/native_artifacts.py"
+      ],
+      "environment": {},
+      "started": 1792868070.0837107,
+      "status": 0,
+      "seconds": 19.08,
+      "log_sha256": "8a9276dee2d778c95e07feb66d20b9f25cbd450ca09a6336c022733e31a42434"
+    },
+    {
+      "name": "full-c",
+      "command": [
+        "make",
+        "test"
+      ],
+      "environment": {},
+      "started": 1792868089.1677208,
+      "status": 0,
+      "seconds": 21.78,
+      "log_sha256": "56e14e636ea1c3057e7e96adc7709bdf89a455adf437a05ef51825fadc63bfde"
+    },
+    {
+      "name": "full-rust",
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--no-color",
+        "--fail-on-skip"
+      ],
+      "environment": {},
+      "started": 1792868110.9484608,
+      "status": 0,
+      "seconds": 32.84,
+      "log_sha256": "0133cf7d61424cce17f317263aad9359a4fa11b4b01c1c783b038d5eb6e57018"
+    }
+  ],
+  "passed": true,
+  "finished": 1792868143.7896519,
+  "C_suite": 3243,
+  "Rust_suite": 1097,
+  "status": "Complete local independent record-array/XML/internal-call integration validation passes; hosted acceptance and current-main composition outstanding",
+  "accepted_base": "835a1ca07430e6d10f4988fcf6778ccb71b1646d",
+  "SDK_pin": "0b71e84694230f5745bac5254d3811e696f892f5",
+  "normal_record_array_mode_cases": 432,
+  "sanitized_record_array_mode_cases": 432,
+  "normal_wire_callback_clients": 6,
+  "sanitized_wire_callback_clients": 6,
+  "SDK_original_caller_and_stdin_cases": 684,
+  "package_import_tests": 51,
+  "package_artifact_tests": 22,
+  "CI_helper_tests": 23,
+  "required_platform_gates": 417,
+  "required_platform_groups": 26,
+  "publication_frozen": true,
+  "freeze_reason": "SDK CI 40122131569 required macOS original TLS failure; diagnostic correction CI 40122926614 is pending",
+  "original_corpus_source_files_unchanged_from_accepted_main": 1365,
+  "original_tag_staging_requirement": "The pre-existing synchronized current closure-array fixture still requires exact original-source staging in final corpus acceptance; this integration changes neither version."
+}

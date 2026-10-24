@@ -1,5 +1,5 @@
 {
-  "status": "Combined macOS/Windows correction fully locally validated; complete required hosted acceptance pending",
+  "status": "Complete required hosted correction CI accepted; see sdk-resources-platform-correction-ci-green.json",
   "base": "f5e8891121367fccd38d6629cb90310f7529ed03",
   "failed_CI": 38162607031,
   "CI_failures": {
@@ -118,5 +118,9 @@
   },
   "imports": 51,
   "release_compiler_sha256": "7abff42e8ccab402df7bbcf1996afb541cd0faa1c1da3c515ee731183ecb1f6c",
-  "diagnostic_compiler_sha256": "964385abbeabc4012fc0190a67c43a3da34844a51c852cdd7a8a27f6b451cd2f"
+  "diagnostic_compiler_sha256": "964385abbeabc4012fc0190a67c43a3da34844a51c852cdd7a8a27f6b451cd2f",
+  "published_revision": "835a1ca07430e6d10f4988fcf6778ccb71b1646d",
+  "CI": 38168393142,
+  "CI_url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38168393142",
+  "hosted_acceptance_proof": "sdk-resources-platform-correction-ci-green.json"
 }

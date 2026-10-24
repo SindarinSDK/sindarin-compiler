@@ -1,0 +1,31 @@
+{
+  "revision": "835a1ca07430e6d10f4988fcf6778ccb71b1646d",
+  "CI": 38168393142,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38168393142",
+  "status": "Complete required integrated compiler CI accepted; macOS guard traversal and Windows SDK C link fixes accepted",
+  "successful_jobs": 34,
+  "coverage": {
+    "revision": "835a1ca07430e6d10f4988fcf6778ccb71b1646d",
+    "groups": 26,
+    "gates": 405,
+    "compilers": {
+      "Linux": "d7d5b31b392775b0092995dc55b367035594cef386b20d3136e9f6a965b689b5",
+      "Darwin": "8e97cb9f73a7255eb5190f62d771e13eab8df7648481928b48b2311ed16b9055",
+      "Windows": "83ff9c4efd0c68f9b2ea414aa0c89bea29a35b98c5290657b0e6f143b998e38b"
+    },
+    "passed": true
+  },
+  "coverage_summary_sha256": "3cd6b1dfdd67326bd70ec35ac2931a6a06c44daa1e63764a995dc54e21111458",
+  "run_report_sha256": "55b5b16b7b6645ad10802d1240fda38ab5821a4a81d99126061352cdbeb3cdd8",
+  "core_reports": {
+    "windows": {
+      "gates": 40,
+      "sha256": "9bc5a11a5987ca081a7dce288888e1c9b15349f1a09c0606a7ebd90789818b3d"
+    },
+    "macos": {
+      "gates": 40,
+      "sha256": "7e911d500d565299a8fd030588bac4338f29081699e1bc9fc4890a73aa952d21"
+    }
+  },
+  "scope": "Accepts integrated sixteen-module resource/copy batch and both platform corrections; full whole-SDK and remaining parity goal still required"
+}

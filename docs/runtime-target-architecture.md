@@ -1,53 +1,36 @@
 # Runtime and mixed-language package architecture
 
-Status: architectural direction with implemented capabilities, updated 2026-10-11.
-
-Local ABI 1.8 work adds canonical reference-record arrays with copied leaf type
-identity, native slot hooks and unique owned transfer. Generated native C/RS/GO
-providers and C/RS Sindarin bodies consume the same C headers. The default SDK
-stager now includes all public XML methods, giving seventeen modules and
-34 C/Sindarin units. SDK XML correction `0b71e84` has complete hosted acceptance
-at run 38164835929; this compiler expansion remains local until its compiler
-dependency run 38162607031 is accepted. Wider contracts and final platform/corpus
-proof remain required.
-
+Status: implemented capabilities and remaining architecture, updated 2026-10-24.
 The [completion ledger](rust-parity-progress.md) distinguishes local validation,
 required hosted acceptance and remaining work. C remains the default application
 target; the full Sindarin Go backend remains outside this goal.
 
+Accepted compiler main `835a1ca0` passes all 34 required hosted jobs on
+Linux/macOS/Windows (405 gates/26 platform groups). It includes sixteen reusable
+C-backed SDK modules and canonical record-copy adapters. Public Sindarin APIs,
+original C operations, caller outputs, nil behavior and sealed archives retain
+their existing contracts. The macOS record-guard traversal and Windows SDK link
+length corrections have complete hosted acceptance.
+
 The shared [C ABI](runtime-abi.md) implements value transport, typed resources,
 initialization/call leases/shutdown, replacement with live aliases and reentrant
 cleanup, canonical byte/string arrays and typed scalar/string arrays through
-rank 32 (ABI 1.0–1.7). C/Rust/Go native provider units and C/Rust Sindarin bodies
-use these transports. Canonical record bodies preserve incoming borrowed credits,
-owned returns and parameter rebinding. The integrated record/opaque ownership
-and thirteen-module SDK stage have complete hosted compiler acceptance at
-`757d9d0c`, verified by 373 gates across Linux/macOS/Windows. Go-native dependencies
-use original Go implementations and generated C-callable bridges; a GO package
-requiring compilation of Sindarin bodies produces the unsupported-backend diagnostic.
+rank 32. C/Rust/Go native providers and C/Rust Sindarin bodies use these
+transports. Go implementations retain their original language and generated
+C-callable bridges; Sindarin bodies requiring a Go backend remain unsupported.
 
-Local integration extends the reusable C-backed SDK stage to sixteen modules,
-32 C/Sindarin units. All public Sindarin declarations are preserved, and backing
-C sources are removed for sealed consumption. Sixteen original callers pass 576
-source/sealed C/Rust mode cases, plus 72 stdin controls (648 total). StringBuilder,
-Process and Json retain original public operations and canonical C storage;
-Process also repairs a reproduced POSIX dual-pipe deadlock. Json copy hooks retain
-the original typed-nil/null-wrapper behavior. Generated ordinary `as val` and
-`copyOf()` adapters use declared C copy functions, preserving independent native
-storage, source aliases and temporary-producer cleanup. The SDK correction and
-this wider compiler integration require complete hosted acceptance. Compiler
-CI 38162607031 failed macOS record-guard traversal and Windows SDK C link length;
-a combined correction is pending and feature publication remains frozen. SDK
-resource correction 2152da2 and XML correction 0b71e84 have hosted SDK acceptance.
+The current local integration adds ABI 1.8 canonical record-array transports,
+generated providers/consumers, private native-call adapters inside C/Rust package
+bodies, and the complete XML API. The reusable SDK stage expands to seventeen
+modules/34 C-Sindarin units. SDK XML `0b71e84` has hosted acceptance; this compiler
+integration still requires current local validation and its own hosted CI.
 
-The optional record copy contract, managed-field and public-copy-method support,
-native resource lifetimes, original caller outputs and nil behavior have focused
-normal/sanitizer evidence. Parsing a manifest or rejecting unsupported contracts
-is not parity evidence. Whole SDK packaging (including wider encoding/network
-modules), package-exported qualifiers and callbacks, complete value record/interface
-and generic contracts, dependency lifecycle graphs and final 1,365-source
-platform/mode/oracle proof remain required work. The implemented lifecycle
-controls do not yet establish complete dependency initialization/shutdown graphs.
+Whole SDK packaging (including wider encoding/network modules), package-exported
+qualifiers and callbacks, complete value record/interface/generic contracts,
+dependency lifecycle graphs and final 1,365-source platform/mode/oracle proof
+remain required work. Existing lifecycle controls do not establish complete
+dependency initialization/shutdown graphs. Diagnosing unsupported contracts or
+matching undefined C behavior does not satisfy parity.
 
 ## Decision
 
