@@ -90,14 +90,21 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     # leaking into the package body's link contract.
     internal = []
     native_bindings = []
-    for signature in plan['native'].get('signatures', []):
-        binding = signature['binding']
+    resolved = {(s['binding']['declaration'], s['binding'].get('method')): s
+                for s in plan['native'].get('signatures', [])}
+    for binding in plan['native']['bindings']:
         if binding['build'] == unit['name']:
             continue
         declaration = binding['declaration'].split('::', 1)[1]
         function = select_callable(functions, declaration, binding.get('method'))
         if not function or not function.get('is_native') or function.get('has_body'):
             continue
+        signature = resolved.get((binding['declaration'], binding.get('method')))
+        if signature is None:
+            # Handwritten wire exports also need body import adapters. Their
+            # public callable types are already present in this checked model.
+            signature = dict(abi=plan['native']['abi'], binding=binding,
+                             return_type=function['return_type'], params=function['params'])
         symbol = function.get('c_callee') if function.get('is_method') else function.get('c_alias') or function['name']
         if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', symbol):
             raise ValueError('package internal native callable is not a C identifier: '+symbol)
@@ -116,7 +123,9 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         'static void sn_package_string_slot_release(void *p) { free(*(char **)p); }',
         'static void sn_package_string_slot_copy(const void *s, void *d) { *(char **)d = *(char *const *)s ? strdup(*(char *const *)s) : NULL; }']+
         record_includes([signature for _,signature in internal], root)+
-        [c_consumer(signature, str(root/'sn.yaml')) for _,signature in internal])+'\n'
+        [c_consumer(signature, str(root/'sn.yaml'),
+                    retain_record_inputs=not bool(signature['binding'].get('function')))
+         for _,signature in internal])+'\n'
     declarations = {f['name']:f for f in model.get('package_implementation_declarations',[])}
     selected = []
     for signature in signatures:

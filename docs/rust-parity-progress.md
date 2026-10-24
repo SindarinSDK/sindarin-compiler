@@ -1,3 +1,36 @@
+## Math platform and record-loan correction: local validation, 2026-10-25
+
+Math main `8f30280d` failed CI 40139366314 and is not hosted acceptance. Clang
+rejected a missing shared-model declaration in the Rust emitter on Windows and
+macOS. Linux provider/sanitizer checks found an observable record input credit
+increase from the existing expected two to three. Artifact/coverage failures
+followed the failed builds and gates; the complete failed run is retained.
+
+The emitter now includes its shared-model header, and GCC checks undeclared
+calls in both compiler/test emitter objects as strictly as Clang. Private calls
+to generated raw providers reuse existing record loans. Handwritten wire exports
+also receive resolved body import adapters and retain owning record transports,
+so explicit input-wire retention can outlive the body. Selected providers,
+reentrant owner release and transferred/escaped resource lifetimes remain tested.
+Original Sindarin source and behavioral/diagnostic oracles are unchanged.
+
+All ten record-body tests pass normally and with strict C address/undefined/leak
+checks: 144 mode cases and four new wire clients in each environment. Controls
+preserve the original count two, distinguish the selected provider with count
+102, release the caller's wire during a raw call (101), and keep an owned wire
+input alive after return (102, destroyed only on final wire release).
+Complete C/Rust suites pass 3,243/1,099; all 52 imports, 22 artifact tests, 144
+Math/header cases normally and with sanitizers, 84 nineteen-module SDK smoke
+cases, seventeen unchanged-runtime ABI clients, 27 CI helpers and formatting pass.
+The earlier full 756-case SDK proof remains separately retained.
+
+This is one combined correction pending complete corrected Linux/macOS/Windows
+CI. Feature publication stays frozen until that run is green. The catalog keeps
+all 193 gate IDs/commands/environment/platform selections (449 executions in
+41 groups); two descriptions now account for the expanded record tests. Whole
+Rust/C parity remains open. Evidence:
+[sdk-math-platform-record-correction-local-validation.json](rust-parity-evidence/sdk-math-platform-record-correction-local-validation.json).
+
 ## Math and logical native bindings: complete local validation, 2026-10-24
 
 The reusable SDK stage contains nineteen modules/38 C-Sindarin units. All 145
