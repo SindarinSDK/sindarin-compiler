@@ -59,6 +59,7 @@ typedef struct
     int emit_source_bundle;         /* Emit all Rust library sources/support without linking. */
     int package_native_arrays;      /* Use canonical C arrays inside this Rust library body. */
     char *package_native_namespace; /* Package-private generated native helper namespace. */
+    char *package_native_bindings;  /* JSON callable bindings for implementation emission. */
     int do_init;                     /* --init: Initialize new package */
     int do_install;                  /* --install: Install packages */
     char *install_target;            /* Package URL@ref for --install */

@@ -1,0 +1,79 @@
+{
+  "status": "Focused local validation passed; complete local checkpoint is in sdk-math-artifacts-local-validation.json; hosted Math acceptance pending",
+  "base": "7ec9002c7deecf96bb90d69cfd5daacf3e138378",
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "reports": {
+    "sdk-math-artifact": {
+      "path": "docs/rust-parity-evidence/math-sdk-math-artifact-local.json.gz",
+      "sha256": "63636919db0b5b96f170d56a616c69a35e3beb4e78b9952ab58019e2758f20ac",
+      "cases": 72,
+      "environment": {
+        "SN_CC": null,
+        "SN_CFLAGS": null,
+        "SN_RELEASE_CFLAGS": null,
+        "SN_RUSTFLAGS": null,
+        "ASAN_OPTIONS": null,
+        "UBSAN_OPTIONS": null
+      }
+    },
+    "sdk-math-artifact-sanitized": {
+      "path": "docs/rust-parity-evidence/math-sdk-math-artifact-sanitized-local.json.gz",
+      "sha256": "f6759d667d956012a8c1b551a6d47d4ad7e888680d8c822555f14def160eac74",
+      "cases": 72,
+      "environment": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "SN_RELEASE_CFLAGS": null,
+        "SN_RUSTFLAGS": null,
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    "native-header-aliases": {
+      "path": "docs/rust-parity-evidence/math-native-header-aliases-local.json.gz",
+      "sha256": "e71dcbc68393016133277e8a2577a844d4c68a2add84a5750202ac4bd8aa157c",
+      "cases": 72,
+      "environment": {
+        "SN_CC": null,
+        "SN_CFLAGS": null,
+        "SN_RUSTFLAGS": null,
+        "ASAN_OPTIONS": null,
+        "UBSAN_OPTIONS": null
+      }
+    },
+    "native-header-aliases-sanitized": {
+      "path": "docs/rust-parity-evidence/math-native-header-aliases-sanitized-local.json.gz",
+      "sha256": "4c83e39b36c42233bfa03524363b1783a6c2a463e56171a28664f3ed90123ee8",
+      "cases": 72,
+      "environment": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "SN_RUSTFLAGS": null,
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    }
+  },
+  "compiler_sha256": "619c68bb644887aaa505ff6014b17641718d73e82007033da587eff4207c76cf",
+  "source_preservation": {
+    "goal_start": "835a1ca0",
+    "original_sources": 1365,
+    "goal_start_oracles": 1158,
+    "SDK_input_files": 281,
+    "path": "docs/rust-parity-evidence/math-source-preservation-local.json.gz",
+    "sha256": "a8de626f9bb173454b1ce242f130f219a2c2e5714d1c95aa9bc7ae4dbb1fa1a1",
+    "scope": "Working tree equality to accepted goal start and clean accepted SDK; not final historical all-mode behavioral proof"
+  },
+  "Math_exports": {
+    "native": 70,
+    "unchanged_Sindarin_bodies": 75,
+    "total": 145,
+    "build_units": 2,
+    "original_caller_output_lines": 121,
+    "oracle_scope": "Fixed finite numeric probes cover every original public export; unchanged original caller is also checked. Not exhaustive all-input math semantics."
+  },
+  "limitations": [
+    "No hosted Math acceptance yet",
+    "Wider SDK/ownership/generic/original-corpus goal remains open"
+  ]
+}

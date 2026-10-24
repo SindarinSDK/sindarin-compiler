@@ -1,11 +1,11 @@
 # Generated native package imports
 
-Status: implemented consumer and provider adapters for resolved scalar and string
-function, borrowed-input/owned-result string/byte-array contracts, and C-backed native
-as-ref records with explicit public storage/lifecycle contracts. Complete independent Sindarin package bodies, unchanged SDK facade imports,
-wider SDK module/type, managed record/interface/callback contracts and other array elements,
-and wider package graph planning
-remain required by the [Rust completion goal](rust-completion-goal.md).
+Status: implemented C/Rust consumers, C/Rust independent Sindarin bodies,
+C/Rust/Go native providers, and reusable C-backed SDK artifacts for the contracts
+in [the architecture status](runtime-target-architecture.md). Wider SDK coverage,
+reference-qualified exports, complete managed record/interface/generic/callback
+contracts and dependency lifecycle graphs remain required by the
+[Rust completion goal](rust-completion-goal.md).
 
 A C- or Rust-targeted Sindarin application can import declaration modules from
 packages using the [native manifest](native-package-manifest.md). The compiler
@@ -15,9 +15,10 @@ generates a C ABI adapter and links the archives and shared C runtime automatica
 Application source uses existing Sindarin imports and calls.
 
 Native-only declaration packages can select C, RS or GO independently of the
-consumer. A fixed-runtime package containing Sindarin bodies still requires that
-runtime's independent package compilation path; unsupported cross-runtime bodies
-produce an explicit diagnostic. Ordinary portable Sindarin packages retain target
+consumer. A fixed-runtime package containing Sindarin bodies compiles those bodies with
+the selected C or Rust package toolchain and links generated ABI adapters into
+either application target. Unsupported body/type contracts produce an explicit
+diagnostic. Ordinary portable Sindarin packages retain target
 inheritance. This does not implement a Sindarin Go backend.
 
 ## Current contracts
@@ -66,6 +67,24 @@ Native-bearing API modules cannot also compile per-application `@source` backing
 that can silently shadow the independent archive. Legacy manifests without native
 metadata retain their established C source/include/link behaviour. Complete SDK
 facades and wider package migration still need explicit artifact/type planning.
+
+## Native calls inside package bodies
+
+The package builder binds internal native calls by their logical callable
+identity, including static/instance method selectors. Function aliases select
+the declared provider without preprocessor replacements in foreign headers or
+record fields. Native function references use the same provider adapters. This
+applies to both C and Rust package bodies; generated C implementation namespaces
+are introduced after the original includes.
+
+Header-only native declarations can retain their original `@include` and `@link`
+directives without a fabricated backing C sidecar. The Math SDK stage exports
+all 145 original functions: 70 native C math bindings, including float aliases,
+and 75 unchanged Sindarin definitions. Existing SDK source and callers are
+preserved. Focused verification checks every export against fixed numeric
+oracles and runs the original caller through C/Rust, source/sealed artifacts,
+all nine modes and C address/undefined/leak instrumentation. See the completion
+ledger for the distinction between local verification and hosted acceptance.
 
 ## Generated provider exports
 

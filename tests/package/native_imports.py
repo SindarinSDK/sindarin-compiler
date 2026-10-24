@@ -1488,6 +1488,8 @@ class NativeImports(unittest.TestCase):
             with self.subTest(target=target): self.execute(target,b'11\n22\n33\n44\n')
 
     def test_two_go_packages_share_one_runtime_and_module_instance(self):
+        # A checkout/workspace name ending in artifacts is not the artifact directory.
+        self.root = self.root / 'workspace-artifacts'
         self.write('shared/go.mod','module sindarin.test/shared\n\ngo 1.26.0\n')
         self.write('shared/counter.go','package shared\nvar count int64\nfunc Next() int64 { count++; return count }\n')
         originals={}
@@ -1510,7 +1512,7 @@ class NativeImports(unittest.TestCase):
             links=json.loads(response.read_text())['links']
             go_archives=[p for p in links if p.endswith('libsn_go_graph.a')]
             self.assertEqual(len(go_archives),1,links)
-            self.assertFalse(any('artifacts/' in p and p.endswith('.a') for p in links),links)
+            self.assertFalse(any('artifacts' in Path(p).parts and p.endswith('.a') for p in links),links)
 
     def test_go_graph_rejects_conflicting_module_replacements(self):
         for name,value in (('firstgo',1),('secondgo',2)):

@@ -157,6 +157,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "  --emit-source-bundle  Emit a Rust package body and its C support directory\n"
                 "  --package-native-arrays  Use canonical C arrays in a Rust package body\n"
                 "  --package-native-namespace <name>  Namespace generated package native helpers\n"
+                "  --package-native-bindings <file>  Bind native implementation callables\n"
                 "  --build-package    Build declared native/Sindarin package units\n"
                 "  --keep-generated   Keep generated target files after compilation\n"
                 "  --keep-c           Compatibility alias for --keep-generated\n"
@@ -268,6 +269,14 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 (*name >= 'a' && *name <= 'z') || (*name >= '0' && *name <= '9') || *name == '_')) {
                 fprintf(stderr, "Error: package native namespace must be an ASCII identifier\n"); return 0;
             }
+        }
+        else if (strcmp(argv[i], "--package-native-bindings") == 0)
+        {
+            if (i + 1 >= argc || argv[i + 1][0] == '-') {
+                fprintf(stderr, "Error: --package-native-bindings requires a JSON file\n");
+                return 0;
+            }
+            options->package_native_bindings = arena_strdup(&options->arena, argv[++i]);
         }
         else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc)
         {
@@ -396,6 +405,12 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         options->arithmetic_mode = ARITH_UNCHECKED;
 
     /* Validate conflicting flags */
+    if (options->package_native_bindings &&
+        (!options->package_body || options->emit_model ||
+         options->output_kind != OUTPUT_SOURCE)) {
+        fprintf(stderr, "Error: package native bindings require --package-body and source emission\n");
+        return 0;
+    }
     if ((options->emit_source_bundle || options->package_native_arrays || options->package_native_namespace) &&
         (!options->package_body || options->target != TARGET_RUST || options->emit_model ||
          options->output_kind != OUTPUT_SOURCE)) {

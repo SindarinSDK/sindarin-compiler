@@ -1,0 +1,23 @@
+{
+  "revision": "bf648b47d15866c8abc4475479693c1460dadfac",
+  "CI": 40131368626,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40131368626",
+  "successful_required_jobs": 49,
+  "coverage": {
+    "revision": "bf648b47d15866c8abc4475479693c1460dadfac",
+    "groups": 41,
+    "gates": 429,
+    "compilers": {
+      "Linux": "a58fd16da823c96d4c495f4b474235c95aa2602ab2674f7f4384f8659de9bc46",
+      "Darwin": "32c156d7d030e86a7b17025cac18bd429171f246eec903fd9b3ec3e2d496cd9d",
+      "Windows": "e205e7758ef7c6d26a7bbc18186b217f02cc7c0b4eefc0b047558c2d4df52626"
+    },
+    "passed": true
+  },
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "retained_run": {
+    "path": "docs/rust-parity-evidence/sdk-yaml-artifacts-ci-run.json.gz",
+    "sha256": "2622c06c02f5b2d2c832fc3f0c9bc1bae6b8daf7af794b707d44fde0cfc4b77c"
+  },
+  "scope": "Complete hosted acceptance of this integrated checkpoint; whole SDK/native contracts/original corpus goal remains open"
+}

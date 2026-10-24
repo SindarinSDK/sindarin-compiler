@@ -7,7 +7,8 @@
 #include "sn_minimal.h"
 {{#each pragmas}}{{#if (eq pragma_type "include")}}
 #include {{{value}}}
-{{/if}}{{/each}}{{#each structs}}
+{{/if}}{{/each}}{{#if package_body}}/* SN_PACKAGE_BODY_BINDINGS */
+{{/if}}{{#each structs}}
 {{> struct_typedef this}}
 {{/each}}{{#each globals}}
 {{#if is_static}}static {{/if}}{{#if (eq sync_mod "atomic")}}_Atomic({{c_type type}}){{else}}{{c_type type}}{{/if}} __sn__{{name}} = {{#if is_deferred}}{{default_value type}}{{else}}{{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}}{{/if}};

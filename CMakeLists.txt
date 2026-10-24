@@ -179,6 +179,7 @@ set(SN_CGEN_SOURCES
     src/cgen/gen_model_stmt.c
     src/cgen/gen_model_expr.c
     src/cgen/gen_model_chain_flatten.c
+    src/cgen/gen_model_native_bindings.c
     src/cgen/gen_model_func.c
     src/cgen/gen_model_struct.c
     src/cgen/gen_model_render_common.c

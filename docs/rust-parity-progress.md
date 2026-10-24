@@ -1,3 +1,50 @@
+## Math and logical native bindings: complete local validation, 2026-10-24
+
+The reusable SDK stage contains nineteen modules/38 C-Sindarin units. All 145
+original Math functions are exported: seventy native C math functions (including
+float aliases) and seventy-five unchanged Sindarin definitions. Header-only
+native declarations use their original include/link directives. Internal calls
+bind by logical callable identity, preserving foreign headers, record field
+aliases, function references and the selected package provider in C/Rust bodies.
+
+All 72 Math and 72 generic header-binding cases pass normally and with strict
+C address/undefined/leak instrumentation. This covers source/sealed C/Rust
+consumers, C/RS package bodies and all nine modes. Complete local validation
+passes 3,243 C/1,099 Rust checks, all 52 package imports, all 22 artifact tests,
+36 method cases normally and with sanitizers, 432 record-array cases plus six
+callback clients normally and with sanitizers, seventeen ABI clients, all 27 CI
+helpers and formatting. The complete nineteen-module SDK run passes 684
+unchanged caller cases plus 72 stdin controls (756 total).
+
+All 1,365 original program sources, 1,158 goal-start oracles and all 281 clean
+accepted SDK files retain their exact bytes. An extra template newline and a
+Go test's path-substring false positive were diagnosed and corrected; the full
+C and package-import suites pass afterward. Every existing gate is preserved;
+four new definitions require 449 platform executions in 41 groups. This is a
+local checkpoint pending its own complete hosted CI. Whole SDK/native contracts,
+ownership/generics, the 46 historical rejection candidates and final frozen
+corpus mode/platform verification remain required work.
+Evidence: [complete local validation](rust-parity-evidence/sdk-math-artifacts-local-validation.json),
+[focused export/header oracles](rust-parity-evidence/sdk-math-artifacts-focused-local-validation.json).
+
+## Yaml and three language repairs: complete hosted acceptance, 2026-10-24
+
+Compiler main `7ec9002c` has complete Linux/macOS/Windows acceptance: all 49
+required jobs passed in CI 40132554808, with 441 platform gate executions in
+41 groups and one verified compiler per platform. The preceding independent
+Yaml batch `bf648b47` also passed all 49 jobs in CI 40131368626 (429 executions,
+41 groups). Both runs are retained, and both publication slots are clear.
+The accepted SDK pin is `db7dfe94` (SDK CI 40122926614, all seven jobs passed).
+
+This accepts eighteen reusable SDK modules and the void reflection, byte-domain
+character iterator and scalar value-parameter assignment repairs. It does not
+complete the goal. The historical review still has 46 candidate programs needing
+semantic review, wider SDK/native/ownership/generic contracts remain open, and
+all 1,365 frozen originals still require final mode/platform/oracle verification.
+Original Sindarin sources and behavioral/diagnostic oracles remain unchanged.
+Evidence: [Yaml hosted acceptance](rust-parity-evidence/sdk-yaml-artifacts-ci-green.json),
+[composed language hosted acceptance](rust-parity-evidence/three-language-ci-green.json).
+
 ## Three language repairs composed with Yaml main: complete local validation, 2026-10-24
 
 The void reflection, character iterator and scalar parameter RHS repairs are

@@ -1,0 +1,147 @@
+{
+  "status": "Complete local Math/native-header-binding validation; hosted feature acceptance pending",
+  "base": "7ec9002c7deecf96bb90d69cfd5daacf3e138378",
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "compiler_sha256": "619c68bb644887aaa505ff6014b17641718d73e82007033da587eff4207c76cf",
+  "code_sha256": {
+    "CMakeLists.txt": "4a7aac4acb5a2aa8980c89ea47d97d0d34532c6343da869f8dc279ac7ab54aa3",
+    "scripts/build_sdk_package.py": "ad007e1527f42ce0467c86d622dad4b1264f2cf8d7729bd48262bc10e0861c74",
+    "scripts/check_sdk_artifact.py": "30b26adec0b64fbbd02ad38c4c0b9e5c171df43c13d2615fb23bcfb55280a779",
+    "scripts/ci/gates.json": "93a2e1814b54ad7030917ca2605d4be7ee6b23056e1a654df6f229bd1a77c48a",
+    "scripts/sindarin_library.py": "dd4c17cbd3b1da5dea3b6252785a3a0f168beeb4973f256a1ea4b172c587b09b",
+    "src/cgen/gen_model.h": "d469bb5708bfd4774c67c38afbb32d620bdd82934183ffcc7288d8d9275e3485",
+    "src/compiler.c": "139fe566ff827bb5f37e0f18f65ddd61bc457cbaa29fc865bc44c665973a4db7",
+    "src/compiler.h": "8f584186b4a6121af2615392c53591dfaf8621eed24f83b7d7f55bb919e89132",
+    "src/main.c": "7bb13e8bebc80af3dadd72fc700bab7671d2aef5c4ad05029942e1b7cfe45567",
+    "src/target/rust/rust_target.c": "bd963b58ad1af084cf0ff4fa50907f996b44ceda9dd992299bd52b820c7e3227",
+    "templates/c/module.hbs": "fe168068d61ecc3f3eed805e6639c14a8a62bf6156165aaa2ca7c5bee4f57430",
+    "tests/ci/test_ci_helpers.py": "723312dda0ae2baafd11a3607f898c16e00e9e27f5753ce28aff1b41876edfdf",
+    "tests/package/native_imports.py": "093d7ecd0196e258bd2f1a5a73e12ffbbd87ad12b507db561f3c4e88c2baa9c5",
+    "scripts/check_sdk_math_artifact.py": "14f05a3829d7c1cc768f0d4397de108de7d75703c7a1493007e4eda397183a4d",
+    "src/cgen/gen_model_native_bindings.c": "30206294cbd8fdc2e8fbd1aaccfbdf4f39fa03be9c192cc2e7b080e10e502f6e",
+    "tests/package/native_header_aliases.py": "b5e7ec5a40224199cd9e60c1e60f7fefd79640b67dda345d4cb307e744135bf2"
+  },
+  "focused_evidence": "docs/rust-parity-evidence/sdk-math-artifacts-focused-local-validation.json",
+  "normal_focused_cases": 144,
+  "C_address_undefined_leak_cases": 144,
+  "full_C": 3243,
+  "full_Rust": 1099,
+  "package_import_tests": 52,
+  "native_artifact_tests": 22,
+  "callable_method_mode_cases": 36,
+  "callable_method_SAN_mode_cases": 36,
+  "record_array_mode_cases": 432,
+  "record_array_SAN_mode_cases": 432,
+  "wire_callback_clients": 6,
+  "wire_callback_SAN_clients": 6,
+  "ABI_clients": 17,
+  "CI_helpers": 27,
+  "formatting": "passed",
+  "SDK_modules": 19,
+  "SDK_units": 38,
+  "SDK_original_caller_cases": 684,
+  "SDK_stdin_controls": 72,
+  "SDK_total_cases": 756,
+  "source_preservation": {
+    "original_programs_since_835a1ca0": 1365,
+    "goal_start_oracles": 1158,
+    "whole_clean_SDK_input_files": 281,
+    "evidence": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "required_platform_gates": 449,
+  "platform_groups": 41,
+  "all189_previous_gate_definitions_preserved": true,
+  "known_local_failures_resolved": [
+    {
+      "failure": "Extra trailing template newline changed ordinary C snapshots",
+      "resolution": "Restored exact non-package C output; complete3243check C suite passed afterward"
+    },
+    {
+      "failure": "Go graph test matched artifacts/ in checkout name math-artifacts",
+      "resolution": "Compare exact directory components; workspace-artifacts regression passes and complete52-test rerun passes. Program output and Go graph were already correct."
+    }
+  ],
+  "retained": {
+    "SDK19-local.json": {
+      "path": "docs/rust-parity-evidence/math-SDK19-local.json.gz",
+      "sha256": "b8aec0c083d773f67145764608cc7ec51fd9e4855bc3a5ba4280217e0fc77331"
+    },
+    "ABI-local.json": {
+      "path": "docs/rust-parity-evidence/math-ABI-local.json.gz",
+      "sha256": "0e6384bf76c60c9178aadbbf2fd0ea5e0c08d056048d301798168cc81647b7e1"
+    },
+    "matrices-driver.json": {
+      "path": "docs/rust-parity-evidence/math-matrices-driver.json.gz",
+      "sha256": "787c78bef662c59393653df10a35618d0fe31363c20d5e4a611bd0fccc571a61"
+    },
+    "regressions-driver.json": {
+      "path": "docs/rust-parity-evidence/math-regressions-driver.json.gz",
+      "sha256": "198db40a49262f34f497ca15439e87aa997f3709da1b8609a5c6799496e24733"
+    },
+    "initial-regressions-driver.json": {
+      "path": "docs/rust-parity-evidence/math-initial-regressions-driver.json.gz",
+      "sha256": "fc5ecbd3cb87139ad7514137bf4b0dbf92612e7a748ffab1d7d33b4bc42860bb"
+    },
+    "full-C.log": {
+      "path": "docs/rust-parity-evidence/math-full-C.log.gz",
+      "sha256": "ae7ad32616959c6a070461a9329cf026ce93c4466a736eacf1917526232e8b86"
+    },
+    "full-Rust.log": {
+      "path": "docs/rust-parity-evidence/math-full-Rust.log.gz",
+      "sha256": "a9784e306a024496bd1662c21396e099165883248d589debf601abb709be01b8"
+    },
+    "imports.log": {
+      "path": "docs/rust-parity-evidence/math-imports.log.gz",
+      "sha256": "373726bb2b44bc98e13713dace34de173916bc074ce095a793f76c0d20f16eae"
+    },
+    "imports-after.log": {
+      "path": "docs/rust-parity-evidence/math-imports-after.log.gz",
+      "sha256": "ae0891808325e3f0cd9bda146c3055b76e7e1e28deaf8192bf5e7b3f7ad7abaa"
+    },
+    "artifacts.log": {
+      "path": "docs/rust-parity-evidence/math-artifacts.log.gz",
+      "sha256": "cba0e7c4e04e07b1cf9b76353dc220650020eca0f341c3d249b792a7cb68fc4d"
+    },
+    "callable-methods.log": {
+      "path": "docs/rust-parity-evidence/math-callable-methods.log.gz",
+      "sha256": "8064c4e390738e3225723db55af7cda41ebd18feb3d452132c7c96abdd82385e"
+    },
+    "callable-methods-sanitized.log": {
+      "path": "docs/rust-parity-evidence/math-callable-methods-sanitized.log.gz",
+      "sha256": "49b3d43a49475dc20421656de52ed0c093a86c0936a5be7194e9f712b03a8548"
+    },
+    "record-arrays.log": {
+      "path": "docs/rust-parity-evidence/math-record-arrays.log.gz",
+      "sha256": "db11c70290482427d9de9d7ea85409c762930f5e82b632f4ca087b391ad58fa8"
+    },
+    "record-arrays-sanitized.log": {
+      "path": "docs/rust-parity-evidence/math-record-arrays-sanitized.log.gz",
+      "sha256": "d5247692880f56afb96a644fa72af15f3a53ab4c7751c4ee561fa23fbaf2eb57"
+    },
+    "CI-helpers.log": {
+      "path": "docs/rust-parity-evidence/math-CI-helpers.log.gz",
+      "sha256": "54bb6914ac82f07351b776b70802530d8f83eafb21def76e65681c72ef7c9598"
+    },
+    "format.log": {
+      "path": "docs/rust-parity-evidence/math-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    "ABI.log": {
+      "path": "docs/rust-parity-evidence/math-ABI.log.gz",
+      "sha256": "f2f01ff731d1080cd3fc93753498b0c7b689221819e460fb614d6bd4d01437ca"
+    },
+    "go-graph-focused.log": {
+      "path": "docs/rust-parity-evidence/math-go-graph-focused.log.gz",
+      "sha256": "fb1c95179cc7a1fbe5a4ce94bbf0782e6bd0f70bec9bba4054e7369f9d4fd037"
+    },
+    "go-graph-focused-after.log": {
+      "path": "docs/rust-parity-evidence/math-go-graph-focused-after.log.gz",
+      "sha256": "785c8ba2f48b8c9211cf633f1600bab864eafb00f021540e3fa9b4c9867bd249"
+    },
+    "full-C-before-template-newline.log": {
+      "path": "docs/rust-parity-evidence/math-full-C-before-template-newline.log.gz",
+      "sha256": "6172b37ea6fa8148086f305e9f84ed455be077b56185bbec2588e92d37aff2eb"
+    }
+  },
+  "scope": "All original Math145exports/70native+75unchangedSN bodies, original121linecaller; source/sealed C/RS headers/fieldaliases/functionrefs/providerdispatch, all9modes. WiderSDK/native contracts/ownership/generics/finaloriginal1365mode-platform proof remain open."
+}
