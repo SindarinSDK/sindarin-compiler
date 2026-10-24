@@ -1,0 +1,21 @@
+{
+  "revision": "e3426a75273d0926dcacbf821b185173e4ed44f6",
+  "CI": 40120530371,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40120530371",
+  "status": "Complete required dynamic scalar match compiler CI accepted",
+  "successful_jobs": 34,
+  "coverage": {
+    "revision": "e3426a75273d0926dcacbf821b185173e4ed44f6",
+    "groups": 26,
+    "gates": 409,
+    "compilers": {
+      "Linux": "e3d23e99208218c0cb24e0127dbb6574836a9b073af5b52812d2b1681da086cb",
+      "Darwin": "72de46125cc6a015ae436317f89263529b51aec3b971756a37a851fcc9d8cb05",
+      "Windows": "e48462f20bdcbc9bf4f3816b70f6a7004ce03632945b0867c78d40c8066c2499"
+    },
+    "passed": true
+  },
+  "coverage_summary_sha256": "1d5db2b5978cc4ed30b8570b73d405d37397eb15b40251875b580376a454e109",
+  "job_report_sha256": "207dfa528dcf14ad0b7bada08fd8b13dbd5fd0d7615b0ca6db071f02ba7de498",
+  "scope": "Six frozen rejection programs and dynamic scalar match family accepted; XML composition is pending its own hosted run and whole parity remains incomplete"
+}

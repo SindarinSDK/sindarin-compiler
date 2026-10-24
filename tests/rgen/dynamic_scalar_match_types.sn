@@ -1,0 +1,42 @@
+fn main(): void =>
+  var boolean: bool = true
+  var character: char = 'x'
+  var small: int32 = 2i32
+  var signed: long = 2l
+  var unsigned: uint = 2u
+  var narrow: uint32 = 2u32
+  var octet: byte = 2b
+  var single: float = 2.0f
+  var real: double = 2.0
+  match true =>
+    boolean => println("bool")
+  match 'x' =>
+    character => println("char")
+  match small =>
+    1, small => println("int32")
+  match signed =>
+    1, signed => println("long")
+  match unsigned =>
+    1, unsigned => println("uint")
+  match narrow =>
+    1, narrow => println("uint32")
+  match octet =>
+    1, octet => println("byte")
+  match 2.0f =>
+    single => println("float")
+  match 2.0 =>
+    real => println("double")
+  var result: int = match 2.0 =>
+    real + 1.0 => 0
+    real => 1
+    else => 0
+  println(result)
+  var a: int = match false =>
+    boolean => 0
+    !boolean => 2
+    else => 0
+  println(a)
+  var b: int = match 'x' =>
+    character => 3
+    else => 0
+  println(b)

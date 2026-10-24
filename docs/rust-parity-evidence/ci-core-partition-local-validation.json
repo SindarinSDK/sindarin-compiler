@@ -1,0 +1,35 @@
+{
+  "status": "Local CI partition and evidence-retention validation passes; not published or hosted accepted",
+  "base": "7994c8ae",
+  "source_revision": "a6ccac7060ecbcf1e849f5b485bd0cc8fd91d1e5",
+  "gate_definitions": 179,
+  "required_platform_gates_before": 421,
+  "required_platform_gates_after": 421,
+  "platform_groups_before": 26,
+  "platform_groups_after": 41,
+  "full_CI_jobs_after": 49,
+  "gate_command_environment_platform_contract_sha256": "23f450861e97aa6289987c4a0cd526af6fa4e31d6083954bc37578860cda7278",
+  "gates_preserved_in_order_except_group": true,
+  "source_or_Sindarin_code_changed": false,
+  "ci_helper_tests": 25,
+  "workflow_YAML_parses": true,
+  "preserved": [
+    "All commands, flags, fixture counts, environment and platform policies",
+    "Exact compiler hash validation across every platform group",
+    "Missing, duplicate, failed and wrong-revision report rejection",
+    "Distinct CI runs for every main push"
+  ],
+  "new_groups": [
+    "packages",
+    "providers",
+    "sdk-corpus",
+    "sdk-artifacts",
+    "sdk-native"
+  ],
+  "required_tool_profiles": "Go and accepted SDK checkout remain available in all moved groups that require them",
+  "retained_reports_added": [
+    ".sn/runtime-abi*.json",
+    ".sn/sdk-artifact-validation.json"
+  ],
+  "local_log_sha256": "1eb4d5ee14396982444ce808c62e3b6cbc99de2cb2c9fba6100157fc27f206d1"
+}

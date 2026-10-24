@@ -1,3 +1,16 @@
+## Yaml composition on corrected main: validation pending, 2026-10-24
+
+The Yaml artifact branch is locally composed with corrected main `3a9dd77b`.
+It preserves the new CI group split, pinned Go setup, canonical fixture paths
+and native-consumer library resolution. All 179 existing gate definitions are
+identical; the four Yaml gates add eight platform executions for 429 in 41
+groups. All 27 CI helpers pass, including both newly added correction regressions.
+The SDK pin is accepted `db7dfe9`. No existing Sindarin source changes.
+
+Fresh composed SDK/mode, package and complete C/Rust validation remains required.
+The earlier isolated 720-case result is retained separately. Publication is held
+until corrected main CI 40128862955 is completely accepted.
+
 ## Yaml compiler artifacts: complete local SDK checkpoint, 2026-10-24
 
 The local `development/sdk-yaml-artifacts` branch stages all eighteen modules
@@ -17,6 +30,212 @@ This branch remains local. Current-main/CI-partition composition, relevant full
 regressions and required hosted compiler acceptance remain work; no overall
 SDK or backend completion is claimed. Evidence:
 [sdk-yaml-artifacts-local-validation.json](rust-parity-evidence/sdk-yaml-artifacts-local-validation.json).
+
+## CI dependency correction: feature publication frozen, 2026-10-24
+
+Required [CI 40126421775](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40126421775)
+for `3e969e2d` exposes three root causes. SDK-native Linux and Windows select
+Go 1.24.13, while the unchanged TextFile Go client requires 1.26.0; macOS
+has no Go executable in the group. All three now receive the existing pinned
+Go setup. Windows SDK corpus cannot
+resolve `-lz`: XML's transitive package links bypass the compiler's platform
+library names and configuration overrides. This linker defect also affects
+the earlier XML composition; it is not a zlib installation requirement.
+
+Consumer adapters now forward logical library names to each target driver.
+Native metadata and implementation `@link` dependencies use the same platform
+mapping and configuration rules as ordinary imports. Exact archive names,
+paths, frameworks and other explicit linker options retain their token form.
+No package schema, original Sindarin source, original oracle, gate definition
+or fixture inventory changes. All 179 gate definitions and 421 required
+platform executions remain intact.
+
+The focused regression fails in all eight C/Rust source/sealed combinations
+before the fix and passes all eight afterward. It covers both native metadata
+and Sindarin implementation pragmas using a deliberately absent library with
+an explicit empty platform override. Windows and macOS providers jobs also find a fixture-only path mismatch: the
+builder returns canonical temp paths while the fixture retains `RUNNER~1` or
+`/var` aliases.
+The shared fixture root is now resolved before computing relative assembly
+paths. A portable aliased-root regression reproduces the failure before this
+change. All 27 CI helper tests and the 26-case native TextFile check pass
+locally. All 52 package-import tests and the full 432-case record-array matrix with six
+wire callback clients pass. Full SDK validation passes 684 cases (612 unchanged original callers and 72
+stdin controls), and all 22 archive tests pass. All 1,365 corpus source
+programs match accepted goal-start revision 835a1ca0, and 177 SDK input files
+match pinned 0b71e84. One combined correction is published after local verification;
+feature publication stays frozen until complete corrected hosted CI passes.
+The original XML and partition validation runs remain intact.
+Local evidence: [ci-link-toolchain-correction-local-validation.json](rust-parity-evidence/ci-link-toolchain-correction-local-validation.json).
+
+## Dynamic scalar match: complete hosted acceptance, 2026-10-24
+
+Compiler `e3426a75` passes all 34 required jobs in
+[CI 40120530371](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40120530371).
+The retained coverage summary verifies 409 gates/26 platform groups and one exact
+compiler hash on each of Linux/macOS/Windows. Six frozen original rejection
+programs are promoted without modifying their source or diagnostic oracles.
+Evidence: [dynamic-scalar-match-ci-green.json](rust-parity-evidence/dynamic-scalar-match-ci-green.json).
+
+XML composition `a6ccac70` remains pending CI 40124214770. One feature slot is
+clear. The CI-only partition batch is locally verified and ready for its own
+complete required hosted validation; no gate or compiler behavior is removed.
+Yaml compiler artifacts remain local and await XML dependency acceptance.
+No full backend or whole-SDK completion is claimed.
+
+## CI core partition: locally validated, 2026-10-24
+
+The current core jobs serialize package imports, native providers and all SDK
+artifact/native checks; Windows and macOS core remain live after nearly an
+hour. A local CI-only batch partitions these commands into packages, providers,
+SDK corpus, SDK artifacts and SDK native groups. All 179 gate definitions remain
+identical and in order apart from their group: commands, flags, environment,
+fixture counts and platform policy have the same sealed contract hash. The
+required platform-gate count remains 421; platform groups increase from 26 to
+41 (49 complete CI jobs). No compiler, runtime, template or Sindarin source changes.
+
+All 25 CI helper tests pass, including missing/duplicate/failed/wrong-revision
+and mixed-compiler report rejection. The actual workflow matrix matches the
+catalog, moved groups retain Go/SDK requirements, and ABI/full SDK report files
+are now retained explicitly. Workflow YAML parses. This batch remains local
+while both independent feature slots are occupied; hosted acceptance is still
+required. Evidence:
+[ci-core-partition-local-validation.json](rust-parity-evidence/ci-core-partition-local-validation.json).
+
+## SDK Yaml correction accepted; XML composition published, 2026-10-24
+
+SDK corrected main `db7dfe9` passes all seven required jobs in
+[CI 40122926614](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/40122926614).
+Retained Linux/macOS/Windows Yaml reports each pass twenty cases, including
+independent C/Rust archives and eighteen unchanged original caller mode cases.
+Linux's actual-runtime address/undefined/leak client passes. Every retained
+Yaml source hash matches committed source or its Windows checkout form.
+All original SDK Sindarin declarations and caller/oracle sources remain intact.
+Evidence: [sdk-yaml-correction-ci-green.json](rust-parity-evidence/sdk-yaml-correction-ci-green.json).
+
+The diagnostic retention defect is repaired. Corrected main's unchanged macOS
+TLS test and complete SDK suite pass. The earlier TLS read/write failure remains
+unexplained historical evidence: no TLS fix or accepted rerun of the failed
+predecessor is claimed. Current required SDK CI is green and the publication
+freeze is lifted.
+
+XML/record-array/dynamic composition `a6ccac70` is published and awaits
+[CI 40124214770](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40124214770).
+It retains accepted SDK `0b71e84`; compiler dynamic-match `e3426a75` still awaits
+CI 40120530371. Both feature slots are occupied. Yaml compiler artifacts remain
+local and depend on XML adapter acceptance. Whole SDK, remaining language/package
+contracts and final original corpus proof remain open. No existing Sindarin
+source is changed by either compiler batch or the SDK work.
+
+## Record-array/XML and dynamic-match composition: locally verified, 2026-10-24
+
+Composition `e27fcfb1` preserves both independent batches. Complete local suites
+pass 3,243 C/1,099 Rust checks; all 24 CI helpers validate 421 required gates in
+26 platform groups. Dynamic match passes 72 normal and 72 C-sanitized independent
+oracle cases, all seventeen SDK modules pass 76 source/sealed smoke and stdin
+cases, and all 17 shared-ABI clients pass. The independent pre-composition batch
+retains its complete 684 SDK cases and 432 normal/432 sanitizer record-array
+cases separately; the composed smoke is not a replacement for that full matrix.
+No existing Sindarin source changes. Evidence:
+[record-array-xml-dynamic-composed-local-validation.json](rust-parity-evidence/record-array-xml-dynamic-composed-local-validation.json).
+
+This composition remains local. Full hosted compiler validation is required.
+Feature publication is frozen while SDK diagnostic correction `db7dfe9` awaits
+complete CI 40122926614. The corrected macOS primary suite passes, but the earlier
+external TLS failure is retained as unresolved historical evidence, not silently
+converted into an accepted rerun. Compiler dynamic-match CI 40120530371 remains
+pending. Wider SDK/language/package and final corpus acceptance remain open.
+
+## Record-array/XML integration: complete local checkpoint, 2026-10-24
+
+Integration `8bf30521` on accepted `835a1ca0` passes all 432 normal and 432
+address/undefined/leak record-array/provider/body mode cases, plus six normal
+and six sanitizer callback wire clients. The complete seventeen-module SDK
+stage passes 684 original-caller/stdin cases from source and sealed archives.
+All 51 import tests, 22 artifact tests, 3,243 C checks, 1,097 Rust checks and
+23 CI helpers pass. ABI clients pass 17 normal and eight actual-runtime
+sanitizer cases. All 1,365 corpus source paths equal accepted main; no existing
+Sindarin source is changed. Evidence:
+[record-array-xml-integrated-local-validation.json](rust-parity-evidence/record-array-xml-integrated-local-validation.json).
+
+This is independent local evidence before composing dynamic-match main. That
+composition and complete hosted compiler CI remain required. Feature publication
+is frozen for the required SDK TLS failure; the diagnostic-only correction
+`db7dfe9` awaits SDK CI 40122926614. The original TLS failure remains unresolved.
+
+## Source constraint and required SDK CI failure, 2026-10-24
+
+The user explicitly requires existing Sindarin source to remain unchanged.
+Published compiler `e3426a75` adds two regression programs and changes no existing
+`.sn` source; SDK `f8fefe1` and the local record-array/XML integration change no
+`.sn` files. Parity repairs stay in compiler/runtime/native C/adapters.
+
+SDK Yaml batch `f8fefe1` is published in CI 40122131569. Its macOS legacy SDK
+job fails the original `test_tls_read_write` after the connect test passes.
+The diagnostic wrapper then loses its output directory during dependency
+installation and incorrectly probes DTLS rather than TLS. TLS's actual stderr
+is not retained. Feature publication is frozen. Diagnose and repair the
+failure without changing the original TLS program or its oracle; diagnostic
+reruns cannot provide acceptance credit.
+
+## Goal resumed: integrated record-array/XML validation, 2026-10-24
+
+The full Rust completion goal is active again. Integration branch
+`development/record-array-sdk-integrated` combines accepted main `835a1ca0`
+with the existing ABI 1.8 runtime, generated record-array providers/consumers,
+XML SDK artifacts, package-internal native adapters and XML CI dispatch repair.
+The SDK source pin remains accepted `0b71e84`. The integrated compiler builds;
+local package, ABI/lifetime, SDK and full compiler validation is in progress.
+This integration has no hosted acceptance yet and does not complete the goal.
+
+Independent dynamic scalar match batch `e3426a75` is published on main and
+awaits [CI 40120530371](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40120530371).
+Its complete local suites pass 3,243 C/1,099 Rust checks and 72 normal/72
+sanitizer independent mode cases, with six frozen rejection sources promoted.
+It occupies one publication slot; no hosted feature acceptance is credited yet.
+
+The next work remains full SDK coverage, exported qualifier/callback and wider
+record/interface/generic contracts, dependency lifecycle graphs, remaining
+language rejections and final original-corpus oracle/mode/platform acceptance.
+The historical entries below retain their original checkpoint scope; the latest
+accepted platform correction supersedes their publication freezes.
+
+## Dynamic scalar match patterns: local publication batch, 2026-10-24
+
+The independent `development/rust-dynamic-scalar-match` branch starts from
+accepted main `835a1ca0`. Computed same-type scalar patterns now use lazy
+comparisons against a saved subject, matching C's source order and short-circuit
+behavior. Literal-only integral matches keep their existing Rust match output
+and range checks. Comparison temporaries remain absent from all source names.
+
+Six original C-supported rejection programs are preserved byte-for-byte with
+frozen diagnostic hashes and explicit behavioral promotion records. Two new
+fixtures cover all scalar types, mixed literal/computed arms, subject mutation,
+short-circuit effects, nested scopes, source-name collisions, returns and loop
+continue. All 72 optimization/arithmetic cases pass fixed independent C/Rust
+output oracles, both normally and with C address/undefined/leak instrumentation.
+Targeted generation and promotion checks pass. Full local suites pass 3,243 C
+and 1,099 Rust checks, with zero failures/skips; all 508 generation checks and
+24 CI helpers pass. The CI inventory is 409 gates/26 platform groups. Required
+hosted acceptance remains outstanding. Evidence:
+[dynamic-scalar-match-local-validation.json](rust-parity-evidence/dynamic-scalar-match-local-validation.json).
+
+Mixed-type dynamic patterns, wider string patterns and aggregate match results
+remain parity work; this increment does not establish overall completion.
+
+## Platform correction: hosted acceptance, 2026-10-12
+
+Compiler revision `835a1ca07430e6d10f4988fcf6778ccb71b1646d` passes all 34
+required jobs in [CI 38168393142](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38168393142).
+Retained coverage verifies 405 gates/26 groups and exact compiler hashes across
+Linux/macOS/Windows. Both previously failing macOS record-rebinding and Windows
+complete SDK artifact gates pass in the retained platform reports. Evidence:
+[sdk-resources-platform-correction-ci-green.json](rust-parity-evidence/sdk-resources-platform-correction-ci-green.json).
+
+The correction is accepted and feature publication is unfrozen. ABI 1.8 record
+arrays, XML artifacts and internal-native-call work remain local and require
+integration validation and their own full hosted CI. Wider goal completion
+remains unproven. Earlier pending/frozen entries describe historical states.
 
 ## Internal native package calls: local validation, 2026-10-11
 
@@ -124,40 +343,16 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-Current publication state (2026-10-11): compiler `f5e88911` failed CI
-38162607031. macOS core failed its existing 72-case record-parameter-rebinding
-gate because recursive annotation resized an ancestor JSON table during its
-active iteration. The original fixture reproduces a compiler heap-use-after-free
-under ASAN/UBSAN on Linux. Windows core failed the complete SDK artifact gate
-because the C link command exceeded cmd.exe's limit. All other core gates in
-each retained report passed; Linux core passed. Failed integrated CI receives
-no acceptance credit. Feature publication is frozen while one combined platform
-correction is prepared and awaits complete required hosted acceptance.
-
-The correction collects record-guard names before modifying structures. A new
-unit forces the exact shared-ancestor resize and is independently proven to fail
-with the old production traversal under ASAN; the corrected helper passes with
-address/undefined/leak checks. Windows GCC/Clang C links move the full argument
-list into a response file while keeping stderr redirection in the short driver
-command. Regression coverage includes 48 independent archives with a combined
-path length above 8,191 characters and actual C-driver response argument parsing.
-
-Compiler `757d9d0c` remains the previously accepted integrated head (34 jobs,
-373 gates/26 groups). SDK resource correction `2152da2` remains accepted in
-CI 38161748979 and remains the correction's exact compiler CI pin. SDK XML
-correction `0b71e84` is accepted in CI 38164835929. Canonical XML's 40-byte layout,
-parent/child document ownership, removed/replaced aliases, merged text, exact
-cleanup and original caller behavior have hosted SDK acceptance. Compiler XML
-artifact integration still requires its own hosted proof.
-
-Local feature branch `development/canonical-record-array-abi` is held at
-`e84239c8`: ABI 1.8 runtime, generated C/RS/GO record-array adapters, C/RS bodies,
-complete XML staging and private internal native package calls. Its 216 normal/
-216 sanitizer package-call cases plus six normal/six sanitizer callback wire
-clients pass; seventeen modules/34 units pass 684 unchanged SDK artifact/stdin
-cases. These are local checkpoints, not hosted acceptance. No feature push is
-allowed until this correction is completely accepted. Whole SDK, wider language/
-package contracts and final 1,365-source platform/mode/oracle proof remain open.
+Current publication state (2026-10-24): accepted main `835a1ca0` has all 34
+required hosted jobs green (405 gates/26 platform groups). The prior macOS
+record-guard and Windows SDK link failures are repaired and accepted. Feature
+publication is frozen for required SDK CI 40122131569. Diagnostic correction
+`db7dfe9` awaits CI 40122926614. SDK resource `2152da2` and XML `0b71e84` corrections have
+hosted acceptance. The record-array/XML/internal-native-call integration above
+passes independent local validation and is being composed with dynamic-match
+main; its own complete hosted acceptance remains required.
+Whole SDK, wider language/package contracts and final 1,365-source proof remain
+open. Local evidence and raw C/Rust matches do not establish goal completion.
 
 ## Historical local checkpoints (superseded)
 

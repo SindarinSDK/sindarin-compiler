@@ -1,0 +1,42 @@
+{
+  "revision": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "CI": 40122926614,
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/40122926614",
+  "status": "All seven required SDK jobs pass on corrected main; YAML native source/archive capability accepted; compiler artifact integration remains local",
+  "successful_jobs": 7,
+  "reports": {
+    "Darwin": {
+      "cases": 20,
+      "passed": true,
+      "compiler_sha256": "f8fe7496d5756127bc5250c65b0ac350e05afeb707426782141ad3d0d2df5099",
+      "report_sha256": "d4611cca49674cd81a006dfae483c410bebf74b666712f4f638e26d4813a3051"
+    },
+    "Linux": {
+      "cases": 20,
+      "passed": true,
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684",
+      "report_sha256": "6ee323550148aa1455eaed843eb1faf5596aecd5989cf38d1a3f190340acf33c"
+    },
+    "Linux-sanitizers": {
+      "cases": 1,
+      "passed": true,
+      "compiler_sha256": "d677e74f84aa797c790ed6e6e213047262491c3cb5a9e4f6515cad82e0ca4684",
+      "report_sha256": "f13af5c8784b0e210b6522cd0b409965f4005523f06ea7e640ea9ad9045a4910"
+    },
+    "Windows": {
+      "cases": 20,
+      "passed": true,
+      "compiler_sha256": "bc4a9fd0001af60fa5668037566fe177c1d1d3ad016378ce25dea488cfc74252",
+      "report_sha256": "8871e089d30d12e70c30c4318398e3454bf1d1ce6f4096d17a5d2bb40c2e8df1"
+    }
+  },
+  "retained_reports": {
+    "path": "docs/rust-parity-evidence/sdk-yaml-correction-hosted-reports.json.gz",
+    "sha256": "0ea79cd136e7376989d6410bb0e8b48932e1746504bdcd0060dc5ffcac8b82fb"
+  },
+  "failed_predecessor": 40122131569,
+  "earlier_TLS_failure": "Original macOS TLS read/write failure remains unexplained historical evidence. No TLS source/oracle changed and no claim of a TLS fix is made. Corrected main passes the unchanged complete SDK suite.",
+  "diagnostic_correction": "Actual failed fixture selection, preserved streams, no dependency reinstall, original mode and primary nonzero status retained",
+  "whole_Rust_goal_complete": false,
+  "existing_Sindarin_sources_changed": false
+}

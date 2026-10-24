@@ -108,6 +108,11 @@ jobs:
         - c
         - rust
         - core
+        - packages
+        - providers
+        - sdk-corpus
+        - sdk-artifacts
+        - sdk-native
         - native
         - arrays
         - closures
@@ -141,14 +146,14 @@ jobs:
       with:
         rust_target: ${{ matrix.rust_target }}
     - name: Setup Go for shared runtime ABI clients
-      if: matrix.group == 'core' || matrix.group == 'sanitizers'
+      if: contains(fromJSON('["core","packages","providers","sdk-native","sanitizers"]'), matrix.group)
       timeout-minutes: 10
       uses: actions/setup-go@v7
       with:
         go-version: '1.26.0'
         cache: false
     - name: Checkout SDK native resource integration
-      if: matrix.group == 'core' || matrix.group == 'sanitizers'
+      if: contains(fromJSON('["core","packages","providers","sdk-corpus","sdk-artifacts","sdk-native","sanitizers"]'), matrix.group)
       uses: actions/checkout@v7
       with:
         repository: SindarinSDK/sindarin-pkg-sdk
@@ -176,6 +181,8 @@ jobs:
           .sn/rust-runtime-diagnostics/
           .sn/rust-parity-*.json
           .sn/*-lifetimes.json
+          .sn/runtime-abi*.json
+          .sn/sdk-artifact-validation.json
           .sn/package-opaque-results*.json
           .sn/static-callback-ownership.json
           .sn/record-reference-snapshots.json

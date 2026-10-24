@@ -2638,6 +2638,23 @@ static bool rust_report_float_match_pattern_error(
             : "supports floating statement match only with floating literal patterns");
 }
 
+/* C compares patterns lazily in source order against a saved subject. Rust
+ * patterns bind variable names, so computed scalar patterns use comparisons.
+ * Keep literal range/conversion checks on their existing path. */
+static bool rust_computed_scalar_match_pattern(json_object *pattern,
+                                               const char *subject_kind)
+{
+    json_object *type = NULL, *operand = NULL;
+    if (!json_object_object_get_ex(pattern, "type", &type) ||
+        !json_string_property_equals(type, "kind", subject_kind) ||
+        json_string_property_equals(pattern, "kind", "literal")) return false;
+    if (json_string_property_equals(pattern, "kind", "unary") &&
+        json_string_property_equals(pattern, "op", "negate") &&
+        json_object_object_get_ex(pattern, "operand", &operand) &&
+        json_string_property_equals(operand, "kind", "literal")) return false;
+    return true;
+}
+
 static bool rust_validate_statement_match(json_object *expr)
 {
     json_object *subject = NULL, *subject_type = NULL, *arms = NULL;
@@ -2666,6 +2683,7 @@ static bool rust_validate_statement_match(json_object *expr)
 
     bool has_else = false;
     bool has_pattern_arm = false;
+    bool has_computed_pattern = false;
     size_t arm_count = json_object_array_length(arms);
     for (size_t i = 0; i < arm_count; i++)
     {
@@ -2705,6 +2723,16 @@ static bool rust_validate_statement_match(json_object *expr)
             {
                 json_object *pattern = json_object_array_get_idx(patterns, p);
                 if (subject_is_integral)
+                    json_object_object_add(pattern, "rust_match_comparison_cast",
+                                           json_object_new_boolean(true));
+                if (!subject_is_string &&
+                    rust_computed_scalar_match_pattern(pattern, subject_kind))
+                {
+                    if (!rust_validate_expr(pattern)) return false;
+                    has_computed_pattern = true;
+                    continue;
+                }
+                if (subject_is_integral)
                 {
                     RustMatchPatternStatus status =
                         rust_integral_match_literal_pattern(pattern, subject_kind);
@@ -2741,8 +2769,8 @@ static bool rust_validate_statement_match(json_object *expr)
     }
 
     json_object_object_add(expr, "rust_has_else", json_object_new_boolean(has_else));
-    if (subject_is_float)
-        json_object_object_add(expr, "rust_floating_match",
+    if (subject_is_float || has_computed_pattern)
+        json_object_object_add(expr, "rust_comparison_match",
                                json_object_new_boolean(true));
     if (subject_is_string)
         json_object_object_add(expr, "rust_string_match",
@@ -2776,6 +2804,7 @@ static bool rust_validate_value_match(json_object *expr)
 
     size_t else_count = 0;
     size_t ordinary_count = 0;
+    bool has_computed_pattern = false;
     size_t arm_count = json_object_array_length(arms);
     for (size_t i = 0; i < arm_count; i++)
     {
@@ -2809,6 +2838,16 @@ static bool rust_validate_value_match(json_object *expr)
             for (size_t p = 0; p < pattern_count; p++)
             {
                 json_object *pattern = json_object_array_get_idx(patterns, p);
+                if (subject_is_integral)
+                    json_object_object_add(pattern, "rust_match_comparison_cast",
+                                           json_object_new_boolean(true));
+                if (!subject_is_string &&
+                    rust_computed_scalar_match_pattern(pattern, subject_kind))
+                {
+                    if (!rust_validate_expr(pattern)) return false;
+                    has_computed_pattern = true;
+                    continue;
+                }
                 if (subject_is_integral)
                 {
                     RustMatchPatternStatus status =
@@ -2946,8 +2985,8 @@ static bool rust_validate_value_match(json_object *expr)
     }
 
     json_object_object_add(expr, "rust_value_match", json_object_new_boolean(true));
-    if (subject_is_float)
-        json_object_object_add(expr, "rust_floating_match",
+    if (subject_is_float || has_computed_pattern)
+        json_object_object_add(expr, "rust_comparison_match",
                                json_object_new_boolean(true));
     if (subject_is_string)
         json_object_object_add(expr, "rust_string_match",

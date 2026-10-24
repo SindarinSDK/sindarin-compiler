@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import sys
 import tempfile
@@ -29,6 +30,21 @@ def directory(path):
 
 
 class BuildBundleTests(unittest.TestCase):
+    def test_package_fixture_accepts_canonical_assembly_paths_from_an_aliased_temp_root(self):
+        sys.path.insert(0, str(ROOT / 'tests' / 'package'))
+        import callable_methods
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            (root / 'alias').mkdir()
+            fixture = callable_methods.CallableMethodTests()
+            self.addCleanup(fixture.doCleanups)
+            temporary = SimpleNamespace(name=str(root / 'alias' / '..'), cleanup=lambda: None)
+            with patch.object(callable_methods.tempfile, 'TemporaryDirectory', return_value=temporary):
+                fixture.setUp()
+            assembly = root / '.sn/methods/built/assembly.json'
+            self.assertEqual(assembly.relative_to(fixture.package), Path('built/assembly.json'))
+
     def test_restores_executables_dependencies_and_checksums(self):
         with tempfile.TemporaryDirectory() as folder, directory(folder):
             Path('bin').mkdir()
@@ -97,15 +113,16 @@ class CoverageTests(unittest.TestCase):
         self.assertTrue({f'runtime-{i:03d}' for i in range(1, 99)} <= runtime)
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
-        self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 425)
+        self.assertEqual(report['groups'], 41)
+        self.assertEqual(report['gates'], 429)
         for name in ('artifacts', 'native'):
             for sanitized in (False, True):
                 identity = 'sdk-random-' + name + ('-sanitizers' if sanitized else '')
                 matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]
                 self.assertEqual(len(matches), 1, identity)
                 gate = matches[0]
-                self.assertEqual(gate['group'], 'sanitizers' if sanitized else 'core')
+                self.assertEqual(gate['group'], 'sanitizers' if sanitized else
+                                 'sdk-native' if name == 'native' else 'sdk-artifacts')
                 self.assertEqual(gate['linux_only'], sanitized)
                 expected = (['{python}', 'scripts/check_sdk_random_artifact.py'] if name == 'artifacts'
                             else ['{python}', 'scripts/check_sdk_native.py', 'random'])
@@ -132,7 +149,7 @@ class CoverageTests(unittest.TestCase):
         self.assertTrue(providers[0]['linux_only'])
         callables = [g for g in self.catalog['gates'] if g['id'] == 'package-callable-methods']
         self.assertEqual(len(callables), 1)
-        self.assertEqual(callables[0]['group'], 'core')
+        self.assertEqual(callables[0]['group'], 'providers')
         self.assertFalse(callables[0]['linux_only'])
         sanitized = [g for g in self.catalog['gates'] if g['id'] == 'package-callable-method-sanitizers']
         self.assertEqual(len(sanitized), 1)
@@ -148,7 +165,7 @@ class CoverageTests(unittest.TestCase):
         self.assertTrue(string_sanitizers[0]['linux_only'])
         opaque = [g for g in self.catalog['gates'] if g['id'] == 'package-opaque-results']
         self.assertEqual(len(opaque), 1)
-        self.assertEqual(opaque[0]['group'], 'core')
+        self.assertEqual(opaque[0]['group'], 'providers')
         self.assertFalse(opaque[0]['linux_only'])
         failures = [g for g in self.catalog['gates'] if g['id'] == 'package-opaque-result-sanitizers']
         self.assertEqual(len(failures), 1)
@@ -156,7 +173,7 @@ class CoverageTests(unittest.TestCase):
         self.assertTrue(failures[0]['linux_only'])
         sdk = [g for g in self.catalog['gates'] if g['id'] == 'sdk-artifact-callers']
         self.assertEqual(len(sdk), 1)
-        self.assertEqual(sdk[0]['group'], 'core')
+        self.assertEqual(sdk[0]['group'], 'sdk-corpus')
         self.assertFalse(sdk[0]['linux_only'])
 
         spec = importlib.util.spec_from_file_location('sdk_native_dispatch', ROOT / 'scripts/check_sdk_native.py')
@@ -174,12 +191,59 @@ class CoverageTests(unittest.TestCase):
                       'sdk-json-artifacts', 'sdk-json-native', 'native-record-array-packages', 'sdk-xml-native', 'package-internal-native-calls', 'sdk-yaml-artifacts', 'sdk-yaml-native'):
             entry = [g for g in self.catalog['gates'] if g['id'] == ident]
             self.assertEqual(len(entry), 1)
-            self.assertEqual(entry[0]['group'], 'core')
+            self.assertEqual(entry[0]['group'],
+                             'providers' if ident in ('canonical-record-copy', 'native-record-array-packages', 'package-internal-native-calls')
+                             else 'sdk-native' if ident.endswith('-native') or ident == 'sdk-dtls-lifecycle'
+                             else 'sdk-artifacts')
             self.assertFalse(entry[0]['linux_only'])
             sanitized = [g for g in self.catalog['gates'] if g['id'] == ident + '-sanitizers']
             self.assertEqual(len(sanitized), 1)
             self.assertEqual(sanitized[0]['group'], 'sanitizers')
             self.assertTrue(sanitized[0]['linux_only'])
+
+    def test_dynamic_scalar_match_runs_on_every_platform_and_with_sanitizers(self):
+        for sanitized in (False, True):
+            identity = 'dynamic-scalar-match' + ('-sanitizers' if sanitized else '')
+            entries = [g for g in self.catalog['gates'] if g['id'] == identity]
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0]['command'],
+                             ['{python}', 'scripts/check_rust_dynamic_match.py'] +
+                             (['--sanitize'] if sanitized else []))
+            self.assertEqual(entries[0]['group'], 'sanitizers' if sanitized else 'core')
+            self.assertEqual(entries[0]['linux_only'], sanitized)
+
+    def test_workflow_runs_every_catalog_group_with_its_required_tools_and_reports(self):
+        workflow = (ROOT / '.github/workflows/ci.yml').read_text()
+        matrix = workflow.split('        group:\n', 1)[1].split('        include:', 1)[0]
+        configured = re.findall(r'^        - ([a-z-]+)$', matrix, re.M)
+        self.assertEqual(configured, self.catalog['groups'])
+        self.assertEqual(len(configured), len(set(configured)))
+
+        def configured_groups(step):
+            block = workflow.split('    - name: ' + step + '\n', 1)[1].split('      uses:', 1)[0]
+            encoded = re.search(r"fromJSON\('([^']+)'\)", block).group(1)
+            return set(json.loads(encoded))
+
+        self.assertTrue({'packages', 'providers', 'sdk-native', 'sanitizers'} <=
+                        configured_groups('Setup Go for shared runtime ABI clients'))
+        required_sdk = {gate['group'] for gate in self.catalog['gates']
+                        if gate['id'].startswith('sdk-') or
+                        gate['id'] in ('runtime-105', 'runtime-108', 'runtime-110')}
+        self.assertTrue(required_sdk <= configured_groups('Checkout SDK native resource integration'))
+        self.assertIn('          .sn/runtime-abi*.json\n', workflow)
+        self.assertIn('          .sn/sdk-artifact-validation.json\n', workflow)
+        self.assertIn('github.event.pull_request.number || github.run_id', workflow)
+
+    def test_consumer_libraries_retain_platform_resolution_and_exact_linker_options(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        from prepare_native_imports import consumer_link_options
+        self.assertEqual(consumer_link_options([
+            '-lz', '-l', 'xml2', '-l:exact.a', '/a path/archive.a',
+            '-framework', 'Security', '-L', '/a path', '-Wl,--whole-archive']),
+            ['z', 'xml2', '-l:exact.a', '/a path/archive.a',
+             '-Wl,-framework,Security', '-L/a path', '-Wl,--whole-archive'])
+        with self.assertRaisesRegex(ValueError, 'missing its argument'):
+            consumer_link_options(['-l'])
 
     def test_missing_group_fails(self):
         self.reports[-1].unlink()

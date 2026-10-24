@@ -4,6 +4,11 @@
     "c",
     "rust",
     "core",
+    "packages",
+    "providers",
+    "sdk-corpus",
+    "sdk-artifacts",
+    "sdk-native",
     "native",
     "arrays",
     "closures",
@@ -1266,7 +1271,7 @@
         "{python}",
         "tests/package/runtime_contract.py"
       ],
-      "group": "core",
+      "group": "packages",
       "linux_only": false
     },
     {
@@ -1276,7 +1281,7 @@
         "{python}",
         "scripts/check_runtime_abi.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1297,7 +1302,7 @@
         "{python}",
         "tests/package/native_artifacts.py"
       ],
-      "group": "core",
+      "group": "packages",
       "linux_only": false
     },
     {
@@ -1309,7 +1314,7 @@
         "--compiler",
         "bin/sn"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -1334,7 +1339,7 @@
         "{python}",
         "tests/package/native_imports.py"
       ],
-      "group": "core",
+      "group": "packages",
       "linux_only": false
     },
     {
@@ -1344,7 +1349,7 @@
         "{python}",
         "scripts/check_sdk_artifact.py"
       ],
-      "group": "core",
+      "group": "sdk-corpus",
       "linux_only": false
     },
     {
@@ -1394,7 +1399,7 @@
         "{python}",
         "scripts/check_package_lifecycle.py"
       ],
-      "group": "core",
+      "group": "packages",
       "linux_only": false
     },
     {
@@ -1461,7 +1466,7 @@
         "{python}",
         "tests/package/callable_methods.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1497,7 +1502,7 @@
         "{python}",
         "tests/package/opaque_results.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1523,7 +1528,7 @@
         "{python}",
         "scripts/check_sdk_time_date_artifact.py"
       ],
-      "group": "core",
+      "group": "sdk-artifacts",
       "linux_only": false
     },
     {
@@ -1550,7 +1555,7 @@
         "scripts/check_sdk_native.py",
         "time-date"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -1579,7 +1584,7 @@
         "scripts/check_sdk_native.py",
         "dtls"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -1633,7 +1638,7 @@
         "{python}",
         "tests/package/rust_records.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1662,7 +1667,7 @@
       "env": {
         "GOEXPERIMENT": "cgocheck2"
       },
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1689,7 +1694,7 @@
         "{python}",
         "tests/package/rust_array_bodies.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1715,7 +1720,7 @@
         "{python}",
         "scripts/check_sdk_random_artifact.py"
       ],
-      "group": "core",
+      "group": "sdk-artifacts",
       "linux_only": false
     },
     {
@@ -1742,7 +1747,7 @@
         "scripts/check_sdk_native.py",
         "random"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -1770,7 +1775,7 @@
         "{python}",
         "tests/package/rust_record_bodies.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1800,7 +1805,7 @@
         "{python}",
         "tests/package/record_parameter_rebind.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1826,7 +1831,7 @@
         "{python}",
         "scripts/check_record_qualified_parameters.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1852,7 +1857,7 @@
         "{python}",
         "scripts/check_sdk_uuid_artifact.py"
       ],
-      "group": "core",
+      "group": "sdk-artifacts",
       "linux_only": false
     },
     {
@@ -1879,7 +1884,7 @@
         "scripts/check_sdk_native.py",
         "uuid"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -1907,7 +1912,7 @@
         "{python}",
         "tests/package/record_copy_contract.py"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false
     },
     {
@@ -1935,7 +1940,7 @@
         "{python}",
         "scripts/check_sdk_record_copies.py"
       ],
-      "group": "core",
+      "group": "sdk-artifacts",
       "linux_only": false
     },
     {
@@ -1961,7 +1966,7 @@
         "{python}",
         "scripts/check_sdk_stringbuilder_artifact.py"
       ],
-      "group": "core",
+      "group": "sdk-artifacts",
       "linux_only": false
     },
     {
@@ -1988,7 +1993,7 @@
         "scripts/check_sdk_native.py",
         "stringbuilder"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -2016,7 +2021,7 @@
         "{python}",
         "scripts/check_sdk_process_artifact.py"
       ],
-      "group": "core",
+      "group": "sdk-artifacts",
       "linux_only": false
     },
     {
@@ -2043,7 +2048,7 @@
         "scripts/check_sdk_native.py",
         "process"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -2071,7 +2076,7 @@
         "{python}",
         "scripts/check_sdk_json_artifact.py"
       ],
-      "group": "core",
+      "group": "sdk-artifacts",
       "linux_only": false
     },
     {
@@ -2098,7 +2103,7 @@
         "scripts/check_sdk_native.py",
         "json"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -2127,7 +2132,7 @@
         "tests/package/record_arrays.py",
         "RecordArrayTests.test_generated_record_array_providers"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false,
       "env": {
         "GOEXPERIMENT": "cgocheck2"
@@ -2159,7 +2164,7 @@
         "scripts/check_sdk_native.py",
         "xml"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
@@ -2188,7 +2193,7 @@
         "tests/package/record_arrays.py",
         "RecordArrayBodyCallTests.test_generated_record_array_providers"
       ],
-      "group": "core",
+      "group": "providers",
       "linux_only": false,
       "env": {
         "GOEXPERIMENT": "cgocheck2"
@@ -2213,13 +2218,34 @@
       }
     },
     {
+      "id": "dynamic-scalar-match",
+      "name": "Dynamic scalar match: lazy source order, subject snapshots, nested scopes and scalar types",
+      "command": [
+        "{python}",
+        "scripts/check_rust_dynamic_match.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "dynamic-scalar-match-sanitizers",
+      "name": "Dynamic scalar match: lazy source order, subject snapshots, nested scopes and scalar types with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_dynamic_match.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true
+    },
+    {
       "id": "sdk-yaml-artifacts",
       "name": "Canonical Yaml artifacts: unchanged API, node aliases, copies and nil behavior",
       "command": [
         "{python}",
         "scripts/check_sdk_yaml_artifact.py"
       ],
-      "group": "core",
+      "group": "sdk-artifacts",
       "linux_only": false
     },
     {
@@ -2246,7 +2272,7 @@
         "scripts/check_sdk_native.py",
         "yaml"
       ],
-      "group": "core",
+      "group": "sdk-native",
       "linux_only": false
     },
     {
