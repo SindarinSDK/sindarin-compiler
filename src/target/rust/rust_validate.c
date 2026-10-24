@@ -181,29 +181,29 @@ static bool rust_direct_variable_named(json_object *node, const char *name)
         json_string_property_equals(node, "name", name);
 }
 
-/* Rust cannot preserve the source sequencing contract if the RHS can mutate
- * the very parameter whose replacement is still pending. Keep this bounded:
- * ordinary reads of the old Copy value are allowed, while a nested write or
- * an as-ref argument of that same parameter is rejected. */
-static bool rust_rhs_mutates_or_forwards_parameter(json_object *node,
-                                                    const char *name)
+/* Compound operations and shadow initializers still need their existing
+ * sequencing restrictions. Direct scalar assignment can finish an as-ref
+ * call before storing its result; distinguish forwarding from a nested write. */
+static bool rust_rhs_mutates_parameter(json_object *node, const char *name,
+                                      bool include_forwarding)
 {
     if (!node || !name) return false;
     if (json_object_is_type(node, json_type_array))
     {
         size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
-            if (rust_rhs_mutates_or_forwards_parameter(
-                    json_object_array_get_idx(node, i), name)) return true;
+            if (rust_rhs_mutates_parameter(
+                    json_object_array_get_idx(node, i), name,
+                    include_forwarding)) return true;
         return false;
     }
     if (!json_object_is_type(node, json_type_object)) return false;
 
-    /* A lambda has its own bindings and is rejected separately as a closure. */
+    /* A lambda owns separate bindings checked during closure preparation. */
     if (json_string_property_equals(node, "kind", "lambda")) return false;
 
     const char *kind = json_string_property(node, "kind");
-    if (kind && strcmp(kind, "variable") == 0 &&
+    if (include_forwarding && kind && strcmp(kind, "variable") == 0 &&
         json_boolean_property(node, "is_ref_arg") &&
         json_string_property_equals(node, "name", name)) return true;
 
@@ -222,9 +222,15 @@ static bool rust_rhs_mutates_or_forwards_parameter(json_object *node,
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        if (rust_rhs_mutates_or_forwards_parameter(value, name)) return true;
+        if (rust_rhs_mutates_parameter(value, name, include_forwarding)) return true;
     }
     return false;
+}
+
+static bool rust_rhs_mutates_or_forwards_parameter(json_object *node,
+                                                   const char *name)
+{
+    return rust_rhs_mutates_parameter(node, name, true);
 }
 
 static json_object *rust_find_parameter(json_object *params, const char *name)
@@ -409,7 +415,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                             target, value_kind ? value_kind : "<unknown>", type_kind);
                     return false;
                 }
-                if (rust_rhs_mutates_or_forwards_parameter(value, target))
+                if (rust_rhs_mutates_parameter(value, target, false))
                 {
                     fprintf(stderr,
                             "Error: Rust target does not support direct assignment of by-value parameter '%s' when its RHS mutates or forwards the same parameter as ref\n",

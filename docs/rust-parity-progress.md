@@ -1,3 +1,25 @@
+## Scalar value-parameter assignment after reference calls: local validation, 2026-10-24
+
+Direct assignment can now finish a call borrowing a scalar value parameter
+before storing its result into that local parameter. Existing scalar reference
+storage preserves alias visibility and keeps the caller's original value
+independent. Compound assignment, shadow-initializer and nested-write guards
+retain their existing scope. The frozen original program and diagnostic oracle
+are unchanged; a promotion marker records its successful output.
+
+All eighteen independent mode cases pass normally and with C address/undefined/
+leak checks. Controls cover ten scalar types, two-way alias visibility, relayed
+reference calls, one-time evaluation, caller isolation, float/double conversions,
+instance methods and distinct local/external storage when the caller reuses an
+argument. Complete C/Rust suites pass 3,243/1,099 checks; all 27 CI helpers and
+formatting pass. All six language gates require 433 platform executions in
+41 groups before composing with the Yaml batch.
+
+A separate scratch function-value/ref-argument probe fails current C backing
+compilation and receives no C parity credit. This repair remains local until
+composition with current SDK main and validation of every focused language gate.
+Evidence: [scalar-parameter-rhs-local-validation.json](rust-parity-evidence/scalar-parameter-rhs-local-validation.json).
+
 ## Combined language admission refresh: local characterization, 2026-10-24
 
 The frozen sixty-program rejection review now has 47 C-sanitizer-passing Rust

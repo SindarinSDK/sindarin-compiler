@@ -1,0 +1,7 @@
+{
+  "source_sha256": "20dee794117f8b026061c835263ba31f435ff7c6ddc7e50605e6c8aebd6c9fc0",
+  "legacy_oracle_sha256": "7ea5328774ca1db6208b268faa3195b8ffb658d2c959163fb533bf27bfd75dbb",
+  "stdout_hex": "320a",
+  "exit": 0,
+  "reason": "Direct scalar assignment completes reference calls before storing their result into the local value parameter"
+}

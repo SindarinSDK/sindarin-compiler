@@ -1,0 +1,53 @@
+{
+  "base": "c0ebf34fa33f0afc077089bb6b4cfcae4e2adabd",
+  "scope": "Direct scalar default-parameter assignment completes reference calls before storing the returned value; existing compound/nested-write guards retained",
+  "status": "Complete focused local validation; composed main/SDK and all existing focused gates still required before publication",
+  "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd",
+  "full_suites": {
+    "full-c": 3243,
+    "full-rust": 1099
+  },
+  "CI_helpers": 27,
+  "platform_gates": 433,
+  "platform_groups": 41,
+  "frozen_original": {
+    "source_sha256": "20dee794117f8b026061c835263ba31f435ff7c6ddc7e50605e6c8aebd6c9fc0",
+    "legacy_oracle_sha256": "7ea5328774ca1db6208b268faa3195b8ffb658d2c959163fb533bf27bfd75dbb",
+    "stdout_hex": "320a",
+    "exit": 0,
+    "reason": "Direct scalar assignment completes reference calls before storing their result into the local value parameter"
+  },
+  "before_fix": {
+    "compiler_sha256": "aa608b1685a631172983150cfd97f80250b294a9f486afa47c9e2d86835fbce1",
+    "status": 1,
+    "stderr_hex": "1b5b316d436f6d70696c696e671b5b306d2074657374732f7267656e2f6572726f72732f62795f76616c75655f706172616d657465725f6469726563745f61737369676e6d656e745f7265665f666f72776172642e736e2e2e2e0a202050617273696e672e2e2e201b5b313b33366d646f6e651b5b306d0a20205479706520636865636b696e672e2e2e201b5b313b33366d646f6e651b5b306d0a2020436f64652067656e65726174696f6e2e2e2e4572726f723a20527573742074617267657420646f6573206e6f7420737570706f7274206469726563742061737369676e6d656e74206f662062792d76616c756520706172616d65746572202776616c756527207768656e2069747320524853206d757461746573206f7220666f727761726473207468652073616d6520706172616d65746572206173207265660a201b5b313b33316d6661696c65641b5b306d0a0a"
+  },
+  "reports": {
+    "scalar-parameter-rhs": {
+      "path": "docs/rust-parity-evidence/scalar-parameter-rhs-local.json.gz",
+      "sha256": "4fc248b0fb12e296148e497becaef0fc6beea3e553f4e9314d7f6f6f641713b8",
+      "cases": 18
+    },
+    "scalar-parameter-rhs-sanitizers": {
+      "path": "docs/rust-parity-evidence/scalar-parameter-rhs-sanitizers-local.json.gz",
+      "sha256": "406d2629d6d3eada4614b33dc3f27dd4cbcd82b39d21035cea0d68c2df4eaec5",
+      "cases": 18
+    }
+  },
+  "separate_C_failing_exploration": {
+    "source_sha256": "20e1822cb6ba3ec2a59f1a044302aa842d78f41cdc02466df7eaabdb06ed0005",
+    "C_compile_status": 1,
+    "C_diagnostic_sha256": "232ce3b0dfe2b53d97194a8e94dc57b3e52f33e9afdf8458a16959d3ca12cd3f",
+    "classification": "Scratch calls through inferred function values with ref arguments fail the current C backing compilation; no passing C parity or completion credit; raw probe source and diagnostics retained in task logs"
+  },
+  "log_sha256": {
+    "build": "80542dd61322a43f3002c63938da1bd5864c2bde35a0a63520823b7fc5dd658a",
+    "final-build": "0a77e307ba11d94bb3427c226c4d32b35861299a0e0a0fa4fe5ccc3119811659",
+    "ci-helpers": "a6fbb97e74cfedbd0f3d241f8ba29449ac52f533e66777893401c445706a94f5",
+    "format": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b",
+    "oracles": "06671d491a3b9169f48d820db9f8d9c4ffbd13cc94a705396000262b5ad6e563",
+    "oracles-sanitizers": "b818f9144f9f8dfe517e6257a628a26e86ecdae1f6ac1e03c8da749b7dfc3eb6",
+    "full-c": "221a6f48ae66c43a3cc8f211ea0b8fdd655c86b27cbaec04b3568da53cff7c18",
+    "full-rust": "2fac91231264fef50cc14e21b10817304e563da7954edd8544e23fbf9187ca03"
+  }
+}

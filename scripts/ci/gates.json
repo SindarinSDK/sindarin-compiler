@@ -2279,6 +2279,27 @@
       ],
       "group": "sanitizers",
       "linux_only": true
+    },
+    {
+      "id": "scalar-parameter-rhs",
+      "name": "Scalar value-parameter assignment after reference calls: ten types, aliases, conversions and caller isolation",
+      "command": [
+        "{python}",
+        "scripts/check_rust_scalar_parameter_rhs.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "scalar-parameter-rhs-sanitizers",
+      "name": "Scalar value-parameter assignment after reference calls: ten types, aliases, conversions and caller isolation with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_scalar_parameter_rhs.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }
