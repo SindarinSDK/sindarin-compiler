@@ -1,3 +1,23 @@
+## Yaml compiler artifacts: complete local SDK checkpoint, 2026-10-24
+
+The local `development/sdk-yaml-artifacts` branch stages all eighteen modules
+and 36 C/Sindarin units without altering public source. All 720 original caller
+and stdin cases pass from source and sealed archives across both app targets
+and all nine optimization/arithmetic modes. Focused Yaml/Environment archives
+retain all 54 exports in four units, passing 72 normal and 72 strict sanitizer
+cases. Controls cover parent cleanup, removed/replaced aliases, deep copies,
+ordinary/indirect as-val calls, copyOf and typed/literal nil behavior. The
+original Yaml caller imports Environment; its source is preserved and the
+artifact manifest supplies that dependency. All 23 CI helpers pass.
+
+SDK source `f8fefe1` is identical to accepted correction `db7dfe9` for all native
+and Sindarin implementation files; the correction has complete SDK CI acceptance
+in 40122926614. Compiler XML dependency `a6ccac70` still awaits CI 40124214770.
+This branch remains local. Current-main/CI-partition composition, relevant full
+regressions and required hosted compiler acceptance remain work; no overall
+SDK or backend completion is claimed. Evidence:
+[sdk-yaml-artifacts-local-validation.json](rust-parity-evidence/sdk-yaml-artifacts-local-validation.json).
+
 ## Internal native package calls: local validation, 2026-10-11
 
 C/Rust Sindarin bodies now generate private import adapters for calls to other

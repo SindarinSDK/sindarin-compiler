@@ -1,0 +1,45 @@
+{
+  "status": "Local complete 18-module staging and focused Yaml source/sealed checks pass; composition/full regression/hosted compiler acceptance outstanding",
+  "base": "8bf30521eda362fa80137ea260a1d04de45c5f2b",
+  "SDK_native_source": "f8fefe1b83690cc92b07f519b2ba0f25fdc0d844",
+  "accepted_SDK_correction": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "SDK_source_code_unchanged_between_native_and_correction": true,
+  "SDK_hosted_acceptance_CI": 40122926614,
+  "unpublished_dependency": "XML compiler a6ccac70 pending CI 40124214770",
+  "modules": 18,
+  "units": 36,
+  "focused_Yaml_Env_units": 4,
+  "focused_Yaml_Env_exports": 54,
+  "focused_normal_cases": 72,
+  "focused_sanitizer_cases": 72,
+  "SDK_caller_and_stdin_cases": 720,
+  "CI_helper_tests": 23,
+  "required_platform_gates_before_dynamic_composition": 425,
+  "required_platform_groups_before_CI_partition": 26,
+  "original_Sindarin_source_and_oracles_changed": false,
+  "reports": {
+    "sdk-yaml-artifact": {
+      "cases": 72,
+      "path": "docs/rust-parity-evidence/sdk-yaml-artifact-local.json.gz",
+      "sha256": "995cc6d649564b7875cd95953abb8d3d559db6ef4c4b685d284aa3586075fa29",
+      "compiler_sha256": "446531cc79af6d475a8249462ad1e394400c3aaa5a98f0e96846e96212d7560f"
+    },
+    "sdk-yaml-artifact-sanitized": {
+      "cases": 72,
+      "path": "docs/rust-parity-evidence/sdk-yaml-artifact-sanitized-local.json.gz",
+      "sha256": "995cc6d649564b7875cd95953abb8d3d559db6ef4c4b685d284aa3586075fa29",
+      "compiler_sha256": "446531cc79af6d475a8249462ad1e394400c3aaa5a98f0e96846e96212d7560f"
+    },
+    "sdk-artifact-validation": {
+      "cases": 720,
+      "path": "docs/rust-parity-evidence/sdk-artifact-validation-local.json.gz",
+      "sha256": "b160545565a32f0a51c772137a4c1effbf5cb94afa201a30cdccfe7ecbb3f1a6",
+      "compiler_sha256": "446531cc79af6d475a8249462ad1e394400c3aaa5a98f0e96846e96212d7560f"
+    }
+  },
+  "limitations": [
+    "Compose with accepted current main and the CI partition without losing gates",
+    "Run relevant complete C/Rust/import/artifact regressions on the final composition",
+    "Full hosted compiler acceptance required; whole SDK/language/corpus goal remains open"
+  ]
+}
