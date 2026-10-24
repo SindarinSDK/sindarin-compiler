@@ -59,14 +59,23 @@ def verify(compiler, sdk, quick=False):
                         command = [compiler, 'main.sn', '--no-install', '--target', target, opt, '-o', exe]
                         if mode != 'default':
                             command.append('--' + mode)
-                        checked(command, app)
+                        compiled = checked(command, app)
                         run = checked([exe], app)
                         if run.stdout != expected or run.stderr:
                             raise ValueError(f'{name}/{artifact}/{target}/{opt}/{mode}: {run.stdout!r} {run.stderr!r}')
-                        cases.append({'case': name, 'artifact': artifact, 'target': target, 'opt': opt, 'mode': mode, 'passed': True})
+                        cases.append({'case': name, 'artifact': artifact, 'target': target,
+                            'opt': opt, 'mode': mode, 'passed': True,
+                            'source_sha256': hashlib.sha256(source).hexdigest(),
+                            'compile_status': compiled.returncode, 'run_status': run.returncode,
+                            'stdout_hex': run.stdout.hex(), 'stderr_hex': run.stderr.hex(),
+                            'expected_stdout_hex': expected.hex()})
             assert all((package / path).read_bytes() == data for path, data in public.items())
     report = {'passed': True, 'cases': cases, 'original_sources': sources, 'unchanged_public_modules': len(public),
-        'units': len(metadata['units']), 'exports': len(signatures), 'compiler_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest()}
+        'units': len(metadata['units']), 'exports': len(signatures), 'compiler_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest(),
+        'oracle_script_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        'environment': {name: os.environ.get(name) for name in
+                        ('SN_CC', 'SN_CFLAGS', 'SN_RELEASE_CFLAGS', 'SN_RUSTFLAGS',
+                         'ASAN_OPTIONS', 'UBSAN_OPTIONS')}}
     suffix = '-sanitized' if 'sanitize=' in os.environ.get('SN_CFLAGS', '') else ''
     output = ROOT / f'.sn/sdk-yaml-artifact{suffix}.json'
     output.parent.mkdir(exist_ok=True)

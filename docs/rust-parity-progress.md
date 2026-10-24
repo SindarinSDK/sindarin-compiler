@@ -1,4 +1,4 @@
-## Yaml composition on corrected main: validation pending, 2026-10-24
+## Yaml composition on corrected main: complete local validation, 2026-10-24
 
 The Yaml artifact branch is locally composed with corrected main `3a9dd77b`.
 It preserves the new CI group split, pinned Go setup, canonical fixture paths
@@ -7,9 +7,13 @@ identical; the four Yaml gates add eight platform executions for 429 in 41
 groups. All 27 CI helpers pass, including both newly added correction regressions.
 The SDK pin is accepted `db7dfe9`. No existing Sindarin source changes.
 
-Fresh composed SDK/mode, package and complete C/Rust validation remains required.
-The earlier isolated 720-case result is retained separately. Publication is held
-until corrected main CI 40128862955 is completely accepted.
+Fresh composed validation passes all 720 SDK cases (648 unchanged original
+callers and 72 stdin controls), 72 focused normal/72 focused sanitizer cases,
+3,243 C/1,099 Rust checks and all seventeen ABI clients. Every retained report
+uses the one composed compiler hash. All SDK input files match accepted db7.
+The earlier isolated 720-case result is retained separately. Publication stays
+held until corrected main CI 40128862955 is completely accepted.
+Evidence: [sdk-yaml-artifacts-composed-local-validation.json](rust-parity-evidence/sdk-yaml-artifacts-composed-local-validation.json).
 
 ## Yaml compiler artifacts: complete local SDK checkpoint, 2026-10-24
 
