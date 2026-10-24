@@ -1,3 +1,18 @@
+## Dynamic scalar match: complete hosted acceptance, 2026-10-24
+
+Compiler `e3426a75` passes all 34 required jobs in
+[CI 40120530371](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40120530371).
+The retained coverage summary verifies 409 gates/26 platform groups and one exact
+compiler hash on each of Linux/macOS/Windows. Six frozen original rejection
+programs are promoted without modifying their source or diagnostic oracles.
+Evidence: [dynamic-scalar-match-ci-green.json](rust-parity-evidence/dynamic-scalar-match-ci-green.json).
+
+XML composition `a6ccac70` remains pending CI 40124214770. One feature slot is
+clear. The CI-only partition batch is locally verified and ready for its own
+complete required hosted validation; no gate or compiler behavior is removed.
+Yaml compiler artifacts remain local and await XML dependency acceptance.
+No full backend or whole-SDK completion is claimed.
+
 ## CI core partition: locally validated, 2026-10-24
 
 The current core jobs serialize package imports, native providers and all SDK
