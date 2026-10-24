@@ -1,3 +1,40 @@
+## Dynamic scalar match patterns: local publication batch, 2026-10-24
+
+The independent `development/rust-dynamic-scalar-match` branch starts from
+accepted main `835a1ca0`. Computed same-type scalar patterns now use lazy
+comparisons against a saved subject, matching C's source order and short-circuit
+behavior. Literal-only integral matches keep their existing Rust match output
+and range checks. Comparison temporaries remain absent from all source names.
+
+Six original C-supported rejection programs are preserved byte-for-byte with
+frozen diagnostic hashes and explicit behavioral promotion records. Two new
+fixtures cover all scalar types, mixed literal/computed arms, subject mutation,
+short-circuit effects, nested scopes, source-name collisions, returns and loop
+continue. All 72 optimization/arithmetic cases pass fixed independent C/Rust
+output oracles, both normally and with C address/undefined/leak instrumentation.
+Targeted generation and promotion checks pass. Full local suites pass 3,243 C
+and 1,099 Rust checks, with zero failures/skips; all 508 generation checks and
+24 CI helpers pass. The CI inventory is 409 gates/26 platform groups. Required
+hosted acceptance remains outstanding. Evidence:
+[dynamic-scalar-match-local-validation.json](rust-parity-evidence/dynamic-scalar-match-local-validation.json).
+
+Mixed-type dynamic patterns, wider string patterns and aggregate match results
+remain parity work; this increment does not establish overall completion.
+
+## Platform correction: hosted acceptance, 2026-10-12
+
+Compiler revision `835a1ca07430e6d10f4988fcf6778ccb71b1646d` passes all 34
+required jobs in [CI 38168393142](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/38168393142).
+Retained coverage verifies 405 gates/26 groups and exact compiler hashes across
+Linux/macOS/Windows. Both previously failing macOS record-rebinding and Windows
+complete SDK artifact gates pass in the retained platform reports. Evidence:
+[sdk-resources-platform-correction-ci-green.json](rust-parity-evidence/sdk-resources-platform-correction-ci-green.json).
+
+The correction is accepted and feature publication is unfrozen. ABI 1.8 record
+arrays, XML artifacts and internal-native-call work remain local and require
+integration validation and their own full hosted CI. Wider goal completion
+remains unproven. Earlier pending/frozen entries describe historical states.
+
 ## Integrated platform correction: publication readiness, 2026-10-11
 
 The combined correction addresses both required core failures in CI 38162607031:
@@ -40,7 +77,7 @@ are recorded in [the Rust completion goal](rust-completion-goal.md). Rejections 
 remaining implementation work, not parity. This ledger supersedes historical
 head counts, not the language specification or the historical evidence itself.
 
-Current publication state (2026-10-11): compiler `f5e88911` failed CI
+Historical publication state (2026-10-11; superseded by acceptance above): compiler `f5e88911` failed CI
 38162607031. macOS core failed its existing 72-case record-parameter-rebinding
 gate because recursive annotation resized an ancestor JSON table during its
 active iteration. The original fixture reproduces a compiler heap-use-after-free

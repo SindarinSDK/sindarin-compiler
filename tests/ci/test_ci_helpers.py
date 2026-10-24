@@ -97,7 +97,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 26)
-        self.assertEqual(report['gates'], 405)
+        self.assertEqual(report['gates'], 409)
         for name in ('artifacts', 'native'):
             for sanitized in (False, True):
                 identity = 'sdk-random-' + name + ('-sanitizers' if sanitized else '')
@@ -171,6 +171,17 @@ class CoverageTests(unittest.TestCase):
             self.assertEqual(len(sanitized), 1)
             self.assertEqual(sanitized[0]['group'], 'sanitizers')
             self.assertTrue(sanitized[0]['linux_only'])
+
+    def test_dynamic_scalar_match_runs_on_every_platform_and_with_sanitizers(self):
+        for sanitized in (False, True):
+            identity = 'dynamic-scalar-match' + ('-sanitizers' if sanitized else '')
+            entries = [g for g in self.catalog['gates'] if g['id'] == identity]
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0]['command'],
+                             ['{python}', 'scripts/check_rust_dynamic_match.py'] +
+                             (['--sanitize'] if sanitized else []))
+            self.assertEqual(entries[0]['group'], 'sanitizers' if sanitized else 'core')
+            self.assertEqual(entries[0]['linux_only'], sanitized)
 
     def test_missing_group_fails(self):
         self.reports[-1].unlink()

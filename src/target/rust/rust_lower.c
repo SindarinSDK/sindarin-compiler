@@ -2015,7 +2015,7 @@ static bool rust_lower_match_temp_names(json_object *model, json_object *node,
 
     if (!json_string_property_equals(node, "kind", "match") ||
         (!json_boolean_property(node, "rust_string_match") &&
-         !json_boolean_property(node, "rust_floating_match")))
+         !json_boolean_property(node, "rust_comparison_match")))
         return true;
 
     char subject_name[80], array_name[80], index_name[80];

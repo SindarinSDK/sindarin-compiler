@@ -1,0 +1,81 @@
+{
+  "status": "Complete local C/Rust regression and focused normal/sanitizer validation pass; hosted acceptance outstanding",
+  "base": "835a1ca07430e6d10f4988fcf6778ccb71b1646d",
+  "compiler_sha256": "3900e031c897ab6d7ffea7e875294212a4a0e7ad98c13cbe145bf6577c06beba",
+  "independent_cases": 72,
+  "sanitized_C_independent_cases": 72,
+  "historical_sources_promoted": 6,
+  "new_behavioral_fixtures": 2,
+  "ci_helper_tests": 24,
+  "limitations": [
+    "Mixed-type dynamic patterns remain work",
+    "Wider string/aggregate match forms remain work",
+    "Complete hosted acceptance and final whole-goal proof remain required"
+  ],
+  "reports": {
+    "dynamic-match": {
+      "path": ".sn/parity-goal/dynamic-match.log",
+      "sha256": "8a2748668f00d110cf648da0e147ba8144ef568ce6f023927074effaf9b0b1b3"
+    },
+    "dynamic-match-sanitizers": {
+      "path": ".sn/parity-goal/dynamic-match-sanitizers.log",
+      "sha256": "8a2748668f00d110cf648da0e147ba8144ef568ce6f023927074effaf9b0b1b3"
+    },
+    "targeted": {
+      "path": ".sn/parity-goal/targeted.log",
+      "sha256": "b533f77c8c36010001ccf55313a527bdc7e426517addeffad9c1628a5b3cad9e"
+    },
+    "promotions": {
+      "path": ".sn/parity-goal/promotions.log",
+      "sha256": "afebd54053af7df1e3868c3ebfbe346fd53e81be204cce59ab65fea540c8f7fc"
+    },
+    "ci-helpers": {
+      "path": ".sn/parity-goal/ci-helpers.log",
+      "sha256": "06771a4eaefc7f96d874add73a6ac6891d52c9c7f79c45a9d49de1cb4161fa2b"
+    },
+    "full-rust": {
+      "path": ".sn/parity-goal/full-rust.log",
+      "sha256": "50224b596d02d9a4391fb9c763aa0dd48701cd804b425380d862a8513fb28624"
+    },
+    "full-rgen": {
+      "path": ".sn/parity-goal/full-rgen.log",
+      "sha256": "4e91fdf6ff5168f9b4169f011f553cdb87107ae6c6c214f86313683ac8086ff7"
+    },
+    "full-c": {
+      "path": ".sn/parity-goal/full-c.log",
+      "sha256": "47231e08169723652b338d8a8017c0b93787984d757a6f86947fea7feb47aeab"
+    }
+  },
+  "full_Rust_suite": 1099,
+  "rgen": 508,
+  "full_C_suite": 3243,
+  "retained_reports": {
+    "rust-parity-dynamic-scalar-match": {
+      "path": "docs/rust-parity-evidence/rust-parity-dynamic-scalar-match.json.gz",
+      "sha256": "2d9fbf64abb5183b08a90b8b7b73ab5baa825c58805d76b73e84f57d485be402",
+      "uncompressed_sha256": "7d5a2bfe4a7f2b015f5555197fc296cc5cf175e5ed2b7f243f477f9013990a7b"
+    },
+    "rust-parity-dynamic-scalar-match-sanitizers": {
+      "path": "docs/rust-parity-evidence/rust-parity-dynamic-scalar-match-sanitizers.json.gz",
+      "sha256": "1dea82961db8c2670e1378ad07836c75d14260be256cc4556a8610b6696b34b8",
+      "uncompressed_sha256": "04bd9ac34278eec5cefe11488a7e99f5e9a431ad950da5524fb1d09b91998eb3"
+    }
+  },
+  "frozen_fixture_hashes": {
+    "tests/rgen/errors/statement_match_dynamic_pattern.sn": "afdbb22bb85869d4360eefcf12846e911dde7d79fb228b241ff84bf730132ce3",
+    "tests/rgen/errors/value_match_dynamic_pattern.sn": "8214ce362bfa9e0f73ac6b07abab3699a20ea08498cef01c3844054a949dbace",
+    "tests/rgen/errors/value_match_bool_dynamic_pattern.sn": "28ba7ee7fe202e197c8a982e5006136db83f9dd83b11aef7c11b4d6faf639040",
+    "tests/rgen/errors/statement_match_bool_dynamic_pattern.sn": "d4ab3dc439fa65b211558f97f6534b88afe6b65ecace6137bd2c8eea1e6ade09",
+    "tests/rgen/errors/statement_match_float_dynamic_pattern.sn": "718877332d6f4bae16c01a43a79c11f5afa32cc9074eaa2052a683f81d1795de",
+    "tests/rgen/errors/value_match_double_dynamic_pattern.sn": "a525006a9be6a7a18eb526ab3b1aa748506742fc6cb54be0330609cd639ab9f7"
+  },
+  "full_C_components": {
+    "unit": 1619,
+    "cgen": 107,
+    "mgen": 79,
+    "integration": 1145,
+    "integration_errors": 58,
+    "exploratory": 224,
+    "exploratory_errors": 11
+  }
+}

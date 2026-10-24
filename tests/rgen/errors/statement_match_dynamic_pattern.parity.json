@@ -1,0 +1,7 @@
+{
+  "source_sha256": "afdbb22bb85869d4360eefcf12846e911dde7d79fb228b241ff84bf730132ce3",
+  "legacy_oracle_sha256": "7829927fb8305af8de3bc5cbe17b53bac69c65aaf87ceb18c21517d80e10b3e0",
+  "stdout_hex": "6d6174636865640a",
+  "exit": 0,
+  "reason": "C-compatible dynamic scalar match comparisons preserve lazy source-order evaluation"
+}

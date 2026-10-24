@@ -2118,6 +2118,27 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "dynamic-scalar-match",
+      "name": "Dynamic scalar match: lazy source order, subject snapshots, nested scopes and scalar types",
+      "command": [
+        "{python}",
+        "scripts/check_rust_dynamic_match.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "dynamic-scalar-match-sanitizers",
+      "name": "Dynamic scalar match: lazy source order, subject snapshots, nested scopes and scalar types with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_dynamic_match.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true
     }
   ]
 }
