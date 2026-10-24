@@ -30,6 +30,21 @@ def directory(path):
 
 
 class BuildBundleTests(unittest.TestCase):
+    def test_package_fixture_accepts_canonical_assembly_paths_from_an_aliased_temp_root(self):
+        sys.path.insert(0, str(ROOT / 'tests' / 'package'))
+        import callable_methods
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            (root / 'alias').mkdir()
+            fixture = callable_methods.CallableMethodTests()
+            self.addCleanup(fixture.doCleanups)
+            temporary = SimpleNamespace(name=str(root / 'alias' / '..'), cleanup=lambda: None)
+            with patch.object(callable_methods.tempfile, 'TemporaryDirectory', return_value=temporary):
+                fixture.setUp()
+            assembly = root / '.sn/methods/built/assembly.json'
+            self.assertEqual(assembly.relative_to(fixture.package), Path('built/assembly.json'))
+
     def test_restores_executables_dependencies_and_checksums(self):
         with tempfile.TemporaryDirectory() as folder, directory(folder):
             Path('bin').mkdir()
@@ -209,7 +224,7 @@ class CoverageTests(unittest.TestCase):
             encoded = re.search(r"fromJSON\('([^']+)'\)", block).group(1)
             return set(json.loads(encoded))
 
-        self.assertTrue({'packages', 'providers', 'sanitizers'} <=
+        self.assertTrue({'packages', 'providers', 'sdk-native', 'sanitizers'} <=
                         configured_groups('Setup Go for shared runtime ABI clients'))
         required_sdk = {gate['group'] for gate in self.catalog['gates']
                         if gate['id'].startswith('sdk-') or
@@ -218,6 +233,17 @@ class CoverageTests(unittest.TestCase):
         self.assertIn('          .sn/runtime-abi*.json\n', workflow)
         self.assertIn('          .sn/sdk-artifact-validation.json\n', workflow)
         self.assertIn('github.event.pull_request.number || github.run_id', workflow)
+
+    def test_consumer_libraries_retain_platform_resolution_and_exact_linker_options(self):
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        from prepare_native_imports import consumer_link_options
+        self.assertEqual(consumer_link_options([
+            '-lz', '-l', 'xml2', '-l:exact.a', '/a path/archive.a',
+            '-framework', 'Security', '-L', '/a path', '-Wl,--whole-archive']),
+            ['z', 'xml2', '-l:exact.a', '/a path/archive.a',
+             '-Wl,-framework,Security', '-L/a path', '-Wl,--whole-archive'])
+        with self.assertRaisesRegex(ValueError, 'missing its argument'):
+            consumer_link_options(['-l'])
 
     def test_missing_group_fails(self):
         self.reports[-1].unlink()

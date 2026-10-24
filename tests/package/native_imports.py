@@ -1692,6 +1692,45 @@ class NativeImports(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'missing its argument'):
             native_link_options(['-framework'])
 
+    def test_native_libraries_use_target_configuration_for_source_and_sealed_packages(self):
+        import json
+        import platform
+        sdk=self.root/'compiler-sdk'
+        sdk.mkdir()
+        for name in ('include','lib','templates'):
+            shutil.copytree(COMPILER.parent/name,sdk/name)
+        config='sn.'+{'Linux':'linux','Darwin':'darwin','Windows':'windows'}[platform.system()]+'.cfg'
+        shutil.copyfile(COMPILER.parent/config,sdk/config)
+        with (sdk/config).open('a') as output:
+            output.write('\nSN_LDLIBS_sn_test_configured_library=\n')
+        self.write('main.sn','import "configured/src/api" as Configured\nfn main(): void =>\n  println(Configured.provide())\n')
+        package=self.root/'.sn/configured'
+        with patch.dict(os.environ,{'SN_SDK':str(sdk)}):
+            for origin in ('metadata','pragma'):
+                if package.exists():shutil.rmtree(package)
+                if origin=='metadata':
+                    self.package('configured','C','#include <stdint.h>\nint64_t native_configured(void) { return 71; }\n')
+                    manifest=package/'sn.yaml'
+                    manifest.write_text(manifest.read_text().replace('      language: C\n',
+                        '      language: C\n      libraries: [sn_test_configured_library]\n'))
+                else:
+                    self.write('.sn/configured/src/api.sn','@link sn_test_configured_library\nfn provide(): int =>\n  return 71\n')
+                    self.write('.sn/configured/sn.yaml','name: configured\nruntime: C\nnative:\n  abi: 1.0\n  declarations: [src/api.sn]\n  builds:\n    - name: backing\n      language: SN\n      entry: src/api.sn\n      sources: [src/api.sn]\n  bindings:\n    - declaration: src/api.sn::provide\n      function: provide\n      build: backing\n      symbol: native_configured\n      convention: C\n      failure: abort\n      ownership: {parameters: {}, result: value}\n')
+                manifest=package/'sn.yaml'
+                for archive in ('source','sealed'):
+                    if archive=='sealed':
+                        built=subprocess.run([str(COMPILER),'--build-native',str(manifest),'-o',str(package/'sealed-build')],
+                            cwd=self.root,capture_output=True,timeout=180)
+                        self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                        assembly=Path(json.loads(built.stdout)['assembly'])
+                        shutil.copytree(assembly.parent,package/'dist')
+                        import hashlib
+                        manifest.write_text(manifest.read_text().replace('native:\n','native:\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+                        for source in package.rglob('*.c'):source.unlink()
+                    for target in ('c','rust'):
+                        with self.subTest(origin=origin,archive=archive,target=target):
+                            self.execute(target,b'71\n')
+
     def test_rust_mixed_app_retains_c_sdk_resources(self):
         sdk=ROOT/'.sn/sdk-native-integration'
         if not (sdk/'src/io/textfile.sn').is_file():

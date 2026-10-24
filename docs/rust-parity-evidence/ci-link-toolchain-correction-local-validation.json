@@ -1,0 +1,87 @@
+{
+  "base_revision": "3e969e2d3f158aaa502b014f660a4337499d0349",
+  "compiler_sha256": "53bd0a70c40be81efeee9ea6fb70de75fc60c9a39d8bd5313f7a7a89fbeb7b57",
+  "compiler_production_code_matches_base": true,
+  "before_regression_failures": 8,
+  "after_regression_combinations": 8,
+  "CI_helper_tests": 27,
+  "native_TextFile_cases": 26,
+  "SDK_pin": "0b71e84694230f5745bac5254d3811e696f892f5",
+  "SDK_files_verified": 177,
+  "unchanged_gates_catalog_sha256": "a9a5a9676033b67d7c232073e76041d7e5ce4a45f922509c2073f384f29fda79",
+  "gate_definitions": 179,
+  "platform_gates": 421,
+  "platform_groups": 41,
+  "full_imports_and_SDK": "passed",
+  "existing_Sindarin_sources_changed": false,
+  "Go": "go version go1.26.0 linux/arm64",
+  "adapter_sha256": "9f00f3888a74d1b8689cc9fb979c3d2d7d3d20ae26b19a35cff0650e6f72bfc0",
+  "full_import_tests": 52,
+  "record_array_tests": 2,
+  "record_array_mode_cases": 432,
+  "wire_callback_clients": 6,
+  "full_SDK_cases": 684,
+  "original_SDK_caller_cases": 612,
+  "stdin_controls": 72,
+  "SDK_report": {
+    "path": "docs/rust-parity-evidence/ci-link-toolchain-correction-full-sdk-local.json.gz",
+    "sha256": "92e429303a4e52696fb9b8cb5da0139c8401b9e8ef1fdf53d4afdb0caaf714f4"
+  },
+  "source_preservation": {
+    "manifest": "docs/rust-parity-evidence/original-corpus-current-validation.json",
+    "programs": 1365,
+    "matching": 1364,
+    "mismatches": [
+      "tests/exploratory/test_limitation_closure_array.sn"
+    ],
+    "scope": "Source preservation only; no new runtime parity claim",
+    "pre_existing_mismatch": {
+      "source": "tests/exploratory/test_limitation_closure_array.sn",
+      "current_sha256": "812b238ba06b68ef2e4309ccf4c1294b2bf9dd5c9681a4c38b040daebc669cbb",
+      "equals_accepted_835a1ca0": true,
+      "policy": "Retain current fixture untouched; final historical-corpus audit must stage exact manifest bytes separately"
+    },
+    "goal_start_835a1ca0": {
+      "programs": 1365,
+      "mismatches": [],
+      "all_preserved": true
+    }
+  },
+  "required_failure_roots": {
+    "SDK-native all platforms": "Missing Go setup for new group (Linux/Windows wrong version, macOS missing executable)",
+    "SDK-corpus Windows": "Transitive native library names bypass target platform config and zlib mapping",
+    "providers Windows/macOS": "Noncanonical fixture temp roots differ from canonical returned assembly paths"
+  },
+  "native_artifact_tests": 22,
+  "passed": true,
+  "hosted_acceptance": "pending complete corrected Linux/macOS/Windows CI; feature publication remains frozen",
+  "log_sha256": {
+    "configured-link-before": "f803e21703362fad1a058eee20d46bc35b3590a05b9fd7c16d01fbc5afdd2f3f",
+    "configured-link-after": "6e3510bd3a363fef0bb9995a895ebd5193c6483eee5c34a066aa3a483d7b867e",
+    "fixture-path-before": "a0871a7c2eb17f6d874c779906edc7a47aca04ac57e72458847c0143b3860262",
+    "ci-correction-helpers": "cdbfc24e5eb32eb7b2656744c5c2c8aa9ea9da81b737b08d1288019bf8f66e75",
+    "correction-native-imports": "6953d5ec5f31895b19d7f39191bc173b41b4d2d7b704b94e62b6065024880b6d",
+    "correction-full-sdk": "04fa40811bdb337a373b7a90ef79f754c830247d1cb95b0280c16baedd468241",
+    "correction-native-artifacts": "761b4ab3cd3271a00eb5f3ac90eed423938d30e544ada6675a6f8993aeb5b276",
+    "correction-record-arrays": "16690bf408450c64f5498f1afa22b4cc06f16a9b409e5d299dac9e7dc95cadbf",
+    "correction-sdk-textfile": "e567e761f1817706c5f563b3f6ebb9338d23218160545cd070174f2fe58580c8"
+  },
+  "failed_CI": 40126421775,
+  "failed_revision": "3e969e2d3f158aaa502b014f660a4337499d0349",
+  "failed_jobs": [
+    120969051384,
+    120969051422,
+    120969051461,
+    120969051476,
+    120969051545,
+    120969051616
+  ],
+  "failure_log_sha256": {
+    "sdk-corpus-windows-failure.log": "69ef711270a4cb2413156882e8edbca0a34f2e746d6f1efdac73145fa01117da",
+    "providers-windows-failure.log": "04655542c361ef211d4717d7a0cf970384e4a12f34a7dc3ef5797e37c59d1966",
+    "sdk-native-macos-failure.log": "593da6c1b8f88c3a7fbbf0ff66dc2c8df39319d0109e9cf509cc913593bdf1e2",
+    "sdk-native-linux-failure.log": "095d3a1e6a9d720d7257a5e68aab80c9092e1f53c60f4e852d85b8b9e5eb1981",
+    "providers-macos-failure.log": "e46cbd7eb1cca0ccf5296c1a286f16cebb492ac4fa0499bb746f312e55923484",
+    "sdk-native-windows-failure.log": "dc0a217e987bf1b716f75323286dc05b01a0e1909557ae2f09ce9df541f0987d"
+  }
+}
