@@ -1,0 +1,142 @@
+{
+  "status": "Complete local combined validation; required correction CI still pending; not hosted feature acceptance",
+  "corrected_main": "3a9dd77bd4fc9acd17baf27d52096ec4b29be1aa",
+  "driver": {
+    "revision": "a17ebd66721746f719403098ab6fb57d59c3b798",
+    "compiler_sha256": "aa608b1685a631172983150cfd97f80250b294a9f486afa47c9e2d86835fbce1",
+    "catalog_sha256": "180c99c5d91e19b2294b1e6c4bc29a87398e205de7f245bc94090f2fc3607004",
+    "steps": [
+      {
+        "name": "ci-helpers",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/ci",
+          "-v"
+        ],
+        "status": 0,
+        "started": 1792873703.6682234,
+        "seconds": 4.789,
+        "log_sha256": "c00436b1039758c51179d2ca0c46148e79e1ae7013c625f7a7117701e49dd0d8"
+      },
+      {
+        "name": "format",
+        "command": [
+          "bin/sn",
+          "--format",
+          "--check"
+        ],
+        "status": 0,
+        "started": 1792873708.4578924,
+        "seconds": 0.046,
+        "log_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+      },
+      {
+        "name": "void-normal",
+        "command": [
+          "python3",
+          "scripts/check_rust_void_reflection.py"
+        ],
+        "status": 0,
+        "started": 1792873708.5134718,
+        "seconds": 7.822,
+        "log_sha256": "916292db81de0e63078c7ae1eb8a83714d717500048d6b9ef4b915f8741acd17"
+      },
+      {
+        "name": "void-sanitizers",
+        "command": [
+          "python3",
+          "scripts/check_rust_void_reflection.py",
+          "--sanitize"
+        ],
+        "status": 0,
+        "started": 1792873716.3364003,
+        "seconds": 10.508,
+        "log_sha256": "04d0920153ac30876e9783026d35c7b373d02b2f0fff344593cf43b7a42ba534"
+      },
+      {
+        "name": "character-normal",
+        "command": [
+          "python3",
+          "scripts/check_rust_character_iterator.py"
+        ],
+        "status": 0,
+        "started": 1792873726.8453088,
+        "seconds": 8.968,
+        "log_sha256": "b94323a974ff0e2f6a312cecfc9d4ba7a7fea609bedfeac61b6842a1283115cc"
+      },
+      {
+        "name": "character-sanitizers",
+        "command": [
+          "python3",
+          "scripts/check_rust_character_iterator.py",
+          "--sanitize"
+        ],
+        "status": 0,
+        "started": 1792873735.8242488,
+        "seconds": 14.677,
+        "log_sha256": "1885218fa2fe523dd9856599e23690fe4bff69180e1dd359f8ed67be9390bd41"
+      },
+      {
+        "name": "full-c",
+        "command": [
+          "make",
+          "test"
+        ],
+        "status": 0,
+        "started": 1792873750.5019677,
+        "seconds": 22.081,
+        "log_sha256": "6a04b3e20acc5b62eb5d73beceb088b667067799b752bd9a1fbd1c83dd96c1a2"
+      },
+      {
+        "name": "full-rust",
+        "command": [
+          "python3",
+          "scripts/run_rust_tests.py",
+          "all",
+          "--no-color",
+          "--fail-on-skip"
+        ],
+        "status": 0,
+        "started": 1792873772.5836575,
+        "seconds": 34.305,
+        "log_sha256": "fef52ff301fc508bd87cfa67e6df928a2b8842425732c25fc05f06f876bfea75"
+      }
+    ],
+    "complete": true,
+    "passed": true
+  },
+  "full_suites": {
+    "full-c": 3243,
+    "full-rust": 1099
+  },
+  "CI_helpers": 27,
+  "platform_gates": 429,
+  "platform_groups": 41,
+  "existing_Sindarin_source_and_original_diagnostics_changed": false,
+  "reports": {
+    "void-reflection": {
+      "path": "docs/rust-parity-evidence/language-admission-void-reflection-local.json.gz",
+      "sha256": "02b9f90c0e056570f0d0da1db85e2fb5da883f09a9aa6d2cac306331fefbc328",
+      "cases": 27
+    },
+    "void-reflection-sanitizers": {
+      "path": "docs/rust-parity-evidence/language-admission-void-reflection-sanitizers-local.json.gz",
+      "sha256": "b5bce166d27df659081ee7eeee06e329f0baecbccc0b8d11747ebb4948d5e360",
+      "cases": 27
+    },
+    "character-iterator": {
+      "path": "docs/rust-parity-evidence/language-admission-character-iterator-local.json.gz",
+      "sha256": "e3571e557dd431637fd84d8e6ca700d64900ea335e179f2e6146074b46236cd6",
+      "cases": 36
+    },
+    "character-iterator-sanitizers": {
+      "path": "docs/rust-parity-evidence/language-admission-character-iterator-sanitizers-local.json.gz",
+      "sha256": "b02239c83e0a16324c3ee62ddc0fc8fba942a736601ac60510229be83c5452c7",
+      "cases": 36
+    }
+  }
+}

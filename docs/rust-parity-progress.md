@@ -1,11 +1,13 @@
-## Void reflection and character iterators: combined validation pending, 2026-10-24
+## Void reflection and character iterators: complete combined local validation, 2026-10-24
 
 The two locally validated language repairs are composed on corrected main
 3a9dd77b. Every existing gate is preserved; four new gate definitions require
 429 platform executions in 41 groups. Original sources and diagnostic oracles
-remain untouched. Fresh combined oracle, sanitizer and complete C/Rust suites
-are required before publication. Correction CI 40128862955 remains pending,
-so this batch is local.
+remain untouched. Combined validation passes all 63 independent mode cases normally and with C
+sanitizers, all 3,243 C/1,099 Rust checks, all 27 CI helpers and formatting.
+Every focused case records the one composed compiler hash. Correction
+CI 40128862955 remains pending, so this batch is local.
+Evidence: [language-admission-combined-local-validation.json](rust-parity-evidence/language-admission-combined-local-validation.json).
 
 ## Character iterator bindings: complete local validation, 2026-10-24
 
