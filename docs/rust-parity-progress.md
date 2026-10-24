@@ -1,3 +1,22 @@
+## Record-array/XML and dynamic-match composition: locally verified, 2026-10-24
+
+Composition `e27fcfb1` preserves both independent batches. Complete local suites
+pass 3,243 C/1,099 Rust checks; all 24 CI helpers validate 421 required gates in
+26 platform groups. Dynamic match passes 72 normal and 72 C-sanitized independent
+oracle cases, all seventeen SDK modules pass 76 source/sealed smoke and stdin
+cases, and all 17 shared-ABI clients pass. The independent pre-composition batch
+retains its complete 684 SDK cases and 432 normal/432 sanitizer record-array
+cases separately; the composed smoke is not a replacement for that full matrix.
+No existing Sindarin source changes. Evidence:
+[record-array-xml-dynamic-composed-local-validation.json](rust-parity-evidence/record-array-xml-dynamic-composed-local-validation.json).
+
+This composition remains local. Full hosted compiler validation is required.
+Feature publication is frozen while SDK diagnostic correction `db7dfe9` awaits
+complete CI 40122926614. The corrected macOS primary suite passes, but the earlier
+external TLS failure is retained as unresolved historical evidence, not silently
+converted into an accepted rerun. Compiler dynamic-match CI 40120530371 remains
+pending. Wider SDK/language/package and final corpus acceptance remain open.
+
 ## Record-array/XML integration: complete local checkpoint, 2026-10-24
 
 Integration `8bf30521` on accepted `835a1ca0` passes all 432 normal and 432

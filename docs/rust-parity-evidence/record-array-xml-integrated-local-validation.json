@@ -210,5 +210,10 @@
   "publication_frozen": true,
   "freeze_reason": "SDK CI 40122131569 required macOS original TLS failure; diagnostic correction CI 40122926614 is pending",
   "original_corpus_source_files_unchanged_from_accepted_main": 1365,
-  "original_tag_staging_requirement": "The pre-existing synchronized current closure-array fixture still requires exact original-source staging in final corpus acceptance; this integration changes neither version."
+  "original_tag_staging_requirement": "The pre-existing synchronized current closure-array fixture still requires exact original-source staging in final corpus acceptance; this integration changes neither version.",
+  "retained_full_SDK_report": {
+    "path": "docs/rust-parity-evidence/record-array-xml-sdk-full-local.json.gz",
+    "sha256": "9b5b8f05cdf530cea50b43d710cba6dc801828e98ffbff304bdb59c16a1d28a8",
+    "uncompressed_sha256": "304e6bd2ffff28a9454f016606b3c789265fc220e546ef48188f444097bfc4f7"
+  }
 }

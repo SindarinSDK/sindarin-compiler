@@ -1,0 +1,112 @@
+{
+  "revision": "e27fcfb1476888e4bb1c280d5c6a5b41a6769f7b",
+  "compiler_sha256": "53bd0a70c40be81efeee9ea6fb70de75fc60c9a39d8bd5313f7a7a89fbeb7b57",
+  "pid": 890206,
+  "steps": [
+    {
+      "name": "ci-helpers",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/ci",
+        "-v"
+      ],
+      "status": 0,
+      "seconds": 4.74,
+      "log_sha256": "164ae9857779618bc1ff1373d48373bd12dad73a6a29b96de32ce856f7b328fc"
+    },
+    {
+      "name": "format",
+      "command": [
+        "bin/sn",
+        "--format",
+        "--check"
+      ],
+      "status": 0,
+      "seconds": 0.07,
+      "log_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+    },
+    {
+      "name": "dynamic-match",
+      "command": [
+        "python3",
+        "scripts/check_rust_dynamic_match.py"
+      ],
+      "status": 0,
+      "seconds": 24.35,
+      "log_sha256": "8a2748668f00d110cf648da0e147ba8144ef568ce6f023927074effaf9b0b1b3"
+    },
+    {
+      "name": "dynamic-match-sanitizers",
+      "command": [
+        "python3",
+        "scripts/check_rust_dynamic_match.py",
+        "--sanitize"
+      ],
+      "status": 0,
+      "seconds": 26.48,
+      "log_sha256": "8a2748668f00d110cf648da0e147ba8144ef568ce6f023927074effaf9b0b1b3"
+    },
+    {
+      "name": "sdk-smoke",
+      "command": [
+        "python3",
+        "scripts/check_sdk_artifact.py",
+        "--quick"
+      ],
+      "status": 0,
+      "seconds": 115.25,
+      "log_sha256": "7f6904e6729dd988f1d4b90865f070a4f7bda102e705abbdfb50ce02febd1878"
+    },
+    {
+      "name": "runtime-abi",
+      "command": [
+        "python3",
+        "scripts/check_runtime_abi.py"
+      ],
+      "status": 0,
+      "seconds": 4.4,
+      "log_sha256": "399faa77c8b99c9cb8319b95472dd6ebb9b248f95631691e0ee9752b645c83d0"
+    },
+    {
+      "name": "full-c",
+      "command": [
+        "make",
+        "test"
+      ],
+      "status": 0,
+      "seconds": 22.08,
+      "log_sha256": "cbf6cdfb8d7140919d9467bf76e0f4322351190756546b6d24793a24f7c200df"
+    },
+    {
+      "name": "full-rust",
+      "command": [
+        "python3",
+        "scripts/run_rust_tests.py",
+        "all",
+        "--no-color",
+        "--fail-on-skip"
+      ],
+      "status": 0,
+      "seconds": 34.11,
+      "log_sha256": "4bb704b34db57db773f129be23776c558275e1606263768a45a45b6a5bf68866"
+    }
+  ],
+  "passed": true,
+  "C_suite": 3243,
+  "Rust_suite": 1099,
+  "status": "Complete composed local C/Rust, SDK smoke, ABI and dynamic-match checks pass; feature publication frozen pending SDK correction acceptance",
+  "SDK_pin": "0b71e84694230f5745bac5254d3811e696f892f5",
+  "required_platform_gates": 421,
+  "required_platform_groups": 26,
+  "CI_helper_tests": 24,
+  "SDK_smoke_cases": 76,
+  "dynamic_match_oracle_cases": 72,
+  "dynamic_match_sanitized_C_oracle_cases": 72,
+  "full_record_array_XML_base_evidence": "record-array-xml-integrated-local-validation.json",
+  "full_hosted_acceptance": false,
+  "existing_Sindarin_source_changed": false
+}
