@@ -52,6 +52,29 @@ language rejections and final original-corpus oracle/mode/platform acceptance.
 The historical entries below retain their original checkpoint scope; the latest
 accepted platform correction supersedes their publication freezes.
 
+## Dynamic scalar match patterns: local publication batch, 2026-10-24
+
+The independent `development/rust-dynamic-scalar-match` branch starts from
+accepted main `835a1ca0`. Computed same-type scalar patterns now use lazy
+comparisons against a saved subject, matching C's source order and short-circuit
+behavior. Literal-only integral matches keep their existing Rust match output
+and range checks. Comparison temporaries remain absent from all source names.
+
+Six original C-supported rejection programs are preserved byte-for-byte with
+frozen diagnostic hashes and explicit behavioral promotion records. Two new
+fixtures cover all scalar types, mixed literal/computed arms, subject mutation,
+short-circuit effects, nested scopes, source-name collisions, returns and loop
+continue. All 72 optimization/arithmetic cases pass fixed independent C/Rust
+output oracles, both normally and with C address/undefined/leak instrumentation.
+Targeted generation and promotion checks pass. Full local suites pass 3,243 C
+and 1,099 Rust checks, with zero failures/skips; all 508 generation checks and
+24 CI helpers pass. The CI inventory is 409 gates/26 platform groups. Required
+hosted acceptance remains outstanding. Evidence:
+[dynamic-scalar-match-local-validation.json](rust-parity-evidence/dynamic-scalar-match-local-validation.json).
+
+Mixed-type dynamic patterns, wider string patterns and aggregate match results
+remain parity work; this increment does not establish overall completion.
+
 ## Platform correction: hosted acceptance, 2026-10-12
 
 Compiler revision `835a1ca07430e6d10f4988fcf6778ccb71b1646d` passes all 34
@@ -175,9 +198,11 @@ head counts, not the language specification or the historical evidence itself.
 Current publication state (2026-10-24): accepted main `835a1ca0` has all 34
 required hosted jobs green (405 gates/26 platform groups). The prior macOS
 record-guard and Windows SDK link failures are repaired and accepted. Feature
-publication is open. SDK resource `2152da2` and XML `0b71e84` corrections have
+publication is frozen for required SDK CI 40122131569. Diagnostic correction
+`db7dfe9` awaits CI 40122926614. SDK resource `2152da2` and XML `0b71e84` corrections have
 hosted acceptance. The record-array/XML/internal-native-call integration above
-is undergoing local validation and requires its own complete hosted acceptance.
+passes independent local validation and is being composed with dynamic-match
+main; its own complete hosted acceptance remains required.
 Whole SDK, wider language/package contracts and final 1,365-source proof remain
 open. Local evidence and raw C/Rust matches do not establish goal completion.
 

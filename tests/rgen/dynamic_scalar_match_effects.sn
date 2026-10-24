@@ -1,0 +1,45 @@
+fn probe(trace: int as ref, value: int): int =>
+  trace = trace * 10 + value
+  return value
+
+fn change(source: int as ref): int =>
+  source = 3
+  return 2
+
+fn choose(value: int, pattern: int): int =>
+  match value =>
+    pattern => return 10
+    else => return 20
+  return 30
+
+fn main(): void =>
+  var trace: int = 0
+  match probe(trace, 2) =>
+    probe(trace, 1), probe(trace, 2) => println(trace)
+    probe(trace, 3) => println(0)
+  println(trace)
+  var source: int = 2
+  match source =>
+    change(source) => println("saved subject")
+    else => println("wrong subject")
+  println(source)
+  var pattern: int = 2
+  var result: str = match 2 =>
+    pattern => "selected"
+    else => "other"
+  println(result)
+  println(choose(2, 2))
+  println(choose(1, 2))
+  var __sn_match_subject_0: int = 7
+  var nested: int = match 7 =>
+    __sn_match_subject_0 => match 2 =>
+      pattern => __sn_match_subject_0
+      else => 0
+    else => 0
+  println(nested)
+  var total: int = 0
+  for var i: int = 0; i < 4; i++ =>
+    match i =>
+      pattern => continue
+    total += i
+  println(total)
