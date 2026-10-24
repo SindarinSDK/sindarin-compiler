@@ -1,3 +1,14 @@
+## Void reflection on corrected main: complete local validation, 2026-10-24
+
+Composition `61d0705f` includes corrected main `3a9dd77b`. All 27 independent
+reflection cases pass normally and with C sanitizers; complete suites pass
+3,243 C and 1,099 Rust checks. All 27 CI helpers and formatting pass. Original
+Sindarin source and diagnostics remain unchanged. The feature retains every
+existing gate and adds four platform executions, for 425 gates in 41 groups.
+Publication remains held until correction CI 40128862955 is completely green;
+the feature still needs its own complete hosted acceptance.
+Evidence: [void-reflection-composed-local-validation.json](rust-parity-evidence/void-reflection-composed-local-validation.json).
+
 ## Void reflection: local validation, publication held, 2026-10-24
 
 Rust now accepts `typeOf` on a void-returning expression and emits the existing
