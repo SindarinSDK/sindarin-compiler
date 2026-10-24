@@ -1,3 +1,22 @@
+## Corrected compiler accepted; Yaml published for CI, 2026-10-24
+
+Corrected main `3a9dd77b` passes all 49 required jobs in
+[CI 40128862955](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40128862955).
+Retained coverage verifies all 421 gates in 41 platform groups and exactly one
+compiler hash on Linux/macOS/Windows. Go setup, platform library mapping and
+canonical fixture path corrections are accepted. The original XML and partition
+runs remain failed historical evidence; their known causes are repaired in the
+accepted integrated revision. The feature publication freeze is lifted.
+Evidence: [ci-link-toolchain-correction-ci-green.json](rust-parity-evidence/ci-link-toolchain-correction-ci-green.json).
+
+The composed Yaml artifact batch is now published for complete hosted CI. Its
+18 modules/36 units pass 720 local caller/stdin cases, 72 focused normal and 72
+sanitizer cases, full C/Rust suites and seventeen ABI clients on accepted SDK
+db7dfe9. All existing gate definitions are preserved; four Yaml gates bring the
+required platform total to 429 in the same 41 groups. Existing Sindarin source,
+SDK declarations and original oracles remain unchanged. Whole SDK, remaining
+language/package contracts and final corpus/platform proof remain open.
+
 ## Yaml composition on corrected main: complete local validation, 2026-10-24
 
 The Yaml artifact branch is locally composed with corrected main `3a9dd77b`.
@@ -11,8 +30,9 @@ Fresh composed validation passes all 720 SDK cases (648 unchanged original
 callers and 72 stdin controls), 72 focused normal/72 focused sanitizer cases,
 3,243 C/1,099 Rust checks and all seventeen ABI clients. Every retained report
 uses the one composed compiler hash. All SDK input files match accepted db7.
-The earlier isolated 720-case result is retained separately. Publication stays
-held until corrected main CI 40128862955 is completely accepted.
+The earlier isolated 720-case result is retained separately. Corrected main
+passes all 49 jobs in CI 40128862955. This Yaml batch is published for its own
+complete hosted compiler validation.
 Evidence: [sdk-yaml-artifacts-composed-local-validation.json](rust-parity-evidence/sdk-yaml-artifacts-composed-local-validation.json).
 
 ## Yaml compiler artifacts: complete local SDK checkpoint, 2026-10-24
