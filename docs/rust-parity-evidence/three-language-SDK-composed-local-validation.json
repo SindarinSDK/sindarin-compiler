@@ -1,0 +1,226 @@
+{
+  "status": "Complete local integrated validation; independent hosted language CI required",
+  "code_composition": "5f8619e6e2789670d339bb1c0766b6d70ed03c7a",
+  "SDK_main": "bf648b47d15866c8abc4475479693c1460dadfac",
+  "accepted_compiler": "3a9dd77bd4fc9acd17baf27d52096ec4b29be1aa",
+  "driver": {
+    "revision": "5f8619e6e2789670d339bb1c0766b6d70ed03c7a",
+    "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd",
+    "catalog_sha256": "2ec61615150cc5b64c9807245270ab1813cf1066ebef6c5e505352ee9b043d84",
+    "steps": [
+      {
+        "name": "ci-helpers",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/ci",
+          "-v"
+        ],
+        "status": 0,
+        "started": 1792875079.476948,
+        "seconds": 4.908,
+        "log_sha256": "d2e09604627a4684920b8db8fe62891604ebcd5f37c215a739669377479519c5"
+      },
+      {
+        "name": "format",
+        "command": [
+          "bin/sn",
+          "--format",
+          "--check"
+        ],
+        "status": 0,
+        "started": 1792875084.3859158,
+        "seconds": 0.056,
+        "log_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+      },
+      {
+        "name": "void-normal",
+        "command": [
+          "python3",
+          "scripts/check_rust_void_reflection.py"
+        ],
+        "status": 0,
+        "started": 1792875084.4516113,
+        "seconds": 7.994,
+        "log_sha256": "3e2983cc9c997c43af843e1170f8af56af2ad130d0ead0fc0a2161776941f304"
+      },
+      {
+        "name": "void-sanitizers",
+        "command": [
+          "python3",
+          "scripts/check_rust_void_reflection.py",
+          "--sanitize"
+        ],
+        "status": 0,
+        "started": 1792875092.4464383,
+        "seconds": 10.37,
+        "log_sha256": "314699bb037c095e4e0ec6421271f9bdc84ecf5f1c5a42da879b9e060bc03b2a"
+      },
+      {
+        "name": "character-normal",
+        "command": [
+          "python3",
+          "scripts/check_rust_character_iterator.py"
+        ],
+        "status": 0,
+        "started": 1792875102.826538,
+        "seconds": 8.922,
+        "log_sha256": "080cf9735b57d62159d3d3fe6e6f1e4a3e92536412a406bdcb130a3b2470a6dc"
+      },
+      {
+        "name": "character-sanitizers",
+        "command": [
+          "python3",
+          "scripts/check_rust_character_iterator.py",
+          "--sanitize"
+        ],
+        "status": 0,
+        "started": 1792875111.7583234,
+        "seconds": 14.168,
+        "log_sha256": "00a8e477c6c2d8c5e566b8d6581e0a1d4a2868f3074aa765283f1134a4187ff1"
+      },
+      {
+        "name": "scalar-normal",
+        "command": [
+          "python3",
+          "scripts/check_rust_scalar_parameter_rhs.py"
+        ],
+        "status": 0,
+        "started": 1792875125.9363048,
+        "seconds": 6.334,
+        "log_sha256": "06671d491a3b9169f48d820db9f8d9c4ffbd13cc94a705396000262b5ad6e563"
+      },
+      {
+        "name": "scalar-sanitizers",
+        "command": [
+          "python3",
+          "scripts/check_rust_scalar_parameter_rhs.py",
+          "--sanitize"
+        ],
+        "status": 0,
+        "started": 1792875132.2808683,
+        "seconds": 7.035,
+        "log_sha256": "b57381b0d576ca3392102854d3c931468d520e1c2c4ab2c5e43247631e4d780d"
+      },
+      {
+        "name": "full-c",
+        "command": [
+          "make",
+          "test"
+        ],
+        "status": 0,
+        "started": 1792875139.3172882,
+        "seconds": 21.838,
+        "log_sha256": "264afd2c8f00946dba830def762e3a0298286f967b6755d59bf5263416131444"
+      },
+      {
+        "name": "full-rust",
+        "command": [
+          "python3",
+          "scripts/run_rust_tests.py",
+          "all",
+          "--no-color",
+          "--fail-on-skip"
+        ],
+        "status": 0,
+        "started": 1792875161.1573653,
+        "seconds": 33.295,
+        "log_sha256": "e5b960cafbd47eb4b2bd21d2122063d2125b07dd53c86334da43e40e90a38c93"
+      },
+      {
+        "name": "sdk-smoke",
+        "command": [
+          "python3",
+          "scripts/check_sdk_artifact.py",
+          "--quick"
+        ],
+        "status": 0,
+        "started": 1792875194.4621663,
+        "seconds": 127.334,
+        "log_sha256": "31203e7e9146f55a115e25816dda5d9437a2bbf58d2471236b227b20e6ed80be"
+      },
+      {
+        "name": "runtime-abi",
+        "command": [
+          "python3",
+          "scripts/check_runtime_abi.py"
+        ],
+        "status": 0,
+        "started": 1792875321.8064733,
+        "seconds": 4.707,
+        "log_sha256": "399faa77c8b99c9cb8319b95472dd6ebb9b248f95631691e0ee9752b645c83d0"
+      }
+    ],
+    "complete": true,
+    "passed": true
+  },
+  "full_suites": {
+    "full-c": 3243,
+    "full-rust": 1099
+  },
+  "CI_helpers": 27,
+  "normal_focused_cases": 90,
+  "C_sanitizer_focused_cases": 90,
+  "SDK_smoke_modules": 18,
+  "SDK_smoke_cases": 80,
+  "ABI_clients": 17,
+  "platform_gates": 441,
+  "platform_groups": 41,
+  "existing_Sindarin_source_and_original_oracles_changed": false,
+  "post_driver_test_refinement": "Added explicit 256-character RHS restore/caller-isolation control; reran entire scalar RHS normal and sanitizer matrices (27 each) on the same compiler. Compiler code unchanged; earlier driver checks retained.",
+  "refinement_logs": {
+    "scalar-domain-normal": "21e1f1a6f7f32db33f28702164aaed52309768bac0f09e876ecec7b7b2c1d2ba",
+    "scalar-domain-sanitizers": "569317de9fd8bf1a7d9ee6086930b6e0ef1cf94504162c990865f3a3fb29e58e"
+  },
+  "reports": {
+    "void-reflection": {
+      "path": "docs/rust-parity-evidence/three-language-void-reflection-local.json.gz",
+      "sha256": "435130b52d8354184b7c4fee3164581e6019fb75feca848114021a76e90b96b1",
+      "cases": 27,
+      "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd"
+    },
+    "void-reflection-sanitizers": {
+      "path": "docs/rust-parity-evidence/three-language-void-reflection-sanitizers-local.json.gz",
+      "sha256": "0df46a260679663a72d01578623062bbb13c069ff774f271b33a4ebc1216f00a",
+      "cases": 27,
+      "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd"
+    },
+    "character-iterator": {
+      "path": "docs/rust-parity-evidence/three-language-character-iterator-local.json.gz",
+      "sha256": "0d4a34606af73b4cb8d89673a86c43f98e9203d4bc9012919b4ba7c2557503dc",
+      "cases": 36,
+      "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd"
+    },
+    "character-iterator-sanitizers": {
+      "path": "docs/rust-parity-evidence/three-language-character-iterator-sanitizers-local.json.gz",
+      "sha256": "1a35ea0d9e0e9582d0a0442121d5cef8f3099cf633225c3fd06e84d66f421047",
+      "cases": 36,
+      "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd"
+    },
+    "scalar-parameter-rhs": {
+      "path": "docs/rust-parity-evidence/three-language-scalar-parameter-rhs-local.json.gz",
+      "sha256": "a1b07d2bb239a643953a99620a3f782a9c5aef81333bcb3bd5b029158d6e1d2e",
+      "cases": 27,
+      "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd"
+    },
+    "scalar-parameter-rhs-sanitizers": {
+      "path": "docs/rust-parity-evidence/three-language-scalar-parameter-rhs-sanitizers-local.json.gz",
+      "sha256": "28d07c740741dd779148ffd0a098f0fc7115725c3f24392ace718fb5f9999cff",
+      "cases": 27,
+      "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd"
+    }
+  },
+  "SDK_report": {
+    "path": "docs/rust-parity-evidence/three-language-sdk-smoke-local.json.gz",
+    "sha256": "3c0d6c5a11955e54f13d8e408cdde0f17015f1b02bc619d03356df70838645fc",
+    "scope": "80 quick mode source/sealed smoke and stdin cases; distinct from retained full720 Yaml run"
+  },
+  "ABI_report": {
+    "path": "docs/rust-parity-evidence/three-language-ABI-local.json.gz",
+    "sha256": "dcef815b6263b9bc93f957e1b1cb8949fa73ddfa5cdf41bbf2061e8f319fdccb"
+  },
+  "original_programs_unchanged_since_goal_start": 1365
+}

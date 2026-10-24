@@ -1,0 +1,14 @@
+{
+  "revision": "5f8619e6e2789670d339bb1c0766b6d70ed03c7a",
+  "compiler_sha256": "276ac26604a59315dff9b817f0a7ecf1a9f71867e5013bf486632b5e0c93a0fd",
+  "counts": {
+    "C sanitizer-passing Rust rejection candidate; semantic/behavioral review required": 46,
+    "Rust now admitted; runtime parity still needs its regression gates": 14
+  },
+  "scope": "60 historical programs only; C sanitizer success does not prove defined C behavior or overall parity",
+  "all_sources_and_original_diagnostics_unchanged": true,
+  "retained_report": {
+    "path": "docs/rust-parity-evidence/three-language-candidate-refresh.json.gz",
+    "sha256": "d554285951e09a45103e2727244bb544521ff8fc965b79a381b71cc9aee9c5b7"
+  }
+}

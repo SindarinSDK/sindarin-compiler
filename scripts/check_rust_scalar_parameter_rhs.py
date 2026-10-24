@@ -18,6 +18,23 @@ SCALARS = [('int', '1', '3', '4', '5'), ('long', '1', '3', '4', '5'),
            ('double', '1.0', '3.0', '4.0', '5.0'),
            ('bool', 'false', 'true', 'false', 'true'),
            ('char', "'a'", "'B'", "'C'", "'z'")]
+CHARACTERS = '''fn advance(value: char as ref): char =>
+  return value++
+
+fn restore(value: char): bool =>
+  var before: char = value
+  var result: char = value = advance(value)
+  return result == before && value == before
+
+fn main(): void =>
+  var values: char[] = { BYTE_VALUES }
+  var passed: int = 0
+  for var index: int = 0; index < values.length; index++ =>
+    var original: char = values[index]
+    if restore(original) && original == values[index] =>
+      passed++
+  println(passed)
+'''.replace('BYTE_VALUES', ', '.join("'\\x%02x'" % value for value in range(256)))
 
 
 def control_source():
@@ -113,8 +130,11 @@ def main():
     with tempfile.TemporaryDirectory(prefix='sn-scalar-parameter-rhs-') as folder:
         temporary = Path(folder) / 'scalar-effects.sn'
         temporary.write_text(control)
+        characters = Path(folder) / 'characters.sn'
+        characters.write_text(CHARACTERS)
         fixtures = [(original, 'tests/rgen/errors/by_value_parameter_direct_assignment_ref_forward.sn', b'2\n'),
-                    (temporary, 'control:ten-scalar-types', b'true\n' * 127 + b'20\n11\n9\n')]
+                    (temporary, 'control:ten-scalar-types', b'true\n' * 127 + b'20\n11\n9\n'),
+                    (characters, 'control:character-byte-domain', b'256\n')]
         jobs = [(source, label, expected, mode, opt) for source, label, expected in fixtures
                 for mode in ('default', 'checked', 'unchecked') for opt in ('-O0', '-O1', '-O2')]
         settings = argparse.Namespace(c_ldlibs=None, compile_timeout=120, run_timeout=30)
@@ -136,17 +156,18 @@ def main():
             cases = list(workers.map(verify, enumerate(jobs)))
     report = {'compiler_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest(),
               'oracle_script_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-              'control_source': control, 'historical_sources_preserved': True,
+              'control_source': control, 'character_control_source': CHARACTERS,
+              'historical_sources_preserved': True,
               'sanitizers': args.sanitize, 'environment': {name: os.environ.get(name) for name in
                   ('SN_CC', 'SN_CFLAGS', 'SN_RELEASE_CFLAGS', 'SN_RUSTFLAGS', 'ASAN_OPTIONS', 'UBSAN_OPTIONS')},
               'cases': cases, 'independent_oracle_cases': len(cases),
-              'passed': len(cases) == 18 and all(case['passed'] for case in cases)}
+              'passed': len(cases) == 27 and all(case['passed'] for case in cases)}
     output = ROOT / '.sn' / ('rust-parity-scalar-parameter-rhs-sanitizers.json' if args.sanitize
                              else 'rust-parity-scalar-parameter-rhs.json')
     output.parent.mkdir(exist_ok=True)
     output.write_text(json.dumps(report, indent=2) + '\n')
     if not report['passed']:raise SystemExit(1)
-    print('PASS: 18 independent scalar parameter RHS cases')
+    print('PASS: 27 independent scalar parameter RHS cases')
 
 
 if __name__ == '__main__':

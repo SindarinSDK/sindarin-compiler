@@ -1,12 +1,24 @@
-## Three language repairs composed with Yaml main: verification pending, 2026-10-24
+## Three language repairs composed with Yaml main: complete local validation, 2026-10-24
 
 The void reflection, character iterator and scalar parameter RHS repairs are
 locally composed with published Yaml main bf648b47. Every existing gate remains
 identical; six language gates add twelve platform executions, for 441 in 41
 groups. Existing Sindarin sources and original diagnostic oracles are unchanged.
-Fresh combined focused/sanitizer, complete C/Rust, eighteen-module SDK smoke and
-shared ABI validation is required before publication. The independent Yaml batch
-continues its own complete CI 40131368626.
+All 90 focused cases pass normally and with C sanitizers, including every
+character in the parameter RHS control. Complete C/Rust suites pass 3,243/1,099,
+all 27 CI helpers and formatting pass, all 80 source/sealed SDK smoke cases
+pass across eighteen modules, and all seventeen ABI clients pass. Every focused
+report uses one compiler hash. The full 720-case Yaml validation is retained
+separately and is not replaced by this smoke check.
+
+All 1,365 corpus program sources remain byte-identical to accepted goal start
+835a1ca0. The historical sixty-program review now has 46 C-sanitizer-passing
+Rust rejection candidates and fourteen admitted programs; these are program
+counts requiring semantic review, not a remaining feature count or percentage.
+The independent Yaml batch continues complete CI 40131368626; this language
+batch is published for its own complete CI without cancelling that run.
+Evidence: [three-language-SDK-composed-local-validation.json](rust-parity-evidence/three-language-SDK-composed-local-validation.json),
+[three-language-candidate-refresh.json](rust-parity-evidence/three-language-candidate-refresh.json).
 
 ## Scalar value-parameter assignment after reference calls: local validation, 2026-10-24
 
