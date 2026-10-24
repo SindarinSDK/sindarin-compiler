@@ -371,6 +371,11 @@ int main(int argc, char **argv)
         json_object *model = gen_model_build(&options.arena, module,
                                               &options.symbol_table, options.arithmetic_mode);
         if (options.package_body) json_object_object_add(model, "package_body", json_object_new_boolean(true));
+        if (!gen_model_bind_package_natives(model, options.package_native_bindings)) {
+            json_object_put(model);
+            compiler_cleanup(&options);
+            return 1;
+        }
         gen_model_flatten_chains(model);
         if (options.package_body) {
             json_object *globals = NULL, *cleanup = json_object_new_array();

@@ -184,6 +184,8 @@ jobs:
           .sn/*-lifetimes.json
           .sn/runtime-abi*.json
           .sn/sdk-artifact-validation.json
+          .sn/sdk-math-artifact*.json
+          .sn/native-header-aliases*.json
           .sn/package-opaque-results*.json
           .sn/static-callback-ownership.json
           .sn/record-reference-snapshots.json

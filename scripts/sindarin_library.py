@@ -89,6 +89,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     # application imports. Private aliases keep ordinary backing names from
     # leaking into the package body's link contract.
     internal = []
+    native_bindings = []
     for signature in plan['native'].get('signatures', []):
         binding = signature['binding']
         if binding['build'] == unit['name']:
@@ -100,8 +101,16 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         symbol = function.get('c_callee') if function.get('is_method') else function.get('c_alias') or function['name']
         if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', symbol):
             raise ValueError('package internal native callable is not a C identifier: '+symbol)
-        internal.append((symbol, dict(signature, adapter='__sn_'+stem+'_import_'+str(len(internal)))))
-    import_macros = '\n'.join('#define '+symbol+' '+signature['adapter'] for symbol,signature in internal)+'\n'
+        adapter_name = '__sn_'+stem+'_import_'+str(len(internal))
+        internal.append((symbol, dict(signature, adapter=adapter_name)))
+        native_bindings.append({'name': function['name'],
+            'kind': ('static' if function['is_static'] else 'instance') if function.get('is_method') else 'function',
+            'symbol': adapter_name})
+    source_bindings = []
+    if internal:
+        binding_file = work/(stem+'_native_bindings.json')
+        binding_file.write_text(json.dumps(native_bindings, indent=2)+'\n')
+        source_bindings = ['--package-native-bindings', binding_file]
     import_source = '\n'.join(['#include "sn_abi.h"', '#include "sn_array.h"',
         '#include <stdlib.h>', '#include <stdio.h>', '#include <string.h>',
         'static void sn_package_string_slot_release(void *p) { free(*(char **)p); }',
@@ -142,7 +151,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                             any(kind(p['type']) in ('string_array','byte_array','native_array') for p in f['params']) for f in selected)
         bundle_options = ['--emit-source-bundle', '--package-native-namespace', stem]
         if native_arrays: bundle_options.append('--package-native-arrays')
-        run(common+bundle_options+['-o',bundle_dir],cwd=root)
+        run(common+bundle_options+source_bindings+['-o',bundle_dir],cwd=root)
         bundle = json.loads((bundle_dir/'bundle.json').read_text())
         if bundle.get('schema') != 1 or bundle.get('target') != 'rust':
             raise ValueError('unsupported Rust package source bundle')
@@ -157,7 +166,6 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         if internal:
             imports = work/(stem+'_imports.c'); imports.write_text(import_source)
             generated.append(imports)
-            macro_header = work/(stem+'_imports.h'); macro_header.write_text(import_macros)
         for item in bundle['native_sources']:
             value = item['path']
             if len(value) >= 2 and value[0] == value[-1] == '"': value = value[1:-1]
@@ -171,13 +179,12 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         for index,source in enumerate(generated):
             obj=work/(stem+'_native_'+str(index)+'.o');dep=obj.with_suffix('.d')
             flags=['-std=c11','-D_GNU_SOURCE','-Werror=implicit-function-declaration','-O'+args.optimization,'-fwrapv','-fno-lto']
-            if internal and source != imports: flags+=['-include', macro_header]
             for directory in include_dirs: flags+=['-I',directory]
             run(tools['cc']+flags+shlex.split(os.environ.get('SN_CFLAGS',''))+['-MD','-MF',dep,'-c',source,'-o',obj],cwd=root)
             native_objects.append(obj);native_depfiles.append(dep)
         bundle_links = bundle['native_link_options']
     else:
-        run(common+['--emit-source','-o',emitted],cwd=root)
+        run(common+source_bindings+['--emit-source','-o',emitted],cwd=root)
     archive = work/('lib'+stem+'.a')
     adjusted = []
     for index,signature in enumerate(signatures):
@@ -197,10 +204,16 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         for structure in model.get('structs',[]):
             names.update('__sn__'+structure['name']+'_'+m['name'] for m in structure.get('methods',[]) if not m.get('is_native'))
         prefix = '\n'.join('#define '+name+' __sn_'+stem+'_body_'+name for name in sorted(names))+'\n'
-        code = '#include "sn_abi.h"\n'+import_macros+prefix+emitted.read_text(encoding="utf-8", errors="surrogateescape")+'\n'
+        # Namespace generated implementation symbols after the include block;
+        # native calls are bound in the model without rewriting headers/fields.
+        body = emitted.read_text(encoding="utf-8", errors="surrogateescape")
+        marker = '/* SN_PACKAGE_BODY_BINDINGS */'
+        if body.count(marker) != 1:
+            raise ValueError('C package body needs the matching compiler binding marker')
+        before, after = body.split(marker, 1)
+        code = '#include "sn_abi.h"\n'+before+prefix+after+'\n'
         if internal:
-            code += '\n'.join('#undef '+symbol for symbol,_ in internal)+'\n'+import_source
-            code += import_macros
+            code += import_source
         code += c_header(adjusted,stem,root)+'\n'
         for signature,function in zip(adjusted,selected):
             result = kind(signature['return_type']);status=signature['binding']['failure']=='status'

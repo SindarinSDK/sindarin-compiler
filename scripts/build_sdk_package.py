@@ -15,7 +15,7 @@ from pathlib import Path
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
            'time/time', 'time/date', 'core/random', 'core/uuid',
-           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml')
+           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml', 'core/math')
 SUPPORTED_MODULES = MODULES
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
@@ -96,9 +96,11 @@ def prepare(compiler, sdk, destination, modules=MODULES):
         raise ValueError('SDK artifact staging expects the legacy manifest without a fixed runtime')
     # Validate all inputs before creating the output package.
     for module in modules:
-        for suffix in ('.sn', '.sn.c'):
-            if not (sdk/'src'/(module+suffix)).is_file():
-                raise ValueError('SDK implementation missing: '+module+suffix)
+        declaration = sdk/'src'/(module+'.sn')
+        if not declaration.is_file():
+            raise ValueError('SDK implementation missing: '+module+'.sn')
+        if not (sdk/'src'/(module+'.sn.c')).is_file() and not re.search(r'^@include[ \t]+', declaration.read_text(), re.M):
+            raise ValueError('SDK native implementation needs backing C or declared headers: '+module)
         if module in RECORDS or module == 'io/bytes':
             for suffix in ('.native.c', '.native.h'):
                 if not (sdk/'src'/(module+suffix)).is_file():
@@ -139,16 +141,33 @@ def prepare(compiler, sdk, destination, modules=MODULES):
     for module in modules:
         stem = module.replace('/', '_'); model = models[module]
         backing = module+('.native.c' if module in RECORDS or module == 'io/bytes' else '.sn.c')
-        source = ['#include "sn_minimal.h"', '#include "../src/'+backing+'"']
+        source = ['#include "sn_minimal.h"']
+        if (destination/'src'/backing).is_file():
+            source.append('#include "../src/'+backing+'"')
+        else:
+            source += ['#include '+pragma['value'] for pragma in model.get('pragmas', [])
+                       if pragma.get('pragma_type') == 'include']
         for function in model['functions']:
+            name = function['name']
+            raw_type(function['return_type'], module)
+            for parameter in function['params']:raw_type(parameter['type'], module)
             if not function.get('is_native'):
-                raise ValueError('SDK module root implementation requires an SN export: '+function['name'])
-            name = function['name']; wrapper = 'sn_sdk_artifact_'+stem+'_'+name
+                if not function.get('has_body'):
+                    raise ValueError('SDK root implementation body missing: '+name)
+                bindings += ['    - declaration: src/'+module+'.sn::'+name,
+                             '      function: '+name, '      symbol: sdk_'+stem+'_body_'+name,
+                             '      build: facade_'+stem, '      convention: C', '      failure: abort',
+                             '      ownership: '+ownership(function)]
+                continue
+            wrapper = 'sn_sdk_artifact_'+stem+'_'+name
+            callee = function.get('c_alias') or name
+            if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', callee):
+                raise ValueError('SDK native alias must be a C identifier: '+callee)
             params = [raw_type(p['type'],module)+' p'+str(i) for i,p in enumerate(function['params'])]
             arguments = ', '.join('p'+str(i) for i in range(len(params)))
             result = raw_type(function['return_type'],module)
             source.append(result+' '+wrapper+'('+(', '.join(params) or 'void')+') { '+
-                          ('return ' if result!='void' else '')+name+'('+arguments+'); }')
+                          ('return ' if result!='void' else '')+callee+'('+arguments+'); }')
             bindings += ['    - declaration: src/'+module+'.sn::'+name,
                          '      function: '+wrapper, '      symbol: sdk_'+stem+'_helper_'+name,
                          '      build: native_'+stem, '      convention: C', '      failure: abort',
@@ -160,8 +179,9 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                 bindings.append('      result_type: '+resource)
         (native/(stem+'.c')).write_text('\n'.join(source)+'\n')
         lines += ['    - name: native_'+stem, '      language: C', '      sources: [native/'+stem+'.c]',
-                  '      provides_sources: [src/'+module+'.sn.c]',
                   '      include_dirs: ['+', '.join(include_dirs)+']']
+        if (destination/'src'/(module+'.sn.c')).is_file():
+            lines.append('      provides_sources: [src/'+module+'.sn.c]')
         libraries = re.findall(r'^@link[ \t]+([^\s]+)', (destination/'src'/(module+'.sn')).read_text(), re.M)
         if libraries:
             lines.append('      libraries: ['+', '.join(libraries)+']')

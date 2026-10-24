@@ -33,6 +33,9 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
 /* Serialize the model to a file. Returns 0 on success, non-zero on error. */
 int gen_model_write(json_object *model, const char *output_path);
 
+/* Rebind package implementation callables without rewriting C headers/fields. */
+bool gen_model_bind_package_natives(json_object *model, const char *filename);
+
 /* Global lambda collection - populated during model building */
 extern json_object *g_model_lambdas;
 

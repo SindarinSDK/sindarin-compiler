@@ -2357,6 +2357,58 @@
       "linux_only": true
     },
     {
+      "id": "sdk-math-artifacts",
+      "name": "All Math SDK exports and original callers",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_math_artifact.py"
+      ],
+      "group": "sdk-artifacts",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-math-artifacts-sanitizers",
+      "name": "All Math SDK exports and original callers with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_math_artifact.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "native-header-aliases",
+      "name": "Native bindings preserve headers, field aliases, function references and provider dispatch",
+      "command": [
+        "{python}",
+        "tests/package/native_header_aliases.py"
+      ],
+      "group": "providers",
+      "linux_only": false
+    },
+    {
+      "id": "native-header-aliases-sanitizers",
+      "name": "Native bindings preserve headers, field aliases, function references and provider dispatch with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/native_header_aliases.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
       "id": "nested-array-search",
       "name": "Nested array header identity, copies, nil slots, ranks2-32, loans and effects",
       "command": [

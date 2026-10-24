@@ -5,12 +5,14 @@ The [completion ledger](rust-parity-progress.md) distinguishes local validation,
 required hosted acceptance and remaining work. C remains the default application
 target; the full Sindarin Go backend remains outside this goal.
 
-Accepted compiler main `835a1ca0` passes all 34 required hosted jobs on
-Linux/macOS/Windows (405 gates/26 platform groups). It includes sixteen reusable
-C-backed SDK modules and canonical record-copy adapters. Public Sindarin APIs,
-original C operations, caller outputs, nil behavior and sealed archives retain
-their existing contracts. The macOS record-guard traversal and Windows SDK link
-length corrections have complete hosted acceptance.
+Accepted compiler main `7ec9002c` passes all 49 required hosted jobs on
+Linux/macOS/Windows (441 gate executions/41 platform groups). It includes
+eighteen reusable C-backed SDK modules, canonical record/record-array adapters,
+and the void reflection, character iterator and scalar parameter assignment
+repairs. The accepted SDK pin is `db7dfe94`. Public Sindarin APIs, original C
+operations, caller outputs, nil behavior and sealed archives retain their
+existing tested contracts. The independently published Yaml batch also passed
+all 49 jobs; retained evidence is linked from the completion ledger.
 
 The shared [C ABI](runtime-abi.md) implements value transport, typed resources,
 initialization/call leases/shutdown, replacement with live aliases and reentrant
@@ -19,11 +21,12 @@ rank 32. C/Rust/Go native providers and C/Rust Sindarin bodies use these
 transports. Go implementations retain their original language and generated
 C-callable bridges; Sindarin bodies requiring a Go backend remain unsupported.
 
-The current local integration adds ABI 1.8 canonical record-array transports,
-generated providers/consumers, private native-call adapters inside C/Rust package
-bodies, and the complete XML API. The reusable SDK stage expands to seventeen
-modules/34 C-Sindarin units. SDK XML `0b71e84` has hosted acceptance; this compiler
-integration still requires current local validation and its own hosted CI.
+ABI 1.8 canonical record-array transports, generated providers/consumers,
+private native-call adapters inside C/Rust package bodies and the complete XML
+and Yaml APIs have hosted acceptance. The accepted reusable SDK stage contains
+eighteen modules/36 C-Sindarin units. The locally validated Math migration
+expands this stage to nineteen modules/38 units and passes all 756 SDK cases. Its 145 original exports, public source and
+all pure Sindarin bodies remain unchanged; hosted Math acceptance is pending.
 
 Whole SDK packaging (including wider encoding/network modules), package-exported
 qualifiers and callbacks, complete value record/interface/generic contracts,
