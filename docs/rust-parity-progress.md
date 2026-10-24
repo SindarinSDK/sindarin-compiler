@@ -1,3 +1,40 @@
+## CI dependency correction: feature publication frozen, 2026-10-24
+
+Required [CI 40126421775](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40126421775)
+for `3e969e2d` exposes three root causes. SDK-native Linux and Windows select
+Go 1.24.13, while the unchanged TextFile Go client requires 1.26.0; macOS
+has no Go executable in the group. All three now receive the existing pinned
+Go setup. Windows SDK corpus cannot
+resolve `-lz`: XML's transitive package links bypass the compiler's platform
+library names and configuration overrides. This linker defect also affects
+the earlier XML composition; it is not a zlib installation requirement.
+
+Consumer adapters now forward logical library names to each target driver.
+Native metadata and implementation `@link` dependencies use the same platform
+mapping and configuration rules as ordinary imports. Exact archive names,
+paths, frameworks and other explicit linker options retain their token form.
+No package schema, original Sindarin source, original oracle, gate definition
+or fixture inventory changes. All 179 gate definitions and 421 required
+platform executions remain intact.
+
+The focused regression fails in all eight C/Rust source/sealed combinations
+before the fix and passes all eight afterward. It covers both native metadata
+and Sindarin implementation pragmas using a deliberately absent library with
+an explicit empty platform override. Windows and macOS providers jobs also find a fixture-only path mismatch: the
+builder returns canonical temp paths while the fixture retains `RUNNER~1` or
+`/var` aliases.
+The shared fixture root is now resolved before computing relative assembly
+paths. A portable aliased-root regression reproduces the failure before this
+change. All 27 CI helper tests and the 26-case native TextFile check pass
+locally. All 52 package-import tests and the full 432-case record-array matrix with six
+wire callback clients pass. Full SDK validation passes 684 cases (612 unchanged original callers and 72
+stdin controls), and all 22 archive tests pass. All 1,365 corpus source
+programs match accepted goal-start revision 835a1ca0, and 177 SDK input files
+match pinned 0b71e84. One combined correction is published after local verification;
+feature publication stays frozen until complete corrected hosted CI passes.
+The original XML and partition validation runs remain intact.
+Local evidence: [ci-link-toolchain-correction-local-validation.json](rust-parity-evidence/ci-link-toolchain-correction-local-validation.json).
+
 ## Dynamic scalar match: complete hosted acceptance, 2026-10-24
 
 Compiler `e3426a75` passes all 34 required jobs in

@@ -34,6 +34,12 @@ def native_link_options(flags):
     return result
 
 
+def consumer_link_options(flags):
+    """Let each target driver resolve logical libraries using its platform config."""
+    return [flag[2:] if re.fullmatch(r'-l[A-Za-z0-9_+.-]+', flag) else flag
+            for flag in native_link_options(flags)]
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--contract', type=Path, required=True)
@@ -102,14 +108,14 @@ def main():
             metadata=json.loads(assembly.read_text())
         for unit in metadata['units']:
             links.append(str(assembly.parent/unit['archive']))
-            links += native_link_options(unit['native_link_flags'])
-            links += ['-l'+name for name in unit['libraries']]
+            links += consumer_link_options(unit['native_link_flags'])
+            links += unit['libraries']
         source_lines+=adapters
     if aggregate:
         graph=build_go_graph([p for p in plans if 'assembly' not in p['plan']['native']],compiler,args.contract.parent/'go-graphs',
                              str(request['optimization']),request['arithmetic'])
         links.append(graph['archive'])
-        links+=native_link_options(graph['native_link_flags'])
+        links+=consumer_link_options(graph['native_link_flags'])
     links.append(str(runtime))
     source=args.contract.with_suffix('.c').resolve()
     source.write_text('\n\n'.join(source_lines)+'\n')

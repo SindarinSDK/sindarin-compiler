@@ -146,7 +146,7 @@ jobs:
       with:
         rust_target: ${{ matrix.rust_target }}
     - name: Setup Go for shared runtime ABI clients
-      if: contains(fromJSON('["core","packages","providers","sanitizers"]'), matrix.group)
+      if: contains(fromJSON('["core","packages","providers","sdk-native","sanitizers"]'), matrix.group)
       timeout-minutes: 10
       uses: actions/setup-go@v7
       with:
