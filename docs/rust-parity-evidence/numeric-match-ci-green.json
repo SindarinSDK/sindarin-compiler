@@ -1,0 +1,31 @@
+{
+  "revision": "9bd0d0d13b6a6144ce7f9e9a0996e44f7ca1cbe2",
+  "CI": 40158650642,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40158650642",
+  "successful_required_jobs": 49,
+  "coverage": {
+    "revision": "9bd0d0d13b6a6144ce7f9e9a0996e44f7ca1cbe2",
+    "groups": 41,
+    "gates": 469,
+    "compilers": {
+      "Linux": "02814dda88e83ae15987ffdd224b3cb22127b1c259eb382b58c6fe703d809c11",
+      "Darwin": "e6d7e9e856a7bb3d03d320c09d487b09f39a36ce00fbb116990b7f18a5d383c2",
+      "Windows": "4885b0ece6a63d3d9273f681d17cba44e93ae2dd860a7a92624e285943b38ce5"
+    },
+    "passed": true
+  },
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "preceding_record_own_CI": 40153334480,
+  "preceding_record_own_CI_status": "Still independently pending; numeric integrated acceptance does not replace its required run.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-ci-final.json.gz",
+      "sha256": "601401d58d1accd4b304c9e7ce21ac99bcc87e7d082cd5d6dcaf739f0ea35a82"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-ci-coverage.json.gz",
+      "sha256": "016c6678e030e55fc7510542990251191b6df664ae8767aa8537a0e9bce26703"
+    }
+  ],
+  "scope": "Hosted acceptance of C floating comparison promotions and numeric match result conversions, composed with accepted scalar/record/array/thread changes. Full language, SDK/native/ownership/interface/generic/callback/lifecycle and final preserved corpus mode/platform goal remains open."
+}

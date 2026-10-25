@@ -1,0 +1,118 @@
+{
+  "revision": "0b05c38e",
+  "published_main_base": "9bd0d0d13b6a6144ce7f9e9a0996e44f7ca1cbe2",
+  "compiler_sha256": "c91f082548d72bb19f177cff863db4e6894311150039b35947c1a2504ebb143a",
+  "covered_checks_passed": 23,
+  "gate_definitions": 205,
+  "platform_gate_executions": 473,
+  "all_203_published_main_gate_definitions_preserved": true,
+  "status": "All scheduled composition checks pass; additional C-clean indexed-copy effect probe exposes an ordering mismatch, so field feature is held from publication",
+  "known_effect_mismatch": "Foreign elem_copy callback occurs before all three receiver evaluations in C (trace1222), versus after one receiver evaluation in Rust (trace21). Both executions otherwise succeed cleanly. Requires a focused repair and revalidation before feature publication.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-validation.json.gz",
+      "sha256": "df0a5f3cc3e18733c1eb3eeef9f5aad0e656ee2f82f0032baf15cb9b1e19f721"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-build.log.gz",
+      "sha256": "f672bf52f629d7d2bdab1cf7247736d86e2a94c02ae4050e0721003165720ede"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-native-fields-normal.log.gz",
+      "sha256": "cb7a246b5effce8484711c6a94b5985a412fd4fce3bfcce244989fe125fa14f1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-native-fields-sanitized.log.gz",
+      "sha256": "cb7a246b5effce8484711c6a94b5985a412fd4fce3bfcce244989fe125fa14f1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-numeric-normal.log.gz",
+      "sha256": "ae69d0f37ca71a2e31f0f5a795b8caf1fc8fcb1d79e70c0eb1228e54020c362e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-numeric-sanitized.log.gz",
+      "sha256": "c246e5f5cb5f4ef6cc404317f666e965f71e6cab1c9f243b3a95186b00ada435"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-record-normal.log.gz",
+      "sha256": "06f0d45abc94162cf75b1d96326e13b60025081e7aef68649dadf6cc5e6fe956"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-record-sanitized.log.gz",
+      "sha256": "3c4b84bff43808bf4818a44dc6b0e64265b8df22ac4d1eeebe37c70bb5fd5ef4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-scalar-normal.log.gz",
+      "sha256": "cacc7811ed44aa1d0178ae1a6acf1cb7cc8550ef6e4e1648cab4ba0f29384074"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-scalar-sanitized.log.gz",
+      "sha256": "0ab14c51ec0d5601ec33233932f736f63cd450513fb71ab217bc1aa5ebd3a0ce"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-thread-normal.log.gz",
+      "sha256": "92e18a3e231d3f34974d82451ace1cc53d3ee1abd9bcd1dcb94bc2308eca5ff4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-thread-sanitized.log.gz",
+      "sha256": "4e164b8135dc888eb19728f1ca0c1482eccba696a969f3c95d75d6799e97f5f0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-full-C.log.gz",
+      "sha256": "7c9a7b0e7ef1e0362996f486ad7feb2d66516f228ed35fc4545039a6045ba8e4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-full-Rust.log.gz",
+      "sha256": "cf18d4ba0f524612f5509a39cab937e552d1942cbca245c14228164e21774faa"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-imports.log.gz",
+      "sha256": "7d24e028de7526ca6515dd88db60540b43c763cc12c4c92f24bef983797958a2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-artifacts.log.gz",
+      "sha256": "3ce1521516fd5be622827aaf96a792cf78b00291d1cc9b6f063e6ab7290b7df4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-UDP-source-sealed-normal.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-UDP-source-sealed-sanitized.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-CI-helpers.log.gz",
+      "sha256": "ae539682095dd34fbece422feb418a3240dce8585fdd7e52afb51c13f7c0089b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-numeric-main-composed-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-main-composed-field-index-copy-effects.json.gz",
+      "sha256": "a861eef97dd5db4d3e0e6b9c3280eda23a6d44be678d044f40fa578dcd0a7c5a"
+    }
+  ],
+  "scope": "Covered native field63, numeric81, record45, scalar45/216, byte81, array45, thread72 normal/SAN; fullC/R3243/1099; imports52/artifacts22/SDK1984/helpers27/fmt; dependent UDP108 normal/SAN on local SDK6e. Complete field/public SDK contracts and full goal remain open."
+}
