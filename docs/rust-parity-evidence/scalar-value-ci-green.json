@@ -1,0 +1,32 @@
+{
+  "revision": "516bdf323f61a6fe356b270620b92d02818d5ec4",
+  "CI": 40155571314,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40155571314",
+  "successful_required_jobs": 49,
+  "coverage": {
+    "revision": "516bdf323f61a6fe356b270620b92d02818d5ec4",
+    "groups": 41,
+    "gates": 465,
+    "compilers": {
+      "Linux": "59c4e076264fd27b5608c984fd1997fb7ba6fc9043ab4389c565c0be515c2c87",
+      "Darwin": "022a6e8a1e4e7c9da9df50a1a84af6199b46f21656517ad3fd824fd243dbb82d",
+      "Windows": "4fd2cb0a7572cf335994a327eb1b39264a825b490af8e5280f6a1baba5457014"
+    },
+    "passed": true
+  },
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "preceding_record_revision": "9f37126eff88681c851cf2fc078d8e1aec48c6e1",
+  "preceding_record_own_CI": 40153334480,
+  "preceding_record_own_CI_status": "Still in progress; scalar integrated acceptance does not replace its independent required run.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-ci-final.json.gz",
+      "sha256": "c6abc70fac75770ab8d252f99f7174799f05bccad8a6db575b8fe78074f57739"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-ci-coverage.json.gz",
+      "sha256": "53be4a2fd7eedddf6b4a1b2afa3e1ca1e9b37e64125054a810953d60a6786ab8"
+    }
+  ],
+  "scope": "Hosted acceptance of explicit scalar value qualifiers and native function-reference aliases composed with record stores and accepted array/thread repairs. Wider language/native SDK/ownership/generic/lifecycle and final preserved corpus mode/platform goal remains open."
+}

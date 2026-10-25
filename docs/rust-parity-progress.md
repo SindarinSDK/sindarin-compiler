@@ -34,14 +34,16 @@ and formatting pass. All original sources, oracles and 281 accepted SDK inputs
 remain byte-identical. All 201 main gate definitions remain unchanged; two
 additive gates require 469 platform executions in 41 groups.
 
-This numeric slice remains local while the record and scalar batches retain
-their own pending hosted runs. It requires its own complete hosted acceptance.
+Scalar main `516bdf32` now passes all 49 jobs of CI 40155571314, including
+465 required platform executions. This numeric slice requires its own complete
+hosted acceptance. The preceding record run 40153334480 remains independently
+required and is still in progress.
 Wider match/ownership, SDK/native/interface/generic/lifecycle contracts and final
 original corpus mode/platform verification remain required. Evidence:
 [numeric-match-main-composed-local-validation.json](rust-parity-evidence/numeric-match-main-composed-local-validation.json),
 [numeric-match-conversions-local-validation.json](rust-parity-evidence/numeric-match-conversions-local-validation.json).
 
-## Scalar values composed with record main: complete local validation, 2026-10-25
+## Scalar values composed with record main: hosted acceptance, 2026-10-25
 
 The independent scalar-value feature includes record main `9f37126e`. Local
 parameter preparation retains both the record model context and explicit scalar
@@ -53,9 +55,12 @@ pass. All original 1,365 programs, 1,158 oracles and 281 SDK inputs remain
 byte-identical. All 199 main gates remain intact; two additive scalar definitions
 require 465 platform executions in 41 groups.
 
-Correction `43a6d633` has complete hosted acceptance. Record main retains its
-distinct CI 40153334480; this independent feature requires its own full hosted
-validation. Full Rust/C parity remains open. Evidence:
+Main `516bdf32` passes all 49 jobs of CI 40155571314. Coverage verifies all
+465 executions in 41 platform groups using one recorded compiler per platform.
+Record main retains its distinct pending run 40153334480; later integrated
+acceptance does not replace that independent required run. Full Rust/C parity
+remains open. Evidence:
+[scalar-value-ci-green.json](rust-parity-evidence/scalar-value-ci-green.json),
 [scalar-values-record-composed-local-validation.json](rust-parity-evidence/scalar-values-record-composed-local-validation.json).
 
 ## Scalar values composed with corrected main: locally verified, 2026-10-25
