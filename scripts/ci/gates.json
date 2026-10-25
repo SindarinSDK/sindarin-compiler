@@ -2461,6 +2461,30 @@
       }
     },
     {
+      "id": "value-record-stores",
+      "name": "Value record local parameter stores preserve expression results and caller copies (45 mode pairs)",
+      "command": [
+        "{python}",
+        "scripts/check_rust_value_record_stores.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "value-record-stores-sanitizers",
+      "name": "Value record stores, nested copies and threaded storage with C address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_value_record_stores.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc"
+      }
+    },
+    {
       "id": "package-scalar-value-qualifiers",
       "name": "Explicit scalar values, C/RS bodies and C/Rust/Go providers with sealed artifacts (45 language pairs and 216 package mode cases)",
       "command": [

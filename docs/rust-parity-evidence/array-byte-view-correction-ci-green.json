@@ -1,0 +1,45 @@
+{
+  "revision": "43a6d633c7d72c1ec8cf144ee720ef885f831490",
+  "CI": 40150376704,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40150376704",
+  "successful_required_jobs": 49,
+  "coverage": {
+    "revision": "43a6d633c7d72c1ec8cf144ee720ef885f831490",
+    "groups": 41,
+    "gates": 457,
+    "compilers": {
+      "Linux": "77d64393945c532f541e676d42b37574697fcb12366e1dd65be6a0e3c30f62e4",
+      "Darwin": "a61aea966ba3865e3a17c2cb89272d93b24b8e9b991844c52474100c9a9f95fa",
+      "Windows": "520ca4f630aeeb324dee06dbd43ab914949437a5aa142c2b0620ec9acdf0efc5"
+    },
+    "passed": true
+  },
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "preceding_failed_array_revision": "f4b92f614bb31b6a1cb1556760a44bfbbce1ff2d",
+  "preceding_failed_CI": 40147426027,
+  "all_three_numeric_io_platform_gates": "passed, including all9unchanged byte object-view modes on eachplatform",
+  "template_sha256": "c4a151156f4711947c7442310a27e097ad39551e5c372f7981fccb8e1d2e7b66",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-ci-final.json.gz",
+      "sha256": "07296a4007bb68109aa187909c2235c1a4994cdcf67e8d9e92c1fb2540b9fd2c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-ci-coverage.json.gz",
+      "sha256": "c163997c34b4ddfe37d45add4e9d7d5f378465294e2b41fa833e6560320ebb79"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-failed-ci-final.json.gz",
+      "sha256": "f6a6cef6ea55cb37129e0e8a076e05a29e510515c856b6dae102d88fb1c2ebc8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-failed-ci-coverage.log.gz",
+      "sha256": "7e4d6154a7f7dc00671e4805d375c91b874df24b1ebb0271d3aa917237c57217"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-failed-ci-summary.log.gz",
+      "sha256": "f09bdf0d532a7a298be35c794fa58805c1700c7e5ac458d1067c7a2cdb8c7dc1"
+    }
+  ],
+  "scope": "Hosted acceptance of nested array identity/loans and the actual-element-type native byte view correction. All49corrected integrated main jobs accepted; feature freeze lifted. Wider SDK/native/ownership/generic/lifecycle and final1365corpus mode/platform goal remains open."
+}

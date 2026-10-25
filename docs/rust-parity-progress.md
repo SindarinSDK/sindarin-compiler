@@ -47,6 +47,64 @@ behind correction CI 40150376704. Wider pointer/ref, managed/value/interface,
 generic/callback package export and dependency lifecycle contracts remain open.
 Evidence: [scalar-value-qualifiers-local-validation.json](rust-parity-evidence/scalar-value-qualifiers-local-validation.json).
 
+## Array native loan correction: complete hosted acceptance, 2026-10-25
+
+Correction main `43a6d633` passes all 49 required jobs in
+[CI 40150376704](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40150376704).
+Coverage verifies 457 gate executions in 41 groups and one compiler binary per
+Linux/macOS/Windows platform. The unchanged byte object-view regression passes
+all nine modes on every platform. This accepts the nested-array feature and
+its native array loan correction; the preceding failed run and its three
+platform reports remain retained. Feature publication is unfrozen.
+
+The record-value feature has complete local validation against this accepted
+base and requires its own hosted acceptance. Whole SDK, wider native, ownership,
+interface/generic/callback/lifecycle contracts and final preserved original
+corpus mode/platform verification remain required. Evidence:
+[array-byte-view-correction-ci-green.json](rust-parity-evidence/array-byte-view-correction-ci-green.json).
+
+## Value record stores composed with corrected main: locally verified, 2026-10-25
+
+The record-value changes now include byte-array correction `43a6d633`.
+All 45 record pairs, 81 byte-encoding pairs, 45 array-search pairs and 72 native
+thread cases pass normally and with strict C address/undefined/leak checks.
+Complete C/Rust suites pass 3,243/1,099, SDK19 smoke84, CI helpers27 and formatting
+pass. All 197 corrected-main gate definitions and all original 1,365 programs,
+1,158 oracles and 281 SDK inputs remain byte-identical. Two additive record
+gates require 461 platform executions in 41 groups.
+
+The earlier composition omitted the separately gated byte-encoding check; this
+checkpoint explicitly verifies it against the corrected native loan template.
+Feature publication remains frozen until correction CI 40150376704 completes
+successfully. This feature then requires its own complete hosted acceptance.
+Evidence: [value-record-stores-corrected-main-local-validation.json](rust-parity-evidence/value-record-stores-corrected-main-local-validation.json).
+
+## Value record parameter stores: complete local validation, 2026-10-25
+
+Rust permits local field and whole-slot stores on heap-free value record
+parameters, preserving the C assignment result and leaving the caller's value
+unchanged. Shared thread-field storage retains this value-copy contract through
+ordinary declarations, nested records, calls, stores and returns. Place
+projections continue to address the actual local field owners.
+
+Two original rejection programs execute unchanged, with their original
+rejection diagnostics retained through promotion metadata. All 45 independent
+mode pairs pass normally and with C address/undefined/leak checks. Controls cover
+ten scalar field types, nested assignment results, RHS reference calls, explicit
+value/reference qualifiers, caller isolation, methods, recursion, shadowing,
+function references, indexed arguments, private-name collisions and joined
+thread composition. Complete C/Rust suites pass 3,243/1,099, the existing scalar
+parameter gate passes 27 pairs, and all 27 CI helpers and formatting pass.
+
+All original 1,365 program sources, 1,158 oracles and 281 accepted SDK files remain
+byte-identical. All 193 corrected-main gates remain intact; two new definitions
+require 453 platform executions in 41 groups. A separate exploratory C array
+initializer compilation failure is retained without parity credit. This is local
+validation only, queued behind prior feature batches.
+Managed/native/interface/packed/serialized records and the wider completion goal
+remain open. Evidence:
+[value-record-stores-local-validation.json](rust-parity-evidence/value-record-stores-local-validation.json).
+
 ## Native byte-array object views: correction locally verified, 2026-10-25
 
 Array main `f4b92f61` failed the existing byte-encoding gate on Linux, macOS

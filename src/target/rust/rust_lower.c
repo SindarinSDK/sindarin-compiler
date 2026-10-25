@@ -1906,12 +1906,14 @@ static bool rust_lower_member_assignment_places(json_object *model,
     if (!bindings) return false;
     bool field_store = rust_place_has_field_owner(object) && !json_boolean_property(node, "rust_thread_field");
     bool tagged_cleanup = json_string_property_equals(node, "field_cleanup", "cleanup_arr");
+    bool copy_value = json_boolean_property(node, "rust_field_assignment_value") ||
+        json_boolean_property(node, "rust_by_value_record_field_store");
     if (!rust_collect_place_indices_mode(model, object, bindings, next_id, tagged_cleanup || field_store))
     {
         json_object_put(bindings);
         return false;
     }
-    if (json_object_array_length(bindings) == 0 && !field_store)
+    if (json_object_array_length(bindings) == 0 && !field_store && !copy_value)
     {
         json_object_put(bindings);
         return true;
@@ -1940,6 +1942,8 @@ static bool rust_lower_member_assignment_places(json_object *model,
     json_object_object_add(node, "rust_place_value_name",
                            json_object_new_string(value_name));
     json_object_object_add(node, "rust_place_index_bindings", bindings);
+    if (copy_value)
+        json_object_object_add(node, "rust_place_assignment_value", json_object_new_boolean(true));
     if (field_store)
         json_object_object_add(node, "rust_field_nested_assignment", json_object_new_boolean(true));
     if (tagged_cleanup)

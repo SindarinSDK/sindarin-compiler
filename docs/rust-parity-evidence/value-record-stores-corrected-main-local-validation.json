@@ -1,0 +1,123 @@
+{
+  "status": "Complete local composition with corrected main; own hosted acceptance pending",
+  "revision": "0b52fbf4032352f548ea2ee01f13967aebc806c2",
+  "corrected_main": "43a6d633c7d72c1ec8cf144ee720ef885f831490",
+  "corrected_main_pending_CI": 40150376704,
+  "compiler_sha256": "110a8f8cbd4e9d36fad64979848c3500a75c1dbc7a16c5555d5e9f9ef36d0592",
+  "record_pairs_each_environment": 45,
+  "byte_encoding_pairs_each_environment": 81,
+  "array_pairs_each_environment": 45,
+  "thread_cases_each_environment": 72,
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "all_hashes_rechecked_unchanged": true,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "all_197_corrected_main_gate_definitions_unchanged": true,
+  "gate_definitions": 199,
+  "platform_gate_executions": 461,
+  "platform_groups": 41,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-validation.json.gz",
+      "sha256": "cc24c12a985e738ed2119f1425466efd93170124849e6cace505cad02920f541"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-build.log.gz",
+      "sha256": "87e2a378027a98765cf7a262f50f5843b2400ba83318018b080333a587baf9c1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-record-normal.log.gz",
+      "sha256": "a0e2fa91cd977820c06378dd9468095c9f0e7419bd9bd66fa6f7031bb60d3699"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-record-sanitized.log.gz",
+      "sha256": "b9cc7cdc34ab643db7adda2f5cefebf6ab3e73e9fc39fa2aec9c42cce42ac4e3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-thread-normal.log.gz",
+      "sha256": "8fb406ff8d35d69d89c5f80242f2578dd71e0ac9833fecc5cbeab5a275fc6817"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-thread-sanitized.log.gz",
+      "sha256": "0121a5037d2456a4ddb41a13c888b4ea66c4cdfd46e000708811a9fcdaba180f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-full-C.log.gz",
+      "sha256": "b661bc97eb5a80b411be5dce0d2b53511f10b86c8db72e2af3af5e40bc619f78"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-full-Rust.log.gz",
+      "sha256": "c05d69c9903966d12947467b5ccd707ca746dca78e417e56c423d37b187e379c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-CI-helpers.log.gz",
+      "sha256": "3ab3fc1a6913be777eb3fe9cfbfec5ef5b301cebacb097ffdcaf671bf3028c07"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-corrected-main-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-rust-parity-byte-encoding.json.gz",
+      "sha256": "39fc081a90939a5619f990fa2cdb94c99e367d560ef5ef6b0e51ea23406e0fe4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-rust-parity-value-record-stores.json.gz",
+      "sha256": "7a3915f146242b039bc6c5d10be45221a914e10dbfdaa08906fa2cb4b2230b74"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-rust-parity-value-record-stores-sanitizers.json.gz",
+      "sha256": "32975e7cd161efc2bddb8f6b136f5a3db950a06f27c2b07368e90bfb3b710147"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-rust-nested-array-search.json.gz",
+      "sha256": "a3fc396fa3068278421831511f07b37d80e1de44a62218cabaea765c0c294b58"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-rust-nested-array-search-sanitized.json.gz",
+      "sha256": "f1d334cca48dcd48fe21a597d996484da3750bc44ff9e3a904ad3769fa67c78c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-package-native-threads.json.gz",
+      "sha256": "fe1a205158299bc85d97e56afca07ed01cc441c3cd2bd549d4da0ed2e3ed2f2c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-package-native-threads-sanitized.json.gz",
+      "sha256": "742f4fe409ef113643027b6284f42556b06f2d27e569684578513a16b75556fc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-corrected-main-sdk-artifact-validation.json.gz",
+      "sha256": "0307e9631d4f27ffaab52ee3d4d2fb3b167395afc44efc06be3902502185efc5"
+    }
+  ],
+  "scope": "Heap-free record value stores with corrected native array loans. No feature push before full correction CI acceptance. Full SDK/native/managed/interface/generic/lifecycle and final original corpus mode/platform parity remain required."
+}
