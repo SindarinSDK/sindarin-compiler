@@ -1,0 +1,32 @@
+{
+  "status": "Verified complete own-revision Linux/macOS/Windows hosted acceptance. Required field correction accepted; feature publication freeze can lift.",
+  "revision": "a5bfd070b1c3d25a34445b412dcb95a1345f4a92",
+  "CI": 40177983344,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40177983344",
+  "required_jobs": 49,
+  "all_jobs_successful": true,
+  "platform_gate_executions": 481,
+  "platform_groups": 41,
+  "compilers": {
+    "Linux": "524493be4de42ceefbe1c5797ee564ec59d72182342b6774bf631d11305f34a2",
+    "Darwin": "71287728586477a3af2ee7ec5f4c93fe06334a98c64b5655ca1a97387e621aeb",
+    "Windows": "ba1a70ab379ca1704c03f0777bf2f3fb6c87f2846a7c414c55142df9f0b98bcb"
+  },
+  "closed_failure": "Field d3ce computed numeric-owner regression9 modes on all3 platforms; unchanged source/oracles preserved. Additional native-array numeric and indexed field closure scope interactions corrected and covered. Original failed run retained separately.",
+  "historical_record_run": "Own9f37 retry2 separately passed49/461/41; original runner communication failure retained.",
+  "scope": "Accepts native array fields and the combined correction on integrated main; full Rust/C goal, String changes, SDK20 artifact integration and broader corpus/mode/platform acceptance remain open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-ci-final.json.gz",
+      "sha256": "575857cfbe3fed15ec0f31aef6e7b80a86c5380fcfa7778e68779498af1e972b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-ci-coverage.json.gz",
+      "sha256": "d288e06f92decc862670634ad467c694d1f4b1d188bb1fa3f81700cb7e0d6d18"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-ci-artifacts.json.gz",
+      "sha256": "c4983637b3610ee9f46ad19a869993484a1a72c9cef955acdfbeda2a352a998d"
+    }
+  ]
+}
