@@ -1,11 +1,11 @@
-## Required Windows CI correction: complete local validation, 2026-10-25
+## Required Windows CI correction: hosted acceptance complete, 2026-10-25
 
 Zlib main `4a0ebda6` failed its own hosted run
 [40206567956](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40206567956).
 Of the 44 initial build/test jobs, 42 passed and two Windows jobs failed.
 Coverage and the final requirement job failed downstream; validated artifact
-publication was skipped. This revision is not hosted-accepted. Feature pushes
-are frozen until one combined correction passes complete platform CI.
+publication was skipped. That failed revision is not hosted-accepted; its
+required failures froze feature publication until the combined correction passed.
 
 The SDK artifact failure occurs in legacy zlib imports: Sindarin `uint as ref`
 is a uint64 slot, while Windows zlib expects a 32-bit `uLongf *`. Generated C
@@ -42,9 +42,15 @@ The compiler binary remained unchanged throughout validation.
 All 233 published gate definitions remain intact. The deterministic evidence
 regression adds three platform executions, for 234 definitions, 532 executions
 and 41 groups. The strict header check runs within the existing zlib gates.
-The combined correction now requires its own complete Linux/macOS/Windows CI.
-Feature publication remains frozen until that acceptance is green. SDK21 and
-full Rust/C parity are not yet hosted-accepted.
+Corrected integrated main `61633bb8` has now passed all 49 required
+Linux/macOS/Windows jobs, 532 gate executions and 41 groups. Both failing Windows
+jobs pass on this revision. SDK21/ABI1.9 artifact integration is hosted-accepted
+and the feature freeze is lifted.
+[Own hosted evidence](rust-parity-evidence/zlib-Windows-correction-ci-green.json).
+Seven SDK modules, wider language/ownership contracts and final platform/corpus
+acceptance remain open. Four legacy C debug lifetime leaks are separately
+retained in the TCP foundation's local evidence; no failed C mode receives
+parity credit. Full Rust/C parity is not complete.
 
 ## Zlib and borrowed scalar memory: complete local composition, 2026-10-25
 

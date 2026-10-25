@@ -1,0 +1,32 @@
+{
+  "status": "Complete own-revision Linux/macOS/Windows acceptance verified; both required Windows failures repaired. SDK21/ABI1.9 integration accepted. Full parity goal remains open.",
+  "revision": "61633bb80d15bc0df80b4aee2d86ac2bbe75082e",
+  "CI": 40217849770,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40217849770",
+  "required_jobs": 49,
+  "all_jobs_successful": true,
+  "platform_gate_executions": 532,
+  "platform_groups": 41,
+  "compilers": {
+    "Linux": "8b573125d8c6b8bdf2eac8ea5b3be26fe59f12a222d05bbcb0781a0f06f2ec24",
+    "Darwin": "da45394c7ec9d3662f44a0825f55143d04d3f179a28d2f5851608c9a55ad8092",
+    "Windows": "49f3f9ecc58866371ae73b6fc6fdbe4d5f7007c88ea730f0242240bcd55f59fd"
+  },
+  "previous_required_failure_CI": 40206567956,
+  "previous_failure_evidence": "docs/rust-parity-evidence/zlib-Windows-correction-required-failure.json",
+  "scope": "Typed zlib header output references across legacy/source/sealed C/Rust consumers, compatible address preservation and integer-match evidence capture under reused process IDs. SDK21 is now accepted; seven SDK modules, wider ownership/aliases/record/interface/generic/callback and final-platform original-corpus acceptance remain open. Known legacy C debug lifetime failures remain separately tracked.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-ci-final.json.gz",
+      "sha256": "49e5444f63eef9b1696a851897855e82fcd005080a82989fed797c84c56d38a5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-ci-coverage.json.gz",
+      "sha256": "f3232f3f05f9068e5b766313f777aa37be97ed13727d8fae5819182da8af8d3a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-ci-artifacts.json.gz",
+      "sha256": "6d1e76734a7725e6a5a69400a574c2c0d14a5046249f8a0bc042a527e25e6bb1"
+    }
+  ]
+}
