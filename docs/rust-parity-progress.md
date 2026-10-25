@@ -1,3 +1,24 @@
+## Package native thread dispatch: complete local validation, 2026-10-25
+
+Native free-function threads inside C/RS package bodies now select providers by
+logical declaration identity. A C alias naming another callable, or two logical
+functions sharing an original alias, cannot select the wrong provider. The
+single-module C template now dispatches native threads like the split template.
+Existing Sindarin programs and behavioral/diagnostic oracles are unchanged.
+
+All 72 source/sealed C/Rust consumer cases pass normally and with strict C
+address/undefined/leak checks, across C/RS bodies and all nine modes. Controls
+check distinct providers, native function references, argument-free/value threads,
+and an explicit void join with a once-only mutation. Complete C/Rust suites pass
+3,243/1,099; existing method/header regressions, all 27 CI helpers and formatting
+pass. All 193 corrected-main gates remain intact; two new definitions require
+453 platform executions in 41 groups.
+
+This is local validation only. Publication waits for complete corrected-main
+CI 40144127442 acceptance, followed by this feature's own hosted validation.
+Whole Rust/C parity remains open. Evidence:
+[package-native-threads-local-validation.json](rust-parity-evidence/package-native-threads-local-validation.json).
+
 ## Math platform and record-loan correction: local validation, 2026-10-25
 
 Math main `8f30280d` failed CI 40139366314 and is not hosted acceptance. Clang
