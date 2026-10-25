@@ -2435,8 +2435,34 @@
       }
     },
     {
+      "id": "nested-array-search",
+      "name": "Nested array header identity, copies, nil slots, ranks2-32, loans and effects",
+      "command": [
+        "{python}",
+        "scripts/check_rust_nested_array_search.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "nested-array-search-sanitizers",
+      "name": "Nested array header identity, copies, nil slots, ranks2-32, loans and effects with sanitizer checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_nested_array_search.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
       "id": "package-scalar-value-qualifiers",
-      "name": "Explicit scalar values, C/RS bodies and C/Rust/Go providers with sealed artifacts (36 language pairs and216 package mode cases)",
+      "name": "Explicit scalar values, C/RS bodies and C/Rust/Go providers with sealed artifacts (45 language pairs and 216 package mode cases)",
       "command": [
         "{python}",
         "tests/package/scalar_value_qualifiers.py"

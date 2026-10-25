@@ -1,0 +1,7 @@
+{
+  "source_sha256": "3a52d11efb0c2ee548508e01dcf73d842063fd0eacb2e712f2b7c60bc63ccb46",
+  "legacy_oracle_sha256": "cee10100a4bcacb6dd90be9c9eb514de9447fe5f8abbce851c51c4b9944a79cf",
+  "stdout_hex": "31300a",
+  "exit": 0,
+  "reason": "Nested search now executes in the preserved value-match arm prefix through canonical C header identity"
+}

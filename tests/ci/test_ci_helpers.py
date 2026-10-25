@@ -114,7 +114,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 41)
-        self.assertEqual(report['gates'], 457)
+        self.assertEqual(report['gates'], 461)
         for sanitized in (False, True):
             identity = 'package-scalar-value-qualifiers' + ('-sanitizers' if sanitized else '')
             matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]
@@ -125,6 +125,7 @@ class CoverageTests(unittest.TestCase):
             self.assertEqual(gate['linux_only'], sanitized)
             if sanitized:
                 self.assertIn('-fsanitize=address,undefined', gate['env']['SN_CFLAGS'])
+
         for sanitized in (False, True):
             identity = 'package-native-threads' + ('-sanitizers' if sanitized else '')
             matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]

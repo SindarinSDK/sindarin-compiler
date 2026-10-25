@@ -1,0 +1,28 @@
+{
+  "revision": "0c9a4c15f5a444de379cd88de3b029039dae47b7",
+  "compiler_sha256": "90f138ef44a2bad0cf16a8cda55969f340e5e5f22107b7692443e27bd456b83d",
+  "scope": "60 historical candidate programs only; Linux/O0/default arithmetic. Executable builds, not standalone source emission. C sanitizer success alone does not prove defined C behavior. No overall parity or completion claim.",
+  "counts": {
+    "C sanitizer and Rust executable agree in this mode; broader semantic gates still required": 16,
+    "Rust executable rejected; semantic review required": 43,
+    "C compile/runtime/sanitizer failure; review separately": 1
+  },
+  "all_sources_and_original_diagnostics_unchanged": true,
+  "retained_report": {
+    "path": "docs/rust-parity-evidence/nested-array-search-candidate-refresh.json.gz",
+    "sha256": "7f2b0fac099228f3ab3f67ffe57a78aa7a167341323bc01f274322d89f8f032c"
+  },
+  "C_failure": {
+    "source": "tests/rgen/errors/statement_match_array_subject.sn",
+    "result": "LeakSanitizer reports 88 bytes in two allocations; not counted as a clean C-supported Rust rejection or as parity.",
+    "also_reproduced_on_corrected_main_169": true,
+    "baseline_evidence": {
+      "path": "docs/rust-parity-evidence/nested-array-search-baseline-C-leak.json.gz",
+      "sha256": "4c58c477a8feaa5567864cadd1f2399211202737c84dfce090c04848a25ee477"
+    }
+  },
+  "newly_executable_originals": [
+    "tests/rgen/errors/array_search_nested_array_elements.sn",
+    "tests/rgen/errors/value_match_prefix_lexical_order.sn"
+  ]
+}

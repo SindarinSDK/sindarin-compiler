@@ -27,6 +27,72 @@ behind correction CI 40150376704. Wider pointer/ref, managed/value/interface,
 generic/callback package export and dependency lifecycle contracts remain open.
 Evidence: [scalar-value-qualifiers-local-validation.json](rust-parity-evidence/scalar-value-qualifiers-local-validation.json).
 
+## Native byte-array object views: correction locally verified, 2026-10-25
+
+Array main `f4b92f61` failed the existing byte-encoding gate on Linux, macOS
+and Windows in CI 40147426027. All three reports identify nine modes of the
+unchanged `byte_encoding_object_view.sn`: C compiles and executes, while Rust
+rejects an unconstrained generic array constructor with E0283. Native byte
+encoders accept wider scalar storage through the existing C object-view
+contract, so their trait parameter cannot infer the original element type.
+
+The Rust template now constructs the borrowed array using the actual argument
+type. Existing programs, outputs, diagnostics, SDK inputs and all 197 published
+gate definitions remain unchanged. All 81 byte-encoding pairs pass normally and
+with strict C address/undefined/leak checks. Array45 and thread72 matrices pass
+in both environments; full C/Rust suites pass 3,243/1,099, SDK19 smoke84, ABI17,
+CI helpers27 and formatting pass. All 1,365 original programs, 1,158 original
+oracles and 281 accepted SDK inputs were rehashed and remain byte-identical.
+The template hash is retained because a template-only change can leave the
+compiler executable hash unchanged.
+
+This correction requires its own complete hosted acceptance. Feature pushes
+remain frozen. Evidence and all three failing platform reports:
+[array-byte-view-correction-local-validation.json](rust-parity-evidence/array-byte-view-correction-local-validation.json).
+
+## Native package threads: complete hosted acceptance, 2026-10-25
+
+Thread main `c5c24f18` passes all 49 required jobs in
+[CI 40146640862](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40146640862).
+Coverage verifies 453 gate executions in 41 groups and one compiler per
+Linux/macOS/Windows platform. This advances the accepted checkpoint from
+`169c68e1`; the later array failure keeps feature publication frozen.
+Evidence: [package-native-threads-ci-green.json](rust-parity-evidence/package-native-threads-ci-green.json).
+Full SDK, wider native/ownership/interface/generic/lifecycle contracts and final
+preserved 1,365-program mode/platform verification remain required.
+
+## Nested array search composed with thread main: complete local validation, 2026-10-25
+
+Rust nested `contains`/`indexOf` now use canonical C array-header identity.
+Copied inner headers remain distinct; stored slots, nil inner arrays, default
+and closure loans, owned temporaries and explicit value copies preserve their
+existing C behavior. Ranks two through 32 and eleven scalar/string leaf kinds
+are covered. Fresh helper names preserve user identifiers, and portable
+receiver/argument controls verify once-only effects. A nonportable independent
+argument/index-order probe is retained separately without parity credit.
+
+Both original rejection programs execute unchanged: nested array search and
+value-match prefix lexical order. Their source and original diagnostics remain
+intact. Composition with thread main `c5c24f18` passes all 45 array mode pairs
+normally and with C address/undefined/leak checks, all 72 thread cases normally
+and with sanitizers, complete C/Rust suites 3,243/1,099, all 27 CI helpers and
+formatting. The broader same-array-code proof also passes imports52,
+artifacts22, nineteen-module SDK smoke84, ABI17, and record-array432 plus six
+wire clients normally and with sanitizers. Initial missing SDK fixtures were
+restored from all281 byte-identical accepted SDK files before those full checks.
+
+All 1,365 original programs, 1,158 goal-start oracles and 281 SDK inputs retain
+their bytes. All 195 current-main gates remain unchanged; the two additive array
+gates require 457 platform executions in 41 groups. The refreshed sixty-source
+historical executable review finds sixteen agreeing cases, 43 Rust rejections,
+and one separately retained C leak; it is not a percentage or completion proof.
+This local checkpoint requires its own complete hosted acceptance. Whole SDK,
+qualifier/callback/ownership/interface/generic/lifecycle contracts and final
+frozen corpus mode/platform/oracle verification remain required. Evidence:
+[nested-array-search-thread-composed-local-validation.json](rust-parity-evidence/nested-array-search-thread-composed-local-validation.json),
+[broader package checks](rust-parity-evidence/nested-array-search-local-validation.json),
+[candidate review](rust-parity-evidence/nested-array-search-candidate-refresh.json).
+
 ## Math and record-loan correction: complete hosted acceptance, 2026-10-25
 
 Corrected compiler main `169c68e1` passes all 49 required jobs in
