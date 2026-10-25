@@ -498,7 +498,8 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
         if (!json_string_property_equals(type, "kind", "array")) continue;
         json_object_object_add(node, "rust_closure_array_call", json_object_new_boolean(true));
         if (json_boolean_property(arg, "rust_closure_array_parameter")) continue;
-        if (json_string_property_equals(arg, "kind", "array_access"))
+        if (json_string_property_equals(arg, "kind", "array_access") &&
+            !json_boolean_property(type, "rust_native_handle_array"))
         {
             json_object *root = NULL, *index = NULL, *groups = NULL, *group = NULL;
             json_object_object_get_ex(arg, "array", &root);
@@ -561,6 +562,13 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
             while (rust_model_contains_string(model, name));
             existing = name;
             json_object_object_add(arg, "rust_closure_array_cell_bind", json_object_new_boolean(true));
+            if (json_boolean_property(type, "rust_native_handle_array"))
+            {
+                char loan[96];
+                if (!rust_allocate_helper_name(model, "__sn_closure_native_array_loan", loan, sizeof(loan))) return;
+                json_object_object_add(arg, "rust_closure_native_array_loan", json_object_new_string(loan));
+                json_object_object_add(arg, "rust_native_handle_borrow_arg", json_object_new_boolean(true));
+            }
             if (json_boolean_property(arg, "rust_array_snapshot_cell"))
             {
                 char guard[96];
@@ -568,6 +576,8 @@ static void rust_lower_closure_array_arguments(json_object *model, json_object *
                 json_object_object_add(arg, "rust_closure_array_guard_name", json_object_new_string(guard));
             }
             if (!json_string_property_equals(arg, "kind", "variable") &&
+                !(json_boolean_property(type, "rust_native_handle_array") &&
+                  json_string_property_equals(arg, "kind", "array_access")) &&
                 !json_string_property_equals(arg, "kind", "member"))
             {
                 char owner[96];

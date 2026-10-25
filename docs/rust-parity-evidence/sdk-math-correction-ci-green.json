@@ -1,0 +1,30 @@
+{
+  "revision": "169c68e1822d438d5b83400abe6d637e505f8092",
+  "CI": 40144127442,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40144127442",
+  "successful_required_jobs": 49,
+  "coverage": {
+    "revision": "169c68e1822d438d5b83400abe6d637e505f8092",
+    "groups": 41,
+    "gates": 449,
+    "compilers": {
+      "Linux": "3faedaa02a6ca462b14d606a12e31c61663a874850476dd0b13884b6cb24f462",
+      "Darwin": "7c1e24dab2350afa0601937587b9a0e36ff9278f70881bb06dc15ab9b63f7700",
+      "Windows": "e4c94192fa467358c3e1427dace08635203ba04b4a433766a52b7efbace0c9f7"
+    },
+    "passed": true
+  },
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "preceding_failed_run": 40139366314,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/sdk-math-correction-ci-run.json.gz",
+      "sha256": "7438bf7c0b95e003ca65be95cf628235ce0b52c428cbb0c02d8494dc4c51c54e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk-math-correction-ci-coverage.json.gz",
+      "sha256": "af3780e9541f0369f0dc2763b739b5152725323e8717c75a66bf9d46a46e2de8"
+    }
+  ],
+  "scope": "Hosted acceptance of Math19/logical native bindings plus the platform/record-loan correction. Whole SDK/native/ownership/generic/lifecycle and final1365 corpus mode/platform goal remains open."
+}

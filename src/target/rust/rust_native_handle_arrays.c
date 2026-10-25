@@ -35,6 +35,19 @@ static bool native_primitive_array_boundary(json_object *node)
         return false;
     }
     if (!json_object_is_type(node, json_type_object)) return false;
+    /* Nested searches compare C array-header pointers, not element contents.
+     * Select the canonical array representation even without a native call. */
+    if (native_string(node, "kind") && !strcmp(native_string(node, "kind"), "call"))
+    {
+        json_object *callee = native_record_child(node, "callee");
+        const char *method = native_string(callee, "member_name");
+        json_object *type = native_record_child(native_record_child(callee, "object"), "type");
+        json_object *element = native_record_child(type, "element_type");
+        if (method && (!strcmp(method, "contains") || !strcmp(method, "indexOf")) &&
+            native_string(type, "kind") && !strcmp(native_string(type, "kind"), "array") &&
+            native_string(element, "kind") && !strcmp(native_string(element, "kind"), "array") &&
+            native_primitive_array_element(element)) return true;
+    }
     if (native_bool(node, "is_native"))
     {
         json_object *result = native_record_child(node, "return_type");

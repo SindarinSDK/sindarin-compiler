@@ -1,0 +1,118 @@
+{
+  "status": "complete local validation; own hosted acceptance pending after corrected main169 CI40144127442 passed",
+  "implementation_revision": "9fcd1a42d349026bfa4197e2987da9c65e440fb0",
+  "base": "169c68e1822d438d5b83400abe6d637e505f8092",
+  "fixes": [
+    "Single-module C thread wrappers select native target names, matching split C modules.",
+    "Package native thread binding resolves logical function identity before original C aliases; a shared alias or another public function name cannot redirect dispatch."
+  ],
+  "baseline": "Corrected main169 rejects the new control with ambiguous native wrapper target shared. Earlier unchanged simple control fails C package compilation on accepted7ec and main169; template-only repair selects wrong provider22 instead of11.",
+  "focused_normal_mode_cases": 72,
+  "focused_C_address_undefined_leak_mode_cases": 72,
+  "coverage": [
+    "C/RS package bodies",
+    "source/sealed artifacts with backing C removed",
+    "C/Rust consumers",
+    "O0/O1/O2 x default/checked/unchecked",
+    "native alias equals another logical callable",
+    "two declarations share one original C alias but select distinct providers",
+    "native target without explicit alias",
+    "integer result thread joins",
+    "void native explicit join and once-only state mutation",
+    "native function references stored in struct fields"
+  ],
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "existing_callable_tests": 4,
+  "existing_callable_mode_cases": 36,
+  "existing_header_tests": 2,
+  "existing_header_mode_cases": 72,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz",
+    "goal_start": "835a1ca0",
+    "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+    "all_193_corrected_main_gates_unchanged": true,
+    "gate_count": 195,
+    "platform_gate_executions": 453
+  },
+  "required_platform_gates": 453,
+  "platform_groups": 41,
+  "validation_corrections": [
+    "New fixture initially assumed void fire-and-forget waited; changed new control to explicit join, preserving existing language behavior.",
+    "New fixture helper definitions were not independent exports; moved controls into the exported body.",
+    "Expanded catalog requires453 executions; updated coverage assertion from449. Original failed helper log retained; all27 helpers then passed."
+  ],
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/package-thread-baseline-regression.log.gz",
+      "sha256": "85ca2c9be185058c086e2a8b2b39ac4a1e43c3b7701ee48ef7e7851519e4adaa"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-template-only.log.gz",
+      "sha256": "0ff76a9be36d4e9d6a465c80c55421f9ea5ac06a09fcf32e4d70e19a8b0ea667"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-after.log.gz",
+      "sha256": "8c7433f30117b0215ce4ab7c3e5322ac77c6b2f0d9e5695fa0a21660c2bbb5e0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-focused-normal-final.log.gz",
+      "sha256": "1624789627fbfdb09f89497e0bf9fc189324d6bab2a137a6904cd928add3c33d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-focused-sanitized.log.gz",
+      "sha256": "145b01d5373feb59cda5100c028952cdf2c20f9b76718fe9c8175e74e3184cb2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-full-C.log.gz",
+      "sha256": "a1279ee519f6a73e1a5c8caeb3a5da2153b2fa23ffe4e6a234a1a28e861b5932"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-full-Rust.log.gz",
+      "sha256": "45b6572af7abff28c558b2cd7393957e3358cfdad8b11e623f29cc7b73b67859"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-callable-methods.log.gz",
+      "sha256": "2f97a1393f93c31c1de84b727afb654b6cdcb930759c5b232d164889952e2055"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-header-aliases.log.gz",
+      "sha256": "c58b50590ead4e32a0a6d659a96167b0ca9894dbe3810869f0c589ec8afba917"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-CI-helpers.log.gz",
+      "sha256": "1dce31b67d1e8f25317028245edc295ae125c1c7c925262187499790aacb1f72"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-CI-helpers-final.log.gz",
+      "sha256": "cd99af15c84ee6715b1b21966ea7e0c429180caeb86392f797431bb67ff97fce"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-validation.json.gz",
+      "sha256": "c26d496919e18c5ae0c9305e923bf2e2d306e0ab80fd873b18db2897594735e9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-source-preservation.json.gz",
+      "sha256": "9a5c13632a66c52b6f633a5332123e74a748d6a536c0b7c45f2ef8dee6ac0b3d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-package-native-threads.json.gz",
+      "sha256": "0f64c3640efbadb698a40217a6605547f9681a54dc4ee34d4b089559f2ae1e37"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-thread-package-native-threads-sanitized.json.gz",
+      "sha256": "32eba1e80e18c6b13dba2ee79acef925a7ab0038d54ef32a27d508fd7e8a9989"
+    }
+  ],
+  "scope": "This closes the verified free-native thread dispatch gap. Wider package ownership/qualifier/generic/callback/lifecycle contracts and final frozen corpus mode/platform verification remain open."
+}

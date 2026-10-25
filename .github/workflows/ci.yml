@@ -180,12 +180,14 @@ jobs:
           .sn/ci-reports/
           .sn/rust-runtime-diagnostics/
           .sn/rust-parity-*.json
+          .sn/rust-nested-array-search*.json
           .sn/*-lifetimes.json
           .sn/runtime-abi*.json
           .sn/rust-record-body-dispatch*.json
           .sn/sdk-artifact-validation.json
           .sn/sdk-math-artifact*.json
           .sn/native-header-aliases*.json
+          .sn/package-native-threads*.json
           .sn/package-opaque-results*.json
           .sn/static-callback-ownership.json
           .sn/record-reference-snapshots.json

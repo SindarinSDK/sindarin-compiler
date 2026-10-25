@@ -1,13 +1,13 @@
 # Runtime and mixed-language package architecture
 
-Status: implemented capabilities and remaining architecture, updated 2026-10-24.
+Status: implemented capabilities and remaining architecture, updated 2026-10-25.
 The [completion ledger](rust-parity-progress.md) distinguishes local validation,
 required hosted acceptance and remaining work. C remains the default application
 target; the full Sindarin Go backend remains outside this goal.
 
-Accepted compiler main `7ec9002c` passes all 49 required hosted jobs on
-Linux/macOS/Windows (441 gate executions/41 platform groups). It includes
-eighteen reusable C-backed SDK modules, canonical record/record-array adapters,
+Accepted compiler main `169c68e1` passes all 49 required hosted jobs on
+Linux/macOS/Windows (449 gate executions/41 platform groups). It includes
+nineteen reusable C-backed SDK modules, canonical record/record-array adapters,
 and the void reflection, character iterator and scalar parameter assignment
 repairs. The accepted SDK pin is `db7dfe94`. Public Sindarin APIs, original C
 operations, caller outputs, nil behavior and sealed archives retain their
@@ -24,9 +24,10 @@ C-callable bridges; Sindarin bodies requiring a Go backend remain unsupported.
 ABI 1.8 canonical record-array transports, generated providers/consumers,
 private native-call adapters inside C/Rust package bodies and the complete XML
 and Yaml APIs have hosted acceptance. The accepted reusable SDK stage contains
-eighteen modules/36 C-Sindarin units. The locally validated Math migration
-expands this stage to nineteen modules/38 units and passes all 756 SDK cases. Its 145 original exports, public source and
-all pure Sindarin bodies remain unchanged; hosted Math acceptance is pending.
+nineteen modules/38 C-Sindarin units, with all 756 SDK cases passing. Math's
+145 original exports, public source and all pure Sindarin bodies remain
+unchanged. Corrected main169 has complete hosted acceptance, including private
+provider record loans and owning handwritten-wire input transports.
 
 Whole SDK packaging (including wider encoding/network modules), package-exported
 qualifiers and callbacks, complete value record/interface/generic contracts,

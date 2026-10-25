@@ -697,6 +697,8 @@ static bool rust_validate_call(json_object *expr)
                 if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
                     !(element_kind = json_string_property(element_type, "kind")) ||
                     (!rust_array_search_type_supported(element_kind) &&
+                     !(strcmp(element_kind, "array") == 0 &&
+                       json_boolean_property(object_type, "rust_native_array_codec")) &&
                      !(strcmp(element_kind, "struct") == 0 &&
                        json_boolean_property(rust_find_struct(rust_validation_model,
                            json_string_property(element_type, "name")), "rust_thread_reference_identity"))))

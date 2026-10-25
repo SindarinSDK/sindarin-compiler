@@ -1,0 +1,7 @@
+{
+  "source_sha256": "06a604c7d8e37134f885c229fc7cc5aa3754da0ccbf8be9bf7ac8bdebe334980",
+  "legacy_oracle_sha256": "cee10100a4bcacb6dd90be9c9eb514de9447fe5f8abbce851c51c4b9944a79cf",
+  "stdout_hex": "",
+  "exit": 0,
+  "reason": "Nested searches use canonical C array-header identity, with independent rank/copy/nil/loan/effect controls"
+}

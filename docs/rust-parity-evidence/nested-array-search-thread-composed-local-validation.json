@@ -1,0 +1,85 @@
+{
+  "status": "complete local composition; own hosted acceptance pending",
+  "revision": "ae06d411547c59b25be755ddb639183edced1085",
+  "main_base": "c5c24f18d7fc4248702210b534ed935bee853494",
+  "main_base_CI": 40146640862,
+  "accepted_correction": "169c68e1822d438d5b83400abe6d637e505f8092",
+  "accepted_correction_CI": 40144127442,
+  "array_mode_pairs_normal": 45,
+  "array_mode_pairs_C_sanitizers": 45,
+  "thread_mode_cases_normal": 72,
+  "thread_mode_cases_C_sanitizers": 72,
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "CI_helpers": 27,
+  "format": "passed",
+  "all_195_current_main_gates_unchanged": true,
+  "gate_definitions": 197,
+  "platform_gate_executions": 457,
+  "platform_groups": 41,
+  "source_preservation": {
+    "original_programs": 1365,
+    "goal_start_oracles": 1158,
+    "SDK_input_files": 281,
+    "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+    "all_hashes_rechecked_unchanged": true,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "broader_package_evidence": "docs/rust-parity-evidence/nested-array-search-local-validation.json",
+  "broader_package_scope": "Complete imports52/artifacts22/SDK19smoke84/ABI17/record432+6wire normal and SAN passed on same array code and corrected169. This composition adds only already-focused thread dispatch changes; both feature matrices and full suites rerun. Shared runtime and package adapter implementation unchanged.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-thread-normal.log.gz",
+      "sha256": "17cb8d4414c7c46d6f42fec24ed1bc3ca1e1de7a9508add68d9aafd6f00141df"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-thread-sanitized.log.gz",
+      "sha256": "a856ef578dd7fe1afb7422288d642ac2acc1ac96c1d2035d5491933b23eba77c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-full-C.log.gz",
+      "sha256": "659991ce53243b14a5d3ffcc0b8ff953e11e3c313e576bef3e939a6e8d45a56f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-full-Rust.log.gz",
+      "sha256": "f34baa27b4ef1e26cb3ef32e5b58a9a7cae78a3bd8a57ee8938e0d1488a996a3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-CI-helpers.log.gz",
+      "sha256": "a0fd12e7d61a3f5b8e401fa8122f69b445abdae02e0228775bb0685e2bc74667"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-thread-composed-status.json.gz",
+      "sha256": "209bdeec58651310da95714b5281da6de1e5b6ba82eed7e6d26e86ad9ddf268a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-rust-nested-array-search.json.gz",
+      "sha256": "b7e341d3f68212b49f379d09f0d4d4b8d05629a89e5e657e15998503f6aaa11d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-rust-nested-array-search-sanitized.json.gz",
+      "sha256": "0bc88e876c27a5d857c093b2bf980fc97320545cdd88c8e03304e0f277d0e2f7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-package-native-threads.json.gz",
+      "sha256": "af6f5e02f3cf26cd6b72fbe9b908556d0b535f833fb5f04bb0b94e836fd4382a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-thread-composed-package-native-threads-sanitized.json.gz",
+      "sha256": "c972a904758ee3175d80a28c7f44aed8f4c0185a39bf84b94f6f93a8fc09fec5"
+    }
+  ],
+  "scope": "Independent nested-array feature composed with published native-thread main. Each feature retains its own main CI run. Full SDK/native/ownership/generic/lifecycle and original1365 modes/platform completion remains required."
+}
