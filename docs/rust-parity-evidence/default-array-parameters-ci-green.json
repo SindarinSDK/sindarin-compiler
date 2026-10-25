@@ -1,0 +1,31 @@
+{
+  "status": "Complete own-revision Linux/macOS/Windows hosted acceptance verified. Primitive/nested array parameter repair accepted on SDK20 integrated main.",
+  "revision": "72aafc65dd8425197e8ec1c9cb092f267fa6f506",
+  "CI": 40194047021,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40194047021",
+  "required_jobs": 49,
+  "all_jobs_successful": true,
+  "platform_gate_executions": 509,
+  "platform_groups": 41,
+  "compilers": {
+    "Linux": "a7f3297b9821d97b2e945e53519ca040c984eb92acc13a91d0f5d2f0c480ba06",
+    "Darwin": "2179ae8c36fe7571149c69025e8f2fbd81d99d80b01fb75d76c73a913283fe84",
+    "Windows": "8848cb6c040bc2b4f94e0ae69fd28810b824cec5b5698da78d8a4ea8c978dc61"
+  },
+  "SDK20_own_acceptance_CI": 40190932037,
+  "scope": "Accepts primitive/nested array parameter rebinding, borrowed native C headers and return/closure copy-release contracts. SDK20 separately accepted in own49-job run. Broader method/record/ownership/ABI/SDK/fullplatformcorpus goal remains open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-ci-final.json.gz",
+      "sha256": "45e4c8db0f689d3f87cd776876a9d8fa0ede60d00222cec11a1084d8bd32b354"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-ci-coverage.json.gz",
+      "sha256": "cc7f46ef5c1cb8e79b932b8ad4942deeccdc1126e4da36b9193818febb5a641b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-ci-artifacts.json.gz",
+      "sha256": "706fb5ce5e8613d06bfd5b4a51868203ef4abf4ac96d12554f9483b05f076904"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "status": "Complete own-revision Linux/macOS/Windows hosted acceptance verified for SDK20 integration.",
+  "revision": "f54fa3ad80b15a9c52bbd8b20d5cddcdda2dfad8",
+  "CI": 40190932037,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40190932037",
+  "required_jobs": 49,
+  "all_jobs_successful": true,
+  "platform_gate_executions": 501,
+  "platform_groups": 41,
+  "compilers": {
+    "Linux": "0e9ac9da682cf07b5a15edc20bbcdc42b910709f62fd55078c2bd16b9a75c42d",
+    "Darwin": "9026a52521da93d331d2f7d604433ef0d9b6f73d64342d3aa621d93f8bfa5a74",
+    "Windows": "e49858115a5e1916fa0488f8da83c3001655db09e0f76578342ec5ee75b6fe6b"
+  },
+  "SDK_revision": "6e796dd36fdaea7d99a7407b19949456fb7e37d4",
+  "SDK_modules_in_artifact_matrix": 20,
+  "scope": "Accepts canonical C UDP socket/result artifacts, multiple-record SDK modules, original source/sealed callers, native lifetimes and acceptedSDK6e pin on integrated main. This does not accept the separate pending Array feature or complete the entire SDK/backend goal.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-ci-final.json.gz",
+      "sha256": "3f9b42d6649e2812e28850d273cba9ab8aa165874a3abc9af3e2290d85091f1d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-ci-coverage.json.gz",
+      "sha256": "1af0d3a0326db6ba677e3c02e95d8ddfafb70d1d01f222a46ede1c552f3218ff"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-ci-artifacts.json.gz",
+      "sha256": "1c3de4cdc1fb3138f2184327a276677f4734fba334cc6f5eb8cfe6ec3823efd9"
+    }
+  ]
+}

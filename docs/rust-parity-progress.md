@@ -1,3 +1,38 @@
+## Qualified record method parameters: composed local validation, 2026-10-25
+
+Two unchanged original programs now run through Rust: explicit `as ref` record
+arguments and `as val` arguments on mutating instance methods. The compiler
+preserves reference reads/stores, owned assignment results and indexed argument
+evaluation. Supported numeric field updates reuse existing place lowering.
+A shared C constructor repair also accepts heap-free record variables in array
+literals; the old C and Rust targets both failed this valid construction.
+
+All16 composed commands pass on accepted array/SDK20 main: full C3,243 and
+Rust1,099;99 language pairs and36 independent source/sealed RS/RS/C package
+cases per normal and sanitized environment; prior array/field/numeric controls;
+imports52, artifacts22, SDK20/UDP/native checks, helpers and formatting.
+Ten scalar record field families and copy/assignment results have independent
+controls. [Local proof and59 retained reports](rust-parity-evidence/method-struct-parameters-local-validation.json).
+
+Fresh C and Rust compilation of all1,365 preserved originals across nine modes
+passes24,570 compilations. Outside13 known C-undefined cases,10,418 original
+output/exit contracts and1,854 exit-only contracts agree. The nine racy-counter
+and four unchecked-division cases receive no parity credit. Mixed stdout/stderr
+oracles use actual merged streams. All2,523 original source/oracle hashes and87
+SDK Sindarin/oracle hashes remain unchanged; no Sindarin caller or API was
+rewritten.
+
+The SDK20 and primitive-array predecessors have each passed all49 required
+Linux/macOS/Windows CI jobs:501 and509 platform executions respectively, in41
+groups. [SDK20 acceptance](rust-parity-evidence/sdk20-udp-ci-green.json),
+[array acceptance](rust-parity-evidence/default-array-parameters-ci-green.json).
+This qualified-record batch preserves all223 accepted gate definitions and adds
+four, requiring517 executions in41 groups. Its own hosted acceptance is pending.
+Wider aliases, effectful compound-assignment right sides, heap-owning records,
+copy hooks, interfaces/generics/callbacks, eight remaining SDK modules and final
+corpus/platform/ABI/lifecycle acceptance remain open. Full Rust/C parity is not
+complete.
+
 ## Primitive array parameters: complete local composition, 2026-10-25
 
 The unchanged default-array assignment program now runs through Rust while its
@@ -32,8 +67,8 @@ All original sources/oracles and public SDK Sindarin modules remain unchanged.
 All219 SDK20 main gate commands remain intact; four additions require509 platform
 executions in41 groups. The array compiler repair depends on hosted-accepted
 String main; SDK20 artifact wiring is an independent batch on main `f54fa3ad`,
-whose own CI40190932037 is still pending. This array batch also needs its own
-Linux/macOS/Windows acceptance. Wider record-array/copy-hook/aliasing, remaining
+whose own CI40190932037 passed all49 required jobs. Array main72aafc65
+also passed its own49-job Linux/macOS/Windows run40194047021. Wider record-array/copy-hook/aliasing, remaining
 SDK modules, qualified struct-method work and final original-corpus/platform/ABI
 acceptance remain open; full Rust/C parity is not complete.
 
@@ -84,8 +119,8 @@ The earlier SDK sanitizer failure was the original Directory C caller's348-byte
 concatenation leak, fixed in String main without changing its caller or oracle.
 That failed run and the full-matrix template whitespace provenance remain in the
 proof. String main has now passed its own49 required jobs and493 platform executions
-in41 groups. This dependent batch is ready for publication and needs its own
-hosted acceptance. [Accepted String dependency](rust-parity-evidence/string-effects-loans-ci-green.json). Eight other SDK modules,
+in41 groups. SDK20 mainf54fa3ad has since passed its own49 required jobs,501 platform
+executions and41 groups in run40190932037. [Accepted String dependency](rust-parity-evidence/string-effects-loans-ci-green.json). Eight other SDK modules,
 wider language/ownership/callback contracts and final corpus/platform acceptance
 remain open; this is not complete SDK or Rust backend parity.
 

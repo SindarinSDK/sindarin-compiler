@@ -1,0 +1,317 @@
+{
+  "status": "Complete local qualified-record method validation composed with independently hosted-accepted main72; own hosted acceptance remains required.",
+  "base": "72aafc65dd8425197e8ec1c9cb092f267fa6f506",
+  "base_CI": 40194047021,
+  "compiler_sha256": "a99c00a6410811ae42dce4b0005feb8ca0cc4f61f35e9252d01f6269a2651dc3",
+  "implementation_and_script_sha256": {
+    ".github/workflows/ci.yml": "bb5db4614606eeb2db04780ce4d2e9ac8831137ee99aab47c4412a0fcb49201c",
+    "scripts/check_rust_method_struct_parameters.py": "a870c9720caf4a0e00dfd0542cc91734898ab6cec81e3e3547518b3f9a20434d",
+    "scripts/ci/gates.json": "a334025410acc8f1c0ba7d32c2218678951818b56f744d795599d0fdf89964e7",
+    "scripts/method_struct_parameter_controls.py": "ca375bfad228913e412c9c8707a616e82a0ebd62780b56af8daa84c339239724",
+    "src/cgen/gen_model_expr.c": "2a7b0fcc91a31204240a8b26c49588ac0ba709d9663d0662938b1897d4de96c7",
+    "src/target/rust/projection/rust_model_expr.c": "2504d27a34592f33127859e37b95f7b71ffcebf0b799d27299984c903a47e6ea",
+    "src/target/rust/rust_lower.c": "39cf3a96b2bd2214a676eb93dbd0547c9137cd4b83cfec8cc0af13ca591c2831",
+    "src/target/rust/rust_lower_calls.c": "6d10fff3cfc7aefa5fb76568a4d86b6340b8e6afd9a07e02878a08f24e456e84",
+    "src/target/rust/rust_validate.c": "b2c9f4d884a364898645450358373310db2c1028bfdbd37e7cc42296d1cdcb84",
+    "src/target/rust/rust_validate_calls.c": "5acf61eaa19be4961ef408f2e90db441874143b37f4cf0e50990612149508bfb",
+    "templates/rust/partials/expr/direct_assign.hbs": "92c49f1b05949b2816489de6a828dbeaee70f672ab117dbd430192200f31f31b",
+    "templates/rust/partials/expr/direct_call_body.hbs": "729b283c26b8d81b450d4d7ca8c61d0f5c0a90b2391d06248210553bcab95114",
+    "tests/ci/test_ci_helpers.py": "2cb8c6f02a42b7d18c6c0d94b61dfea64280461a1f41ed91a32835067b9ae2e3",
+    "tests/package/method_struct_parameters.py": "7dbe96f32113c761e85376dea8cd8559cfb163a4982f84292528222cca0584eb",
+    "tests/rgen/errors/instance_as_ref_struct_parameter.parity.json": "6384f4b6d2b17339f11b8fc7db544732e1222ee8d0883d3a049bafe9d730ff64",
+    "tests/rgen/errors/mutating_instance_as_val_struct_parameter.parity.json": "48268a25bf40a1f268d5dfca315f1f5086ea487c57e699465159aa0022852ee0"
+  },
+  "original_programs_promoted": 2,
+  "original_sources_and_legacy_diagnostics_unchanged": true,
+  "language_mode_pairs_each_environment": 99,
+  "scalar_record_field_families": 10,
+  "package_source_sealed_cases_each_environment": 36,
+  "independent_package_outputs_per_case": 7,
+  "full_C": 3243,
+  "full_Rust": 1099,
+  "top_level_composed_commands": 16,
+  "nested_SDK_commands": 8,
+  "primitive_array_pairs_each_environment": 45,
+  "primitive_array_package_cases_each_environment": 36,
+  "native_field_pairs_each_environment": 72,
+  "computed_numeric_original_pairs": 153,
+  "computed_numeric_native_owner_pairs": 9,
+  "imports": 52,
+  "artifacts": 22,
+  "helpers": 27,
+  "format": "passed",
+  "SDK20_quick_each_environment": 88,
+  "UDP_source_sealed_each_environment": 108,
+  "native_UDP_cases": 20,
+  "actual_C_runtime_SAN_cases": 1,
+  "fresh_original_sources": 1365,
+  "fresh_all_mode_cases": 12285,
+  "fresh_successful_C_and_Rust_compilations": 24570,
+  "fresh_original_mode_counts": {
+    "Raw C/Rust agreement and original exit contract; no original output oracle": 1854,
+    "Raw C/Rust agreement and frozen original output/exit contracts": 10418,
+    "C undefined unsynchronized concurrent mutation; no parity credit": 9,
+    "C undefined unchecked integer division by zero; no parity credit": 4
+  },
+  "C_reference_reused": false,
+  "known_C_undefined_modes_not_credited": 13,
+  "actual_merged_stream_panic_oracles": true,
+  "gate_definitions": 227,
+  "platform_gate_executions": 517,
+  "platform_groups": 41,
+  "all223_accepted_main_commands_preserved": true,
+  "source_preservation": {
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "all_compiler_hashes_unchanged": true,
+    "public_SDK_SN_and_oracles_unchanged": 87
+  },
+  "repairs": [
+    "Admit explicit as-ref and mutating-receiver as-val plain heap-free record method parameters",
+    "Bind record-reference reads and whole-record assignment results to actual parameter representations",
+    "Resolve indexed record argument bounds at the original argument position before a mutable borrow",
+    "Reuse computed numeric stores for supported qualified-record field mutations with stable RHS; effectful RHS remains outside this extension",
+    "Use existing C value temporary for heap-free record-variable array elements, mirrored in Rust-private C projection; fix invalid nested aggregate initializer without changing callers"
+  ],
+  "before_findings": "Unchanged originals: acceptedString C/SAN prints3, Rust rejects method parameter. Broader admitted prototype failed whole-reference stores/reads, indexed argument borrows and owned assignment results; genuine separate before/after retained. Package probes exposed qualified field compound stores and a shared C constructor bug. Acceptedmain72 C and Rust both fail the same record-variable constructor due invalid C; current compiler both clean, so matching earlier failure is not counted as parity.",
+  "runner_schema_note": "SDK runner inherits prior32group_compiler_unchanged label from Array driver. That label is ignored here: Method compiler changed. All8 recorded statuses and actual current binary hashes are independently verified.",
+  "scope": "Plain heap-free value-record qualified method arguments, supported stable numeric fields, independent and indexed places and independent RS/RS/C artifacts. Wider effectful compound RHS, aliases, heap-owning record/copy hooks, remaining8SDK modules and final platform/original-corpus/ABI/lifecycle goal remain open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-validation.json.gz",
+      "sha256": "8a7ccf58113bc50fc80ba33c8f1946ffd00df81edccf39639dd3528f86f1831a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-validation.json.gz",
+      "sha256": "fb25145ddf8ef06aa134a3ad657a2bc654e07df1cccc4db1530b113bdb00b4ec"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-final-milestone-validation.json.gz",
+      "sha256": "247d575143af52954496bfa8bf675fcb15993d1dafef2c8b26cc74a8799f7e35"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-full-C.log.gz",
+      "sha256": "ebbe4b97477b6ef9229a4ff4b96c62b1464e0912aec50261b4f1bcbef6d59851"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-full-Rust.log.gz",
+      "sha256": "2b69012005155751d1349e003d3553ec4d59bf1ae89ae3e81896c5d0fff98aa1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-packages-normal.log.gz",
+      "sha256": "9abde1e9eea7b1d732c804f8335a92443d7e7bdc9063b05e5a0ddb3ea2ce0bd4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-packages-sanitized.log.gz",
+      "sha256": "9abde1e9eea7b1d732c804f8335a92443d7e7bdc9063b05e5a0ddb3ea2ce0bd4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-language-normal.log.gz",
+      "sha256": "9ad8e65382eeca1ed90fe52ecd4f4070c5277c3263009690a9f516d8982e1464"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-language-sanitized.log.gz",
+      "sha256": "9ad8e65382eeca1ed90fe52ecd4f4070c5277c3263009690a9f516d8982e1464"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-array-normal.log.gz",
+      "sha256": "41bcfafd9e5b958659e05cc0232be605609d6802ecb306a4dc67e65c55e1f052"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-array-packages-normal.log.gz",
+      "sha256": "49cf9405b55adfc817f198854422c5f78cc49f8e3e1dc4601eb6a4591df607c9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-array-packages-sanitized.log.gz",
+      "sha256": "49cf9405b55adfc817f198854422c5f78cc49f8e3e1dc4601eb6a4591df607c9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-array-sanitized.log.gz",
+      "sha256": "41bcfafd9e5b958659e05cc0232be605609d6802ecb306a4dc67e65c55e1f052"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-numeric-owners.log.gz",
+      "sha256": "b441e74a3e6e310a445c0ba31960599490a3d23534f3b019fb9ae83e44e4f412"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-artifacts.log.gz",
+      "sha256": "af23e56d45fc3596af43b2e5f7619930ba7d2d7772f66a55ddc154c1c64b1b1d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-native-fields-normal.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-native-fields-sanitized.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-imports.log.gz",
+      "sha256": "f2fe3eaa04a80e45d480ec49ff2ff5c485663467bdde4c0c2cd9292161c045a2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-composed-SDK20-sequential-eight.log.gz",
+      "sha256": "d13c0cae67d77b4c0e989f807cee3967b212b05d1f468124c7b986be9c319527"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-CI-helpers.log.gz",
+      "sha256": "4eddcfd9523dd5573c65fb6a2451d37e0a329f51f2781e082d50571ff7193fa6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-SDK20-quick-normal.log.gz",
+      "sha256": "017ec71169cd69f8805e6fdc167fd16d35a36602cc1162c412b09ba9421040e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-SDK20-quick-sanitized.log.gz",
+      "sha256": "017ec71169cd69f8805e6fdc167fd16d35a36602cc1162c412b09ba9421040e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-UDP-normal.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-UDP-sanitized.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-native-normal.log.gz",
+      "sha256": "edc11e0e294a46892f46fd1bb697bbbea429adf9893925ad71484b025360a211"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-native-sanitized.log.gz",
+      "sha256": "674ba32d28e33772523cc360330252822d383be147dadd0ba07c9139b46074c5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-rust-method-struct-parameters.json.gz",
+      "sha256": "dea755779e190fd308fb4108ec05857ffa689bf07c1981b59d2e4ed6386bbdf3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-rust-method-struct-parameters-sanitized.json.gz",
+      "sha256": "fee3132dde9bc5e29fe791159601d9fe94afdaa7df38a68c1f90769141b13615"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-package-method-struct-parameters.json.gz",
+      "sha256": "799d711b5793729185040153bb6ad26ab3dbd04f79c812a65443c1ac6c6476fe"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-package-method-struct-parameters-sanitized.json.gz",
+      "sha256": "a5f1b8cf025d6816381e93c6a3ee1e8a48ccd98301639b671c90e897b3d42cbe"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-rust-default-array-parameters.json.gz",
+      "sha256": "14b9b7bad48098fed7f9aad36076e413c18ac3bce781ee83f1bb8822d3b9586f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-rust-default-array-parameters-sanitized.json.gz",
+      "sha256": "b3b6c3edc1a7815d95b21ec87b5282a50c162e16fbe2dcff15ea4a5a1b97ccf1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-package-default-array-parameters.json.gz",
+      "sha256": "6102d253bd645427eb1bdae3b49142d2649b8a469cffcecda30e9b5b1d5e968a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-package-default-array-parameters-sanitized.json.gz",
+      "sha256": "6d51aeb93627ed934ed58037b2e9c3e29be73d43b0dcd7ab0a73b8ff67afe16d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-rust-native-array-fields.json.gz",
+      "sha256": "c5b2e784b4cc577384591484253c24d17a50eb1af001ce1502257a279e625768"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "a363e2906085867ba9cfaa415d739b0297287363890685a7ab37acda50486f49"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-rust-parity-numeric-places.json.gz",
+      "sha256": "222a4f36063ab689a0f6a7aafae86175e58e2caab5d85a6e87184689d84ac902"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-rust-parity-numeric-native-owners.json.gz",
+      "sha256": "e891130109abb688ce81cb9f32d699b66ac3e3d4bf34980961b1b44eba5178e1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-SDK20-quick-normal.json.gz",
+      "sha256": "b401efe556d2a8c4254900959a4be5590ccb4b0a5c26fe6b4e64c3742f590885"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-SDK20-quick-sanitized.json.gz",
+      "sha256": "b401efe556d2a8c4254900959a4be5590ccb4b0a5c26fe6b4e64c3742f590885"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-UDP-normal.json.gz",
+      "sha256": "df3e8f10b7882e7d2fa06e64e5dfc1eb3d051c6c99d5d46e0cfe38de04075e0c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-UDP-sanitized.json.gz",
+      "sha256": "003878480291725fed9fa929f74f1310f68efff89e21edc5eb5feda903a3228a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-native-normal.json.gz",
+      "sha256": "d2ff411d5af25301440ff2dfcaddbb2c9777df9e26a76d5c4322ba3b590e8bac"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-SDK20-composed-native-sanitized.json.gz",
+      "sha256": "cca1e485088dc4195fc28f34b55c7396ca8b1315c0ebeb563910ba9202dfc65f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-all-mode-discovery.json.gz",
+      "sha256": "ba8577713c86eca9e2d067135ee9c2f033c1e1360304300d81b8aec7fa1d8a77"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-audit-original-modes.py.gz",
+      "sha256": "9ebf2815ee18b87eb0d24c7be01ae23e8963f2dc568b1b30a546797a048ff121"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-original-modes-driver.log.gz",
+      "sha256": "00d4fbbf6868d2eb89e8ed87c729240f5cb0f49e4e18d91b8ec95ef6e6868521"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-originals-accepted-String-before.json.gz",
+      "sha256": "52798330f840072b6f711ea043a71bae6d8cffc64b4a9bf4d5b66167b5702aba"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-originals-after-scoped-admission.json.gz",
+      "sha256": "72092db406b6d313ebda025e17b09a7e8e2ac2ec77df563fea511bc4e587623c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-contexts-before-place-fixes.json.gz",
+      "sha256": "8972f20a0e74f98511e73f3464dc3411094dc8a8c59d4e4faeae3e1d57aedbf7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-contexts-after-place-fixes.json.gz",
+      "sha256": "62895b0a93c9aedc6149e44935fd76fd606bf655c003a679e7c18dc66a493a76"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-whole-record-reference-read-failure.json.gz",
+      "sha256": "4593073956f122b8730b13beef7d106f454cfcd84c5aad8cd13f53e3aa273427"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-owned-record-parameter-assignment-result-failure.json.gz",
+      "sha256": "fb70b1d1732954fafa99c9671f55b8935b72df20f65dd8390dfe12bfd5f9c7dd"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-C-record-variable-constructor-before-after.json.gz",
+      "sha256": "d2f704f3febbc307ae4fa99a10b55aaacf2bbc7c7a527c18048d0c6a5063c112"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-package-initial-quick.log.gz",
+      "sha256": "5431f01a3405918d50e1ba75b7409698e8b8f31ed0ca6bae4eac3fa87d2744e0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-package-reference-field-quick.log.gz",
+      "sha256": "f5a5b18bc72b52bc7a1915026f9b94ec6c1496bf8cce75c75e0278156a42c770"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-package-value-field-quick.log.gz",
+      "sha256": "a5ff302b83c3f4c260f61f9e1fdc7563807d212a90879ceca4ffd091199fdba6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-package-C-inert-array-value-quick.log.gz",
+      "sha256": "e98ec1b4102b49b3ed97cf4087474de9404ae327a5f90d3b94404f7f863e6244"
+    }
+  ]
+}
