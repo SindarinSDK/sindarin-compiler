@@ -1,3 +1,42 @@
+## Primitive array parameters: complete local composition, 2026-10-25
+
+The unchanged default-array assignment program now runs through Rust while its
+original source and diagnostic remain intact. Ordinary primitive/nested array
+parameters borrow the incoming C header, preserve mutations made before a
+rebind, then own only their callee-local replacement. Returned storage survives
+cleanup. Native record method C bodies use their actual header ABI. Existing
+Vec closure programs retain their representation; canonical closure stores and
+reads avoid extra observable copies.
+
+All32 composed checks pass: full C3,243/Rust1,099, imports52, artifacts22, SDK19
+smoke84, helpers27, formatting and every prior overlap family. New language45
+pairs and source/sealed RS/RS/C package36 cases pass normally and with sanitizers.
+The22-output control covers native/ordinary methods, nested arrays, closures,
+shadowing, repeated stores, nil/empty identity,sizeof and non-UTF8 strings. Five
+independent return paths each make two element copies then one release, matching
+C's113 event trace. [Full local proof](rust-parity-evidence/default-array-parameters-local-validation.json).
+
+Composition with SDK20 adds eight passing checks: SDK20 quick88 and UDP108 cases
+per environment,20 native UDP cases, one actual C/runtime sanitizer case,
+helpers27 and formatting. The compiler binary is unchanged from the32-group
+run. A fresh Rust O0/debug audit passes all1,365 original programs, including
+all1,158 output contracts and207 exit-only contracts. All12,285 Rust mode
+compilations also pass. Compared with the retained, mode-matched C reference,
+10,418 output/exit and1,854 exit-only cases agree outside nine racy-counter and
+four unchecked-division C-undefined modes, which receive no parity credit. The
+C backend/runtime/templates/headers are unchanged, and no original program
+imports the SDK. Actual merged streams verify mixed stdout/stderr panic oracles.
+[Composed SDK and corpus evidence](rust-parity-evidence/default-array-SDK20-composed-local-validation.json).
+
+All original sources/oracles and public SDK Sindarin modules remain unchanged.
+All219 SDK20 main gate commands remain intact; four additions require509 platform
+executions in41 groups. The array compiler repair depends on hosted-accepted
+String main; SDK20 artifact wiring is an independent batch on main `f54fa3ad`,
+whose own CI40190932037 is still pending. This array batch also needs its own
+Linux/macOS/Windows acceptance. Wider record-array/copy-hook/aliasing, remaining
+SDK modules, qualified struct-method work and final original-corpus/platform/ABI
+acceptance remain open; full Rust/C parity is not complete.
+
 ## Original corpus: fresh String-main discovery, 2026-10-25
 
 String main `f3b2f0cf` executes all1,365 preserved goal-start programs through Rust

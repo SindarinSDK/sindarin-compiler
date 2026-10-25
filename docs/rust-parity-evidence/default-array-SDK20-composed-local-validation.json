@@ -1,0 +1,121 @@
+{
+  "status": "Full local32group +8SDK20composition checks and original1365all9Rustmode regression complete. Own hosted acceptance pending. SDK20 compiler artifact feature independently pending own CI; array semantic dependency is accepted String main.",
+  "composition": "8b48d10b6b9c2a277cd74eefbd0d6a81f427d610",
+  "main_composed": "f54fa3ad80b15a9c52bbd8b20d5cddcdda2dfad8",
+  "semantic_dependency": "f3b2f0cf73ce51090153266aa4ef03cebd34aa5f",
+  "semantic_dependency_accepted_CI": 40187156440,
+  "SDK_foundation": "6e796dd36fdaea7d99a7407b19949456fb7e37d4",
+  "compiler_sha256": "1374f9136144528eb69e0157cb58fde66ced9328f514caed5c134e5a8bed585a",
+  "compiler_unchanged_from_32_group_validation": true,
+  "additional_checks": 8,
+  "SDK20_quick_cases_each_environment": 88,
+  "UDP_source_sealed_cases_each_environment": 108,
+  "native_UDP_cases": 20,
+  "actual_C_runtime_SAN_cases": 1,
+  "helpers": 27,
+  "format": "passed",
+  "original_Rust_O0_debug_programs": 1365,
+  "original_output_exit_contracts": 1158,
+  "original_exit_only_contracts": 207,
+  "original_Rust_all_mode_compilations": 12285,
+  "C_reference_reused_revision": "f3b2f0cf73ce51090153266aa4ef03cebd34aa5f",
+  "C_reference_reuse_witness": "C backend/runtime/templates/headers/config source unchanged; original programs import no SDK. FrozenCresults andhash retained with String-main all-mode proof. Rust executed afresh for every original/mode, using actual merged streams for mixed stdout/stderr panic oracles.",
+  "mode_counts": {
+    "C reference/Rust agreement and original exit contract only; no original output oracle": 1854,
+    "C reference/Rust agreement and frozen original output/exit contracts": 10418,
+    "C undefined unsynchronized concurrent mutation; no parity credit": 9,
+    "C undefined unchecked integer division by zero; no parity credit": 4
+  },
+  "all_sources_oracles_and_binary_unchanged": true,
+  "gate_definitions": 223,
+  "platform_gate_executions": 509,
+  "platform_groups": 41,
+  "all219_SDK20_main_gates_preserved": true,
+  "remaining": "Own Linux/macOS/Windows acceptance, full original mode/platform/C-defined review, wider record/copy-hook/aliasing/SDK/ABI/ownership/callback goal remain open. This batch does not depend semantically on unpublished SDK20 behavior; compiler-only array fixes validated separately over accepted String main.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-validation.json.gz",
+      "sha256": "e9dda7f65452d49c2247b0c0536fde9dee681d974717035d9c1526b117fcaa6c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-CI-helpers.log.gz",
+      "sha256": "2284145a1a96cdcd3c6ace504fe35324f5e8f508dfe5e625ef2ca5249ec1d963"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-SDK20-quick-normal.log.gz",
+      "sha256": "017ec71169cd69f8805e6fdc167fd16d35a36602cc1162c412b09ba9421040e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-SDK20-quick-sanitized.log.gz",
+      "sha256": "017ec71169cd69f8805e6fdc167fd16d35a36602cc1162c412b09ba9421040e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-UDP-normal.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-UDP-sanitized.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-native-normal.log.gz",
+      "sha256": "edc11e0e294a46892f46fd1bb697bbbea429adf9893925ad71484b025360a211"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-native-sanitized.log.gz",
+      "sha256": "674ba32d28e33772523cc360330252822d383be147dadd0ba07c9139b46074c5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-SDK20-quick-normal.json.gz",
+      "sha256": "de4fa8f4908194ae88dd66958badd88257e4031fa8ae3ac1335818c29dde7bf2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-SDK20-quick-sanitized.json.gz",
+      "sha256": "de4fa8f4908194ae88dd66958badd88257e4031fa8ae3ac1335818c29dde7bf2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-UDP-normal.json.gz",
+      "sha256": "9e189dc64a01e4c8ef1404d27104a1f2478652678da68e4e1a34d47186158134"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-UDP-sanitized.json.gz",
+      "sha256": "2aebd7709a96630fb81f14477524ca4b7d57dbde07251f5ff6b5dd06b14e2f56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-native-normal.json.gz",
+      "sha256": "a8098071676ef5a276c172b070b934b385d800587be456feaa11c8ff44752065"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-SDK20-composed-native-sanitized.json.gz",
+      "sha256": "f59f165f06f7041e2a4ffb847698c59b6a614e115d0b25e04e32f7540980d783"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-current-validation.json.gz",
+      "sha256": "08e4118fc945aada498051732414c637598b1a575f9560ccacda3f641935dff5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-all-mode-discovery.json.gz",
+      "sha256": "d395cc363a3bd3e2e6aeef3b3cc3388a8f51e60ea77a0b6a0f5d52fca3605d36"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-audit-original-corpus.py.gz",
+      "sha256": "c5e33ea855e5968660bc12f36c290c27743640f7a579a32898ca7d4fffcd02f5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-audit-original-modes.py.gz",
+      "sha256": "273b3eec6bd8e3b50da2b5aed14b148a0406559ce70ebfa7f1436ac5569ee484"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-original-corpus-driver.log.gz",
+      "sha256": "cbfa1e0721149ab633931a310f3f8a62feb2af86e2667d57bed657461e6003e7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-SDK20-composed-original-modes-driver.log.gz",
+      "sha256": "f574e170b9d335a462966be0ae361d0f6d16438594dc1f4d7c3aee05c21f398d"
+    }
+  ]
+}
