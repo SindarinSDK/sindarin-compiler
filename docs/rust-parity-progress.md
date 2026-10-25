@@ -1,3 +1,28 @@
+## Original corpus: fresh String-main discovery, 2026-10-25
+
+String main `f3b2f0cf` executes all1,365 preserved goal-start programs through Rust
+at O0/debug on Linux: all1,158 output/exit contracts and207 exit-only contracts
+pass. A complete nine-mode C/Rust scan also compiles all24,570 target programs.
+After focused oracle review,10,418 mode cases agree with original output/exit
+contracts and1,854 agree with original exit-only contracts outside known C
+undefined cases. All sources, oracles and the compiler binary remain unchanged.
+
+Nine unsynchronized counter-closure modes and four unchecked division-by-zero
+modes receive no C parity credit, even when outputs happen to agree. Current
+emitted C is retained. The discovery tool initially concatenated separately
+captured stdout/stderr, losing panic output order;28 focused executions with the
+original harness's actual merged stream pass all affected oracles. Raw reports
+remain intact. This required a comparison-tool correction, with no backend,
+source or oracle change.
+
+The historical1,365-program manifest differs from goal start in one already
+synchronized array-closure program. The exact historical source also executes
+through Rust in all nine modes from temporary files; its C data race receives
+no parity credit. All1,155 historical output oracles remain unchanged. This
+refresh proves Linux discovery and the stated original contracts, not final
+C-defined semantics, final integrated-main acceptance or macOS/Windows corpus
+coverage. [Full retained evidence](rust-parity-evidence/original-current-String-validation.json).
+
 ## SDK20 UDP artifacts: local composition validated, 2026-10-25
 
 The canonical C SDK now stages UDP socket and receive-result records alongside
