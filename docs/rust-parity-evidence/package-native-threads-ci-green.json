@@ -1,0 +1,28 @@
+{
+  "revision": "c5c24f18d7fc4248702210b534ed935bee853494",
+  "CI": 40146640862,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40146640862",
+  "successful_required_jobs": 49,
+  "coverage": {
+    "revision": "c5c24f18d7fc4248702210b534ed935bee853494",
+    "groups": 41,
+    "gates": 453,
+    "compilers": {
+      "Linux": "a353deb5a90366f1f9818f041f62b79372887aef8ea527a79d8189dd02c29fff",
+      "Darwin": "88ca17bb542cdb8303752aacac34a030885568ab4eab5a4cb111146921635858",
+      "Windows": "d168e9950133e1cef36dd0ff298f6edff2c55e14fbb7a2f0fb17b8631983aee8"
+    },
+    "passed": true
+  },
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/package-native-threads-ci-run.json.gz",
+      "sha256": "fe5890ed63284a1a15516f23e66a5f48843f718ecb19376792a586bbdd23b5b9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/package-native-threads-ci-coverage.json.gz",
+      "sha256": "7e5b09d7ce13b0ce8fd15b8257ecbb3e01dbae415326eabdbdc62ddc3714e8b7"
+    }
+  ],
+  "scope": "Hosted native thread dispatch acceptance; later array main failed numeric-io and feature publication remains frozen. Full parity remains open."
+}

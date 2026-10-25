@@ -24,6 +24,40 @@ Managed/native/interface/packed/serialized records and the wider completion goal
 remain open. Evidence:
 [value-record-stores-local-validation.json](rust-parity-evidence/value-record-stores-local-validation.json).
 
+## Native byte-array object views: correction locally verified, 2026-10-25
+
+Array main `f4b92f61` failed the existing byte-encoding gate on Linux, macOS
+and Windows in CI 40147426027. All three reports identify nine modes of the
+unchanged `byte_encoding_object_view.sn`: C compiles and executes, while Rust
+rejects an unconstrained generic array constructor with E0283. Native byte
+encoders accept wider scalar storage through the existing C object-view
+contract, so their trait parameter cannot infer the original element type.
+
+The Rust template now constructs the borrowed array using the actual argument
+type. Existing programs, outputs, diagnostics, SDK inputs and all 197 published
+gate definitions remain unchanged. All 81 byte-encoding pairs pass normally and
+with strict C address/undefined/leak checks. Array45 and thread72 matrices pass
+in both environments; full C/Rust suites pass 3,243/1,099, SDK19 smoke84, ABI17,
+CI helpers27 and formatting pass. All 1,365 original programs, 1,158 original
+oracles and 281 accepted SDK inputs were rehashed and remain byte-identical.
+The template hash is retained because a template-only change can leave the
+compiler executable hash unchanged.
+
+This correction requires its own complete hosted acceptance. Feature pushes
+remain frozen. Evidence and all three failing platform reports:
+[array-byte-view-correction-local-validation.json](rust-parity-evidence/array-byte-view-correction-local-validation.json).
+
+## Native package threads: complete hosted acceptance, 2026-10-25
+
+Thread main `c5c24f18` passes all 49 required jobs in
+[CI 40146640862](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40146640862).
+Coverage verifies 453 gate executions in 41 groups and one compiler per
+Linux/macOS/Windows platform. This advances the accepted checkpoint from
+`169c68e1`; the later array failure keeps feature publication frozen.
+Evidence: [package-native-threads-ci-green.json](rust-parity-evidence/package-native-threads-ci-green.json).
+Full SDK, wider native/ownership/interface/generic/lifecycle contracts and final
+preserved 1,365-program mode/platform verification remain required.
+
 ## Nested array search composed with thread main: complete local validation, 2026-10-25
 
 Rust nested `contains`/`indexOf` now use canonical C array-header identity.
