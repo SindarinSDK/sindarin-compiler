@@ -1,0 +1,170 @@
+{
+  "status": "Complete local correction; required hosted acceptance pending",
+  "failed_revision": "f4b92f614bb31b6a1cb1556760a44bfbbce1ff2d",
+  "failed_CI": 40147426027,
+  "failed_platforms": [
+    "Linux",
+    "Darwin",
+    "Windows"
+  ],
+  "root": "Generic borrowed native array constructor lacked the actual argument element type at an impl ByteEncodingArray formal; all three platform reports show the same nine E0283 cases.",
+  "fix": "Render <rust_type(argument.type)>::adopt; preserve int-array object-view storage and the existing C prefix semantics instead of assuming the formal byte element type.",
+  "template": "templates/rust/partials/expr/default_array_ref_arg.hbs",
+  "template_sha256": "c4a151156f4711947c7442310a27e097ad39551e5c372f7981fccb8e1d2e7b66",
+  "compiler_sha256": "f1c48e1e2d57386fd582adbc0521fddccdafa1609a6a4421a85265131c8f8005",
+  "compiler_hash_limitation": "Template-only repair; retained template hash and exact revision identify the changed generator. Binary hash alone is insufficient.",
+  "existing_regression": "tests/rust-native/byte_encoding_object_view.sn",
+  "existing_regression_sha256": "c3c40f46d0af762395f3f925d32eea3109b3fb4fd8cdc5a914cc7a2a5c82b4e4",
+  "local_byte_encoding_pairs_normal": 81,
+  "local_byte_encoding_pairs_C_sanitizers": 81,
+  "nested_array_pairs_each_environment": 45,
+  "native_thread_cases_each_environment": 72,
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "SDK19_smoke": 84,
+  "ABI_clients": 17,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz",
+    "all_hashes_rechecked_unchanged": true
+  },
+  "all_197_published_gate_definitions_unchanged": true,
+  "platform_gate_executions": 457,
+  "platform_groups": 41,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-status.json.gz",
+      "sha256": "f3b969733788e4f7566112180c6e82a5133fe8f513cb2b9eaff6c00ee155d1d8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-build.log.gz",
+      "sha256": "46bbcf3136b8373c1d5b767861604aeb45fc77c2fa93f2481860634ea1a17443"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-object-view-before.log.gz",
+      "sha256": "a74c947c3f03357432ea2b498cc567385a1cf70e4110d1b68833442b3a66cdef"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-CI-byte-view-failure-summary.json.gz",
+      "sha256": "d69c96675893a6ff6d68eb3e3ae15ee3788e4dfc2a5652a8ab0a6c4a8690cb20"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-CI-latest-run.json.gz",
+      "sha256": "7d0a97200d1977cfe2da28f147d7600ebc916aeb9e3a281f9bba7fd6a2f5e407"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-CI-pre-correction-status.json.gz",
+      "sha256": "9e43625fa020eaecffdd7de3f6463d6f77a8ee496e496698fbbbe6e15d82e4e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-thread-normal.log.gz",
+      "sha256": "3f133317be2a616568df6d412e67897490f9dc9a25304038b9c31b0566165250"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-thread-sanitized.log.gz",
+      "sha256": "f829097b9bf1fd25e50fce869c4dc5e579089574a4706a44f998e1d7c9d286fa"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-full-C.log.gz",
+      "sha256": "d2e58e3acee1a628d50a41bd7fbefaf686299e7ef4b81dade75ed35596130edb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-full-Rust.log.gz",
+      "sha256": "4c16ef2992c019df2a94d478003a217b4bb840e4efc06efb0d9f047184880f4d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-ABI.log.gz",
+      "sha256": "f2f01ff731d1080cd3fc93753498b0c7b689221819e460fb614d6bd4d01437ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-CI-helpers.log.gz",
+      "sha256": "e546b0f8b50d35b3d25535399fcb5a3b37c35129f75486c4f521dedbac9b2908"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-byte-encoding-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-byte-encoding-normal.json.gz",
+      "sha256": "70e3c2e1455cb0e2222f194edf383c715fac13f6810f825dd8de5c4d74bcd262"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-byte-encoding-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-correction-byte-encoding-sanitized.json.gz",
+      "sha256": "a568c9bb063e95ee4eea3475bdce47c4fef51828de22bb5ac19ba1b7cdc14f59"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-CI-linux-numeric-io-failure.log.gz",
+      "sha256": "10fa61bc6938d779f8b667f6ade30e2eb0380bf774ec40354826d4da3eacea92"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-rust-parity-byte-encoding.json.gz",
+      "sha256": "5506ea9463905764566fe892f432d2756fb1a1080a7a0b3bce154c7195c8dc6d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-CI-macos-numeric-io-failure.log.gz",
+      "sha256": "05eadbdd7d7df028bad71ec4f3be8d4ec7f642e44975839136cb65a7d80f795a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-ci-macos-numeric-io-rust-parity-byte-encoding.json.gz",
+      "sha256": "ef66d131f9065a954d26688dfc8d4f3ba8d8326ec3c752f2a1e2456036c88eb6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-CI-windows-numeric-io-failure.log.gz",
+      "sha256": "9a525a3bf5a39be46f117b0641115a55c9af64dcd81ba6f7fc5283d4a5e537b6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-ci-windows-numeric-io-rust-parity-byte-encoding.json.gz",
+      "sha256": "34f8b7ef2358320b74633462d87ac4e18798c78c214964b17c0e5c243bf847db"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-runtime-abi.json.gz",
+      "sha256": "2f1f642513f6dea51c668a8f85c521ad00baab92fe3890fa46b3df069c6125a0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-sdk-artifact-validation.json.gz",
+      "sha256": "d19958f20c2a20536ab3a3e7345e1273a7d36bf1f2f14974b03da5b4173e4a35"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-rust-nested-array-search.json.gz",
+      "sha256": "90720410021b7cd0424fa55b0d6d0d820e19901c62d1e9c6317e536e741bfb4f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-rust-nested-array-search-sanitized.json.gz",
+      "sha256": "3e6941e35b33c0f39c31252b03c0f3166c6034dae80c97f74058186fdf3ea8e4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-package-native-threads.json.gz",
+      "sha256": "af6f5e02f3cf26cd6b72fbe9b908556d0b535f833fb5f04bb0b94e836fd4382a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/array-byte-view-correction-package-native-threads-sanitized.json.gz",
+      "sha256": "c972a904758ee3175d80a28c7f44aed8f4c0185a39bf84b94f6f93a8fc09fec5"
+    }
+  ],
+  "scope": "Correction only; feature pushes remain frozen until complete corrected integrated main CI acceptance. Whole parity goal remains open."
+}
