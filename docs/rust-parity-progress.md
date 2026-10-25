@@ -1,3 +1,18 @@
+## Historical candidate audit refreshed on numeric main, 2026-10-25
+
+The same 60 historical programs were compiled and executed against numeric
+main `9bd0d0d1` on Linux/O0/default arithmetic. Twenty-six now agree between
+C sanitizers and Rust, compared with sixteen in the preceding audit. Thirty-three
+still reject Rust executable generation after clean C sanitizer execution. One
+array-subject match still fails C leak checking and receives no parity credit.
+All 60 original sources and diagnostic oracles remain byte-identical.
+
+The ten new agreements cover two record-store cases, the scalar value qualifier
+and seven numeric match conversions. This subset does not establish an overall
+completion percentage, C-defined semantics or final corpus/mode/platform parity.
+The record and numeric main runs still require their own complete hosted
+acceptance. [Retained audit](rust-parity-evidence/numeric-main-candidate-refresh.json).
+
 ## Numeric match conversions: complete local validation, 2026-10-25
 
 Rust preserves C floating comparison promotions and numeric match result

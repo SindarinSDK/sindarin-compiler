@@ -1,0 +1,36 @@
+{
+  "revision": "9bd0d0d13b6a6144ce7f9e9a0996e44f7ca1cbe2",
+  "compiler_sha256": "8849fb4b3863aa92f4dc197193c5932c416e50ffc8d74644a687a0e497790147",
+  "scope": "60 historical candidate programs only; Linux/O0/default arithmetic. Executable builds, not standalone source emission. C sanitizer success alone does not prove defined C behavior. No overall parity or completion claim.",
+  "counts": {
+    "C sanitizer and Rust executable agree in this mode; broader semantic gates still required": 26,
+    "Rust executable rejected; semantic review required": 33,
+    "C compile/runtime/sanitizer failure; review separately": 1
+  },
+  "previous_counts": {
+    "C sanitizer and Rust executable agree in this mode; broader semantic gates still required": 16,
+    "Rust executable rejected; semantic review required": 43,
+    "C compile/runtime/sanitizer failure; review separately": 1
+  },
+  "newly_executable_since_previous_60_case_audit": [
+    "tests/rgen/errors/by_value_parameter_direct_assignment_field.sn",
+    "tests/rgen/errors/by_value_parameter_direct_assignment_struct.sn",
+    "tests/rgen/errors/floating_as_val_parameter_compound_mutation.sn",
+    "tests/rgen/errors/statement_match_double_float_pattern.sn",
+    "tests/rgen/errors/statement_match_float_double_pattern.sn",
+    "tests/rgen/errors/value_match_double_float_pattern.sn",
+    "tests/rgen/errors/value_match_exact_float_result_type.sn",
+    "tests/rgen/errors/value_match_exact_integer_result_type.sn",
+    "tests/rgen/errors/value_match_final_shape_before_prefix.sn",
+    "tests/rgen/errors/value_match_float_double_pattern.sn"
+  ],
+  "all_sources_and_original_diagnostics_unchanged": true,
+  "retained_report": {
+    "path": "docs/rust-parity-evidence/numeric-main-candidate-refresh.json.gz",
+    "sha256": "6ceab21e1a1234c70fe9fc628ec718d0e496eea7c867b19b4178b704b257cf44"
+  },
+  "C_failure": [
+    "tests/rgen/errors/statement_match_array_subject.sn"
+  ],
+  "scope_limit": "This is a current local Linux/O0/default audit of60 historical candidates, not final1365-program verification, proof of all C behavior, an overall parity percentage or hosted acceptance. Numeric main own CI40158650642 and record own CI40153334480 remain separately pending."
+}
