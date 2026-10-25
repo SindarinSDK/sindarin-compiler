@@ -1,0 +1,7 @@
+{
+  "source_sha256": "4909e37013b7cc1ba5eedb9661071870a6420da50674273b0d3f0f59fc994fa3",
+  "legacy_oracle_sha256": "6bd58b7641e48ef0bc94a7aeb87e9d1fcdd978e93402c3de5a150d0fd7e5f09d",
+  "stdout_hex": "320a",
+  "exit": 0,
+  "reason": "Value record parameter stores update the local copy and preserve assignment expression values"
+}

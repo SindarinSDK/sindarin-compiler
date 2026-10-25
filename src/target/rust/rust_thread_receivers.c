@@ -302,6 +302,129 @@ static void rust_prepare_thread_receivers(json_object *model)
     }
 }
 
+static void rust_collect_value_copy_types(json_object *node, json_object *names,
+                                          json_object *types)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_collect_value_copy_types(json_object_array_get_idx(node, i), names, types);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object *found = NULL;
+    const char *name = json_string_property(node, "name");
+    if (name && json_string_property_equals(node, "kind", "struct") &&
+        json_object_object_get_ex(names, name, &found))
+        json_object_array_add(types, json_object_get(node));
+    json_object_object_foreach(node, key, child) {
+        (void)key;
+        rust_collect_value_copy_types(child, names, types);
+    }
+}
+
+/* Shared field storage changes Rust's representation, not the C value-copy
+ * contract. Propagate that requirement through enclosing heap-free records. */
+static bool rust_value_record_borrow(json_object *value)
+{
+    json_object *type = NULL;
+    json_object_object_get_ex(value, "type", &type);
+    return json_boolean_property(type, "rust_value_copy_needs_clone") &&
+        (json_string_property_equals(value, "kind", "variable") ||
+         json_string_property_equals(value, "kind", "member") ||
+         json_string_property_equals(value, "kind", "array_access")) &&
+        !json_boolean_property(value, "rust_thread_aggregate_share") &&
+        !json_boolean_property(value, "rust_record_value_copy");
+}
+
+static void rust_value_record_copy_contexts(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_value_record_copy_contexts(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, child) {
+        if (strncmp(key, "rust_", 5) != 0) rust_value_record_copy_contexts(child);
+    }
+    json_object *value = NULL, *items = NULL;
+    const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, "var_decl") == 0)
+        json_object_object_get_ex(node, "initializer", &value);
+    else if (kind && (strcmp(kind, "assign") == 0 || strcmp(kind, "member_assign") == 0 ||
+                      strcmp(kind, "index_assign") == 0 || strcmp(kind, "return") == 0))
+        json_object_object_get_ex(node, "value", &value);
+    if (rust_value_record_borrow(value))
+        json_object_object_add(node, "source_is_borrow", json_object_new_boolean(true));
+    if (kind && strcmp(kind, "struct_literal") == 0) {
+        json_object_object_get_ex(node, "fields", &items);
+        for (size_t i = 0; items && i < json_object_array_length(items); i++) {
+            json_object *field = json_object_array_get_idx(items, i);
+            json_object_object_get_ex(field, "value", &value);
+            if (rust_value_record_borrow(value))
+                json_object_object_add(field, "source_is_borrow", json_object_new_boolean(true));
+        }
+    }
+    if (kind && strcmp(kind, "array_literal") == 0) {
+        json_object_object_get_ex(node, "elements", &items);
+        for (size_t i = 0; items && i < json_object_array_length(items); i++) {
+            value = json_object_array_get_idx(items, i);
+            if (rust_value_record_borrow(value))
+                json_object_object_add(value, "source_is_borrow", json_object_new_boolean(true));
+        }
+    }
+    if (kind && (strcmp(kind, "call") == 0 || strcmp(kind, "static_call") == 0 || strcmp(kind, "method_call") == 0)) {
+        json_object_object_get_ex(node, "args", &items);
+        for (size_t i = 0; items && i < json_object_array_length(items); i++) {
+            value = json_object_array_get_idx(items, i);
+            if (rust_value_record_borrow(value) && !json_boolean_property(value, "is_ref_arg") &&
+                !json_boolean_property(value, "is_borrow_tmp"))
+                json_object_object_add(value, "rust_needs_clone", json_object_new_boolean(true));
+        }
+    }
+}
+
+static void rust_prepare_value_record_copies(json_object *model)
+{
+    json_object *structures = NULL, *names = json_object_new_object();
+    json_object_object_get_ex(model, "structs", &structures);
+    bool changed;
+    do {
+        changed = false;
+        for (size_t i = 0; structures && i < json_object_array_length(structures); i++) {
+            json_object *structure = json_object_array_get_idx(structures, i), *found = NULL, *fields = NULL;
+            const char *name = json_string_property(structure, "name");
+            if (!name || !json_string_property_equals(structure, "mem_mode", "val") ||
+                json_boolean_property(structure, "has_heap_fields") ||
+                json_boolean_property(structure, "is_native") ||
+                json_object_object_get_ex(names, name, &found)) continue;
+            bool needs_clone = json_boolean_property(structure, "rust_thread_fields");
+            json_object_object_get_ex(structure, "fields", &fields);
+            for (size_t f = 0; !needs_clone && fields && f < json_object_array_length(fields); f++) {
+                json_object *type = NULL;
+                json_object_object_get_ex(json_object_array_get_idx(fields, f), "type", &type);
+                const char *field_name = json_string_property(type, "name");
+                needs_clone = field_name && json_string_property_equals(type, "kind", "struct") &&
+                    json_object_object_get_ex(names, field_name, &found);
+            }
+            if (needs_clone) {
+                json_object_object_add(names, name, json_object_new_boolean(true));
+                json_object_object_add(structure, "rust_value_copy_needs_clone", json_object_new_boolean(true));
+                changed = true;
+            }
+        }
+    } while (changed);
+    json_object *types = json_object_new_array();
+    rust_collect_value_copy_types(model, names, types);
+    for (size_t i = 0; i < json_object_array_length(types); i++)
+        json_object_object_add(json_object_array_get_idx(types, i), "rust_value_copy_needs_clone", json_object_new_boolean(true));
+    json_object_put(types);
+    json_object_put(names);
+    rust_value_record_copy_contexts(model);
+}
+
 static void rust_thread_receiver_lower(json_object *node, json_object *names, json_object *model)
 {
     if (!node) return;
