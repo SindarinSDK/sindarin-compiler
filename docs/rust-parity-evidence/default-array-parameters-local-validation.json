@@ -1,0 +1,299 @@
+{
+  "status": "All32 local composed checks and focused language/package mode/SAN matrices pass on accepted String implementation. SDK20 composition and own hosted acceptance still required before this feature is accepted.",
+  "base": "f3b2f0cf73ce51090153266aa4ef03cebd34aa5f",
+  "base_CI": 40187156440,
+  "compiler_sha256": "1374f9136144528eb69e0157cb58fde66ced9328f514caed5c134e5a8bed585a",
+  "implementation_and_script_sha256": {
+    ".github/workflows/ci.yml": "9ac185facf2337094cfeb22c85308c7411959ff1a2d75e2ef8b713f7ab8625ce",
+    "scripts/array_parameter_controls.py": "7a5b28d3c2e37dc8da90a378dc20b8d9be5edc37b9eeab5a06a7adf3a9cbd350",
+    "scripts/check_rust_default_array_parameters.py": "03fd9eb9857aaf7ab714ee1ab302e8d4a828896e811c38cba6ffd3dc58a45229",
+    "scripts/ci/gates.json": "f5eb9e1edf4122137f954ccc7d490d74b08351e0dd2f7270311377056a1a5a82",
+    "src/target/rust/projection/rust_model_expr.c": "d9c342da133edbd8e84fcee7bb2859fccd37e4999daf58b32b6d6262c1aa9fae",
+    "src/target/rust/projection/rust_model_stmt.c": "89ef0bb1830656616b77daf384f219c0461f878c42d56a63d9c468618adf051a",
+    "src/target/rust/projection/rust_model_struct.c": "8f599e27a23aa5a2357fb8f8d725cc438754fd504b12f8d144ef9435f5f214e9",
+    "src/target/rust/rust_native_handle_arrays.c": "d10a849b723514b7688698a939b54b0954a5b7c4e792cacb4b861830a9837d51",
+    "templates/rust/partials/expr/assign.hbs": "c443a985824d212d5f7ed1d9fe9d15412e38a31182417106890c69ff352cd01e",
+    "templates/rust/partials/expr/closure_read.hbs": "4a3b021e4d07812a4e1be20898053c95c75e43af71afc21deb454edfc811ea2d",
+    "templates/rust/partials/expr/closure_write.hbs": "19955870e06dc6cdef3a385cb0ee7210afd5241307a65134cc9c7caf5f82206b",
+    "tests/ci/test_ci_helpers.py": "707fc1a80b73035cd64e48ec4279479d79ff4808845f8edd1556faa1b5977e80",
+    "tests/package/default_array_parameters.py": "c4e4e4157baf66f4a56351149356448933e10f7d39b7060eb00db20e2c7de0dd",
+    "tests/rgen/errors/by_value_parameter_direct_assignment_array.parity.json": "357a61450d02e59e7cb6afeeb03093f3996e798d83723853068bb5efda2b09a7"
+  },
+  "original_program_promoted": "tests/rgen/errors/by_value_parameter_direct_assignment_array.sn",
+  "original_SN_and_diagnostic_unchanged": true,
+  "language_mode_pairs_each_environment": 45,
+  "package_source_sealed_cases_each_environment": 36,
+  "scalar_element_families": 11,
+  "context_true_outputs": 22,
+  "copy_release_paths": 5,
+  "each_path_copy_count": 2,
+  "each_path_copy_copy_release_trace": 113,
+  "full_composed_checks": 32,
+  "full_C": 3243,
+  "full_Rust": 1099,
+  "imports": 52,
+  "artifacts": 22,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "gate_definitions": 219,
+  "platform_gate_executions": 501,
+  "platform_groups": 41,
+  "all215_String_main_gates_preserved": true,
+  "source_preservation": {
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "all_goal_start_compiler_hashes_unchanged": true,
+    "SDK_SN_and_oracle_files_unchanged": 87
+  },
+  "repairs": [
+    "Select canonical C array storage from actual ordinary default-parameter binding mutations; no source opt-in and preserve Vec closure programs",
+    "Share canonical borrowed-array local owner context with Rust-private C projection; copy borrowed returned parameter storage before cleanup",
+    "Do not introduce Rust-only pointer indirection in native record method C bodies",
+    "Avoid copying discarded canonical array assignment results and acquiring canonical closure reads twice; move owned closure rebind values into local cells before returning owned results"
+  ],
+  "before_findings": "Original program Rust-rejected. Accepted field maina5 and String candidate reproduce native Array parameter return heap-use-after-free underSAN while C is clean. Intermediate prototype copied ordinary variable-return/closure results3/4 times versus C2 and misdeclared native method array slots. All fixed with preserved original sources/oracles. Initial added native-method syntax and untyped mixed nil array probes rejected by C too; only new temporary controls corrected, not original programs.",
+  "scope": "Primitive/nested primitive and existing canonical native array parameter paths. Caller header mutations before rebind stay visible; callee-local replacement and owned results preserve caller storage, nil/empty identity,sizeof,nonUTF8Stringelements and observable canonical element copy/release events. Wider pure record-array/copy-hook/aliasing/ownership and full backend goal remain open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-validation.json.gz",
+      "sha256": "033d0cb4f2aef9f1e8ef3726aa40268e608673fee4a2877bdf66b80b4115ced1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-focused-validation.json.gz",
+      "sha256": "4968f003769c7d8c1447aefd8e9b0bf6054b8cec84c349270729860dda6ddeb9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-package-validation.json.gz",
+      "sha256": "f8da3c2ee2ad25430a8772b853f2bd1750d46a3fe282db7ba653a85631f63975"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-full-C.log.gz",
+      "sha256": "9271bffeeccf8b387df057cd8d6f54e48399d4fce0378d44d08a46b39dcfcf9a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-full-Rust.log.gz",
+      "sha256": "dd1b442ff6cf9f0a17a1c0d6eaf27a8ab62a041a211df1197d89a3eac27f8945"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-CI-helpers.log.gz",
+      "sha256": "d73d37cfecca70fbc22e37ab2ba4daa118b84f40a3347ff3f11c0a055b61ea8b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-string-arguments-normal.log.gz",
+      "sha256": "57bc87ff14413f4bda4e8c6db2514a036b9f9a5a63e3e3b7adb44c6d140e2a82"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-string-arguments-sanitized.log.gz",
+      "sha256": "57bc87ff14413f4bda4e8c6db2514a036b9f9a5a63e3e3b7adb44c6d140e2a82"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-string-language-normal.log.gz",
+      "sha256": "edd67b536cf06e6a2c2934da079d36da3ca74eccc27ec24088d8ba9e627582f5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-string-language-sanitized.log.gz",
+      "sha256": "edd67b536cf06e6a2c2934da079d36da3ca74eccc27ec24088d8ba9e627582f5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-string-packages-normal.log.gz",
+      "sha256": "e3644a3a746d2a739ffbef2027b7b4cebaf169ae7758e0b8759205a839ba9f67"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-string-packages-sanitized.log.gz",
+      "sha256": "e3644a3a746d2a739ffbef2027b7b4cebaf169ae7758e0b8759205a839ba9f67"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-computed-numeric-owners.log.gz",
+      "sha256": "b441e74a3e6e310a445c0ba31960599490a3d23534f3b019fb9ae83e44e4f412"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-native-fields-normal.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-native-fields-sanitized.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-numeric-normal.log.gz",
+      "sha256": "c0ba2206f9e440a05fef237d7cbc3440d4d40bea953a8e74c39d5a6561f7ccd0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-numeric-sanitized.log.gz",
+      "sha256": "e2f6a0ec91df2cda9bd9f914ccac543bac4bef7b2c9e80c808fa2538f5191753"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-record-normal.log.gz",
+      "sha256": "bfcde86cb1756de1530605d93de1b0021dd0362082753a4c434e3907980d4a61"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-record-sanitized.log.gz",
+      "sha256": "dae2086fc66f51b020c427d3b07a35ed61ebd9f4de88d39d4e5f83a01410a8f8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-scalar-normal.log.gz",
+      "sha256": "725f5c38f908f4df15cfb18672cbaf2602e154b0d511261645e86a20a7c9fdd4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-scalar-sanitized.log.gz",
+      "sha256": "1da8796d9383f261d5fcd9976a876d401ae53995c7cecb98532550992196deee"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-thread-normal.log.gz",
+      "sha256": "d0a6db24527c9d4425a5f21e30663919f9bcdb002983e4abf4face6352a47c0b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-thread-sanitized.log.gz",
+      "sha256": "a4b9c66ce8b9f964e3cb104dca69f7501a3a092465c08d5fb1d0aa62a514050f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-integer-normal.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-integer-sanitized.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-integer-packages-normal.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-integer-packages-sanitized.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-imports.log.gz",
+      "sha256": "5cfc3c3fba804bed8a141320590b6e34db60a60d8cae5e6384450cd4f318776f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-artifacts.log.gz",
+      "sha256": "59e4da0339d8aa7a2fc25469e541d8a44a54c2ec740f427ea7037eec7fb92306"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-combined-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-default-array-parameters.json.gz",
+      "sha256": "6f1d11e750e9303759385d5ae13e335aacf05c121c20a110ebbbf2a34659e1dc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-default-array-parameters-sanitized.json.gz",
+      "sha256": "6772a6557bf64ed789e64de786714a0a737b0362a2aec854dde5509f04bfbed6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-package-default-array-parameters.json.gz",
+      "sha256": "07974d04ee32705d42d468beaff57f6ddbe917c102b3f327cd2ec4f8b2313228"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-package-default-array-parameters-sanitized.json.gz",
+      "sha256": "ae1325032e8bf87741c438727fc0bf0908d76801a6e0e2a92efb7ef04baa7f88"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-string-match-effects.json.gz",
+      "sha256": "db7aca29ea12e34d8f89ffabc6be3c4bbcd7ba9b8ad32240b8880e6698501f64"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-string-match-effects-sanitized.json.gz",
+      "sha256": "0b5b2d93980f4fb0d219c43b95a7db4bc93cb34e3078229c9ce4c07c1286c7d1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-package-string-match-effects.json.gz",
+      "sha256": "d4c6d461236deab1e5354cb9ae49388a4fa0d49143bf2cb2e195c06e1d4107ff"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-package-string-match-effects-sanitized.json.gz",
+      "sha256": "0ee6d950b885078aafacc455f93b958cc316fd9a99cfecfebec42ac595dd1d4e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-string-call-arguments.json.gz",
+      "sha256": "e1092ae6d3ba099d044db3160d7142ba62a621ac45d03c96ebd6c3d6dff2db1b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-string-call-arguments-sanitized.json.gz",
+      "sha256": "10a0fbd83df45f09e84d0914efe21beabd2dcd1d65169a08b4a459d66b9db4c8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-native-array-fields.json.gz",
+      "sha256": "47323a5a4d38f0eb4f6ccf2f6504eac553bb75d35d33292ffe6d21d04e40ea94"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "7bc2e95687212eaf0e340f43c30f30af4a6f5310de8dbb45fed82c4f120daaa8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-parity-numeric-places.json.gz",
+      "sha256": "771b51baa499cd0ffb1fb63084cc43878fa6925acf2447f27507504d2d1c5ee2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-rust-parity-numeric-native-owners.json.gz",
+      "sha256": "518aa3f55c5ebfbf01fbbe727d4b76abfc77b16efc1d7508eb0f107c2c881a4c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-SDK19-smoke-report.json.gz",
+      "sha256": "6584fe5d9f7cd34d72045883759ee370e651e403fad8112b3bd6a53efeca9e36"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-copy-effects-first.json.gz",
+      "sha256": "b83b302f0674c40230356aeb0e84eb4f240f6eb79c8c34ce3a8c251862a836e4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-copy-effects-discard-and-read-fix.json.gz",
+      "sha256": "708804e8e8ee8cdba6b608c72699ceae119e85965f77b4de1aa67c1db794cf8a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-copy-release-events-initial.json.gz",
+      "sha256": "5770b5c201c81a53a6e93442df38d6a71794491defbc79dbc08bf884a360c4d2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-native-array-after.json.gz",
+      "sha256": "a28d3e694d41a3931368d5e0b79a184af1418ced998e51bb53adbed11c195735"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-new-controls-native-method-C-pointer-failure.json.gz",
+      "sha256": "cfc74533b81f2d3b2832941a94669da1a2d064b7daee4ded065cdba47ef96de7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-full-Rust-initial.log.gz",
+      "sha256": "9d89c73599649ea07072c0bc262794a1b15a26f1ed308770a550046bb9d64cce"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-new-controls-invalid-native-method-probe.json.gz",
+      "sha256": "e2470235c1cd71e8511edc69ce0f4be2466456574c9eedc7784bb784cfa29813"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-new-contexts-invalid-untyped-nil-array.json.gz",
+      "sha256": "38488e556326dbe3d7d61f6b9088b72b9e5477c0aaf4fbbfaf9ec7c7f9dcfe50"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-native-array-accepted-a5.json.gz",
+      "sha256": "7cc025485efa9a5c67529cb3f439b711ae7754855ecd597fccdd944c384c789d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/default-array-parameters-native-array-before.json.gz",
+      "sha256": "2a4d68adc7f9d1c43693d42f924e7bd2e40f20ebcb8914e02bb299566d252146"
+    }
+  ]
+}
