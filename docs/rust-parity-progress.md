@@ -1,3 +1,55 @@
+## Original corpus: fresh String-main discovery, 2026-10-25
+
+String main `f3b2f0cf` executes all1,365 preserved goal-start programs through Rust
+at O0/debug on Linux: all1,158 output/exit contracts and207 exit-only contracts
+pass. A complete nine-mode C/Rust scan also compiles all24,570 target programs.
+After focused oracle review,10,418 mode cases agree with original output/exit
+contracts and1,854 agree with original exit-only contracts outside known C
+undefined cases. All sources, oracles and the compiler binary remain unchanged.
+
+Nine unsynchronized counter-closure modes and four unchecked division-by-zero
+modes receive no C parity credit, even when outputs happen to agree. Current
+emitted C is retained. The discovery tool initially concatenated separately
+captured stdout/stderr, losing panic output order;28 focused executions with the
+original harness's actual merged stream pass all affected oracles. Raw reports
+remain intact. This required a comparison-tool correction, with no backend,
+source or oracle change.
+
+The historical1,365-program manifest differs from goal start in one already
+synchronized array-closure program. The exact historical source also executes
+through Rust in all nine modes from temporary files; its C data race receives
+no parity credit. All1,155 historical output oracles remain unchanged. This
+refresh proves Linux discovery and the stated original contracts, not final
+C-defined semantics, final integrated-main acceptance or macOS/Windows corpus
+coverage. [Full retained evidence](rust-parity-evidence/original-current-String-validation.json).
+
+## SDK20 UDP artifacts: local composition validated, 2026-10-25
+
+The canonical C SDK now stages UDP socket and receive-result records alongside
+its nineteen existing artifact modules. The package builder supports multiple
+records from one module and links WinSock on Windows. Public Sindarin modules,
+original callers and behavioral oracles retain their bytes. Source and sealed
+artifacts use the same C backing; sealed tests remove implementation sources.
+
+All local checks pass with String main `f3b2f0cf`:792 original-caller/stdin cases
+and108 UDP lifetime/field cases per normal and sanitized environment,20 native
+UDP cases and one actual C/runtime sanitizer case. The final composed tree also
+passes full C3,243/Rust1,099, imports52, artifacts22, helpers27, SDK20 quick88 and
+UDP quick12 per environment. All1,365 goal-start programs,1,158 oracles,87 SDK
+Sindarin/oracle files and28 copied public modules retain their hashes. The
+compiler implementation is identical to String main; all215 existing gate
+commands remain intact. Four additions require501 platform executions in41
+groups. [Retained local proof](rust-parity-evidence/sdk20-udp-local-validation.json).
+
+The earlier SDK sanitizer failure was the original Directory C caller's348-byte
+concatenation leak, fixed in String main without changing its caller or oracle.
+That failed run and the full-matrix template whitespace provenance remain in the
+proof. String main has now passed its own49 required jobs and493 platform executions
+in41 groups. This dependent batch is ready for publication and needs its own
+hosted acceptance. [Accepted String dependency](rust-parity-evidence/string-effects-loans-ci-green.json). Eight other SDK modules,
+wider language/ownership/callback contracts and final corpus/platform acceptance
+remain open; this is not complete SDK or Rust backend parity.
+
 ## String effects and caller/callee loans: local validation, 2026-10-25
 
 Eight original String programs now execute through Rust without source changes:
@@ -27,8 +79,9 @@ remain intact; six additions require493 platform executions in41 groups.
 The composed field correction on maina5 separately passed all49 required jobs,
 481 platform executions and41 groups on Linux/macOS/Windows.
 [Verified accepted-main proof](rust-parity-evidence/native-array-fields-correction-ci-green.json).
-The String batch still needs its own hosted acceptance. SDK20 staging and the
-array-parameter prototype remain separate dependent work. A refreshed historical
+The String batch has passed its own49-job Linux/macOS/Windows run,493 platform
+executions and41 groups. [Own hosted proof](rust-parity-evidence/string-effects-loans-ci-green.json).
+SDK20 staging and the array-parameter prototype remain separate dependent work. A refreshed historical
 inventory has44 agreements,24 Rust rejections after clean C sanitizers,50 C
 failures and61 unavailable/changed historical paths. That Linux/O0 subset does
 not prove C-defined semantics or final original-corpus parity. Broader SDK,

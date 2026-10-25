@@ -114,7 +114,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 41)
-        self.assertEqual(report['gates'], 501)
+        self.assertEqual(report['gates'], 509)
         for sanitized in (False, True):
             identity = 'numeric-match-conversions' + ('-sanitizers' if sanitized else '')
             entries = [g for g in self.catalog['gates'] if g['id'] == identity]
@@ -241,7 +241,7 @@ class CoverageTests(unittest.TestCase):
                       'canonical-record-copy', 'sdk-record-copies',
                       'sdk-stringbuilder-artifacts', 'sdk-stringbuilder-native',
                       'sdk-process-artifacts', 'sdk-process-native',
-                      'sdk-json-artifacts', 'sdk-json-native', 'native-record-array-packages', 'sdk-xml-native', 'package-internal-native-calls', 'sdk-yaml-artifacts', 'sdk-yaml-native'):
+                      'sdk-json-artifacts', 'sdk-json-native', 'native-record-array-packages', 'sdk-xml-native', 'package-internal-native-calls', 'sdk-yaml-artifacts', 'sdk-yaml-native', 'sdk-udp-artifacts', 'sdk-udp-native'):
             entry = [g for g in self.catalog['gates'] if g['id'] == ident]
             self.assertEqual(len(entry), 1)
             self.assertEqual(entry[0]['group'],
@@ -285,6 +285,9 @@ class CoverageTests(unittest.TestCase):
         self.assertTrue(required_sdk <= configured_groups('Checkout SDK native resource integration'))
         self.assertIn('          .sn/runtime-abi*.json\n', workflow)
         self.assertIn('          .sn/sdk-artifact-validation.json\n', workflow)
+        self.assertIn('          .sn/sdk-udp-artifact*.json\n', workflow)
+        self.assertIn('          .sn/sdk-native-integration/.sn/udp-*.json\n', workflow)
+        self.assertIn('ref: 6e796dd36fdaea7d99a7407b19949456fb7e37d4', workflow)
         self.assertIn('github.event.pull_request.number || github.run_id', workflow)
 
     def test_consumer_libraries_retain_platform_resolution_and_exact_linker_options(self):

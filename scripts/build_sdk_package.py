@@ -7,6 +7,7 @@ cannot change the symbols called by unchanged Sindarin facade bodies.
 """
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -15,13 +16,14 @@ from pathlib import Path
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
            'time/time', 'time/date', 'core/random', 'core/uuid',
-           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml', 'core/math')
+           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml', 'core/math', 'net/udp')
 SUPPORTED_MODULES = MODULES
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
     ('time/date', 'Date.toTime'): 'src/time/time.sn::Time',
 }
 RECORDS = {
+    'net/udp': ('UdpSocket', 'SnSdkUdpSocketRecord', 'sn_sdk_udp_socket'),
     'encoding/text': ('StringBuilder', 'SnSdkStringBuilderRecord', 'sn_sdk_text'),
     'os/process': ('Process', 'SnSdkProcessRecord', 'sn_sdk_process'),
     'encoding/json': ('Json', 'SnSdkJsonRecord', 'sn_sdk_json'),
@@ -34,10 +36,21 @@ RECORDS = {
     'time/time': ('Time', 'SnSdkTimeRecord', 'sn_sdk_time'),
     'time/date': ('Date', 'SnSdkDateRecord', 'sn_sdk_date'),
 }
+EXTRA_RECORDS = {
+    'net/udp': (('UdpReceiveResult', 'SnSdkUdpReceiveResultRecord', 'sn_sdk_udp_result'),),
+}
 RAW = {'int': 'long long', 'long': 'long long', 'int32': 'int32_t',
        'uint': 'uint64_t', 'uint32': 'uint32_t', 'byte': 'unsigned char',
        'char': 'char', 'bool': 'bool', 'float': 'float', 'double': 'double',
        'string': 'char *', 'void': 'void'}
+
+
+def module_records(module):
+    return ((RECORDS[module],) + EXTRA_RECORDS.get(module, ())) if module in RECORDS else ()
+
+
+def record_storage(module, name):
+    return next((record for record in module_records(module) if record[0] == name), None)
 
 
 def checked(command, cwd, input_bytes=None):
@@ -59,13 +72,13 @@ def raw_type(value, module):
         while leaf.get('kind') == 'array':
             rank += 1
             leaf = leaf['element_type']
-        if leaf.get('kind') == 'struct' and module in RECORDS and leaf['name'] == RECORDS[module][0] and 1 <= rank <= 32:
+        if leaf.get('kind') == 'struct' and record_storage(module, leaf['name']) and 1 <= rank <= 32:
             return 'SnArray *'
         from native_contract import native_array_shape
         native_array_shape(value)
         return 'SnArray *'
-    if kind == 'struct' and module in RECORDS and value['name'] == RECORDS[module][0]:
-        return RECORDS[module][1]+' *'
+    if kind == 'struct' and record_storage(module, value['name']):
+        return record_storage(module, value['name'])[1]+' *'
     raise ValueError(f'SDK artifact type still needs a package contract: {module}: {value}')
 
 
@@ -128,8 +141,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
     records = [m for m in modules if m in RECORDS]
     if records:
         lines.append('  types:')
-        for module in records:
-            name, c_type, prefix = RECORDS[module]
+        for module, (name, c_type, prefix) in ((module, record) for module in records for record in module_records(module)):
             lines += ['    - declaration: src/'+module+'.sn::'+name,
                       '      identity: SindarinSDK/sindarin-pkg-sdk:'+module.rsplit('/', 1)[0].replace('/', '.')+'.'+name+'@1',
                       '      c_type: '+c_type, '      header: src/'+module+'.native.h']
@@ -183,6 +195,8 @@ def prepare(compiler, sdk, destination, modules=MODULES):
         if (destination/'src'/(module+'.sn.c')).is_file():
             lines.append('      provides_sources: [src/'+module+'.sn.c]')
         libraries = re.findall(r'^@link[ \t]+([^\s]+)', (destination/'src'/(module+'.sn')).read_text(), re.M)
+        if module == 'net/udp' and os.name == 'nt':
+            libraries.append('ws2_32')
         if libraries:
             lines.append('      libraries: ['+', '.join(libraries)+']')
         lines += ['    - name: facade_'+stem, '      language: SN', '      entry: src/'+module+'.sn',
@@ -195,7 +209,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                 name = structure['name']+'.'+method['name']
                 collision = sum(m['name'] == method['name'] for m in structure['methods']) > 1
                 selector = 'static' if method['is_static'] else 'instance'
-                if not method['is_static'] and module not in RECORDS:
+                if not method['is_static'] and not record_storage(module, structure['name']):
                     raise ValueError('SDK instance storage still needs a canonical record: '+name)
                 bindings += ['    - declaration: src/'+module+'.sn::'+name]
                 if collision:

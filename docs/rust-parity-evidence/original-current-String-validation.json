@@ -1,0 +1,296 @@
+{
+  "status": "Complete fresh Linux discovery of current goal-start1365 programs and all9 C/Rust modes; no final C-defined/platform acceptance claim.",
+  "revision": "f3b2f0cf73ce51090153266aa4ef03cebd34aa5f",
+  "compiler_sha256": "7b3264f3e5c436f450dfd424917b334f5615c01206d24952b04dbe969e2ad94a",
+  "platform": "Linux-7.0.0-1019-nvidia-aarch64-with-glibc2.39",
+  "goal_start_source_reference": "835a1ca07430e6d10f4988fcf6778ccb71b1646d",
+  "source_count": 1365,
+  "goal_start_output_oracles": 1158,
+  "single_mode_Rust": {
+    "mode": "-O0 -g default",
+    "original_output_and_exit_contracts": 1158,
+    "original_exit_only_contracts": 207,
+    "failures": 0
+  },
+  "all_mode_cases": 12285,
+  "successful_target_compilations": 24570,
+  "adjudicated_counts": {
+    "C/Rust agreement and original exit contract only; no original output oracle": 1854,
+    "C/Rust agreement and original output/exit contracts": 10418,
+    "C undefined unsynchronized concurrent mutation; no parity credit": 9,
+    "C undefined unchecked integer division by zero; no parity credit": 4
+  },
+  "raw_classification_counts": {
+    "Raw C/Rust agreement and original exit contract; no original output oracle": 1860,
+    "Raw C/Rust agreement and frozen original output/exit contracts": 10404,
+    "C/Rust observable difference; semantic review required": 7,
+    "Raw C/Rust agreement; original contract needs mode/semantic review": 14
+  },
+  "actual_merged_stream_oracle_checks": 28,
+  "stream_comparison_correction": "Raw discovery captured stdout/stderr separately; concatenating them falsely marked9 assert and5 checked thread-panic oracle comparisons. Focused28 target executions use actual merged streams, matching original harness, and all pass. Raw reports remain intact; no backend/source/oracle change.",
+  "known_C_undefined_evidence": "Current emitted C shares one plain counter pointer across3 pthreads without synchronization (all9 modes), and performs10/x forzero in4 unchecked thread-panic modes. Exclude every such mode, including coincident matches, from parity credit. This does not prove all other programs C-defined.",
+  "historical_79c20b_reconciliation": {
+    "original_sources": 1365,
+    "goal_start_source_deviations": [
+      "tests/exploratory/test_limitation_closure_array.sn"
+    ],
+    "exact_historical_source_sha256": "182d6478a812915ecfcc40bc130b7cc88cb841bf7d3a7ec41ef0b6299ae36978",
+    "historical_array_Rust_modes_executed": 9,
+    "historical_array_exit_contracts_pass": true,
+    "historical_array_has_output_oracle": false,
+    "original_1155_output_oracles_unchanged": true,
+    "current_goal_start_3_additional_output_oracles_preserved": true,
+    "scope": "Historical array closure has unsynchronized C mutation. Stage exact historical source temporarily, leave current synchronized program untouched; no C-defined parity credit for it."
+  },
+  "all_sources_oracles_and_compiler_unchanged": true,
+  "adjudication_details": [
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "Raw C/Rust agreement and original exit contract; no original output oracle"
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "C/Rust observable difference; semantic review required"
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "Raw C/Rust agreement and original exit contract; no original output oracle"
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "Raw C/Rust agreement and original exit contract; no original output oracle"
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "C/Rust observable difference; semantic review required"
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "Raw C/Rust agreement and original exit contract; no original output oracle"
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "Raw C/Rust agreement and original exit contract; no original output oracle"
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "Raw C/Rust agreement and original exit contract; no original output oracle"
+    },
+    {
+      "source": "tests/exploratory/test_limitation_closure_mutable.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "classification": "C undefined unsynchronized concurrent mutation; no parity credit",
+      "raw_classification": "C/Rust observable difference; semantic review required"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_assert.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "checked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "default",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O0",
+      "arithmetic_mode": "unchecked",
+      "classification": "C undefined unchecked integer division by zero; no parity credit",
+      "raw_classification": "C/Rust observable difference; semantic review required"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "checked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "default",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O1",
+      "arithmetic_mode": "unchecked",
+      "classification": "C undefined unchecked integer division by zero; no parity credit",
+      "raw_classification": "C/Rust observable difference; semantic review required"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "checked",
+      "classification": "C/Rust agreement and original output/exit contracts",
+      "raw_classification": "Raw C/Rust agreement; original contract needs mode/semantic review"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "default",
+      "classification": "C undefined unchecked integer division by zero; no parity credit",
+      "raw_classification": "C/Rust observable difference; semantic review required"
+    },
+    {
+      "source": "tests/integration/test_thread_panic_propagate.sn",
+      "optimization": "-O2",
+      "arithmetic_mode": "unchecked",
+      "classification": "C undefined unchecked integer division by zero; no parity credit",
+      "raw_classification": "C/Rust observable difference; semantic review required"
+    }
+  ],
+  "remaining": "Final integrated compiler, Linux/macOS/Windows original-corpus/mode acceptance, broader C-defined behavior/oracle review, full SDK/ABI/lifecycle and documented language gaps remain required. This proof does not complete the parity goal.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-current-validation.json.gz",
+      "sha256": "838f1862bdf552bf796d6749bdcc5808fdae766d98a76617ed6834a42e01f4bc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-all-mode-discovery.json.gz",
+      "sha256": "11f856d9aa24e7d5c7cdeedf7ad7833ef2979560e9d9467d053d0a7795b7c222"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-actual-merged-panic-oracles.json.gz",
+      "sha256": "745dfa83ac6cc7feb3729b7e4b8cb5d708fede9de958fdc03c79535fd3d9b987"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-actual-merged-checked-thread-panic-oracles.json.gz",
+      "sha256": "5d9d62c2c1f92de98befd3dbcf7f64372867f00c270e410b2e0f226318201623"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-historical-array-source.json.gz",
+      "sha256": "23a4a036ac20048e332cbe52b979a2e547f4cc4108d449683c3d4ed7d97a64b0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-closure-mutable.c.gz",
+      "sha256": "ced18c50a5188270f3c90e4d7ab91c5c229fb64021cde8f4a9dda27fc5558e09"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-thread-panic-unchecked.c.gz",
+      "sha256": "839f71a20884a65a7159f449cc8b03d3e076b2207ca62513ea0910a36c46b928"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-audit-original-corpus.py.gz",
+      "sha256": "0aa4d33877f7feb7c73dfceae186d99938c8dfe42d1aa8e9dbcdca77cfc29547"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-audit-original-modes.py.gz",
+      "sha256": "282d9ae6f58543ca0045de86276be0454955af84e932169f71adfc7fd2084cc1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-audit-merged-panic-oracles.py.gz",
+      "sha256": "c1a701992f4c8fc8984d64b67a2212736ee7cf5a8a909cc2088c4fbfc7bd8110"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-audit-merged-thread-panic-oracles.py.gz",
+      "sha256": "5e7dce05e0a2b7d054b42ab62785271501fa7e1958b1b31033c28ccc72777fdb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-audit-historical-array-source.py.gz",
+      "sha256": "9314903d9d464ee6894b604b403e4f873340191d498b35d4881dabc60d48f513"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-original-corpus-driver.log.gz",
+      "sha256": "7ca69dc2601b3ee1f6b32f76f1ddf3d96792f716776b5c1bc5f77ed0a262a5c8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/original-current-String-original-modes-driver.log.gz",
+      "sha256": "4fedb440b20dcd1fda8b4fc5f1b335de2ddfd762e15413213d20908e138dec5f"
+    }
+  ]
+}
