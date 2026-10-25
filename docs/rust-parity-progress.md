@@ -1,3 +1,20 @@
+## Scalar values composed with record main: complete local validation, 2026-10-25
+
+The independent scalar-value feature includes record main `9f37126e`. Local
+parameter preparation retains both the record model context and explicit scalar
+value handling. All 45 scalar language pairs, 216 C/RS/Go provider package cases,
+45 record pairs, 81 byte-encoding pairs, 45 array pairs and 72 thread cases pass
+normally and with strict C address/undefined/leak checks. Full C/Rust suites pass
+3,243/1,099; imports52, artifacts22, SDK19 smoke84, CI helpers27 and formatting
+pass. All original 1,365 programs, 1,158 oracles and 281 SDK inputs remain
+byte-identical. All 199 main gates remain intact; two additive scalar definitions
+require 465 platform executions in 41 groups.
+
+Correction `43a6d633` has complete hosted acceptance. Record main retains its
+distinct CI 40153334480; this independent feature requires its own full hosted
+validation. Full Rust/C parity remains open. Evidence:
+[scalar-values-record-composed-local-validation.json](rust-parity-evidence/scalar-values-record-composed-local-validation.json).
+
 ## Scalar values composed with corrected main: locally verified, 2026-10-25
 
 The scalar-value package changes include correction main `43a6d633`. All 45
