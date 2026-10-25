@@ -1,3 +1,23 @@
+## Scalar values composed with corrected main: locally verified, 2026-10-25
+
+The scalar-value package changes include correction main `43a6d633`. All 45
+language pairs, 216 C/RS/Go provider package cases, 81 byte-encoding pairs,
+45 array-search pairs and 72 native thread cases pass normally and with strict
+C address/undefined/leak checks. Complete C/Rust suites pass 3,243/1,099,
+imports52, artifacts22, SDK19 smoke84, CI helpers27 and formatting pass. All
+197 corrected-main gates, original 1,365 programs, 1,158 oracles and 281 SDK
+inputs remain byte-identical. Two additive scalar gates require 461 platform
+executions in 41 groups.
+
+The initial integration driver omitted native_ prefixes in two script paths.
+Its setup failure is retained; only missing checks were resumed on the same
+compiler, without repeating completed checks. This checkpoint remains independent
+of the unpublished record-value and numeric-match changes. Feature publication
+is frozen until correction CI 40150376704 has complete hosted acceptance; later
+composed main and this feature require their own validation. Full parity remains
+open. Evidence:
+[scalar-value-qualifiers-corrected-main-local-validation.json](rust-parity-evidence/scalar-value-qualifiers-corrected-main-local-validation.json).
+
 ## Explicit scalar values: complete local validation, 2026-10-25
 
 Explicit scalar `as val` parameters use callee-local copies in Rust functions,
