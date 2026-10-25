@@ -1,3 +1,32 @@
+## Explicit scalar values: complete local validation, 2026-10-25
+
+Explicit scalar `as val` parameters use callee-local copies in Rust functions,
+methods, native calls and independent package contracts. Package signatures retain
+nondefault qualifiers, while existing default signatures keep their bytes. C
+function-reference wrappers now distinguish logical declarations from native
+aliases, preserving selected providers when aliases name other public callables.
+Integer parameter mutation uses the existing C promotion and final storage
+conversion lowering, including mixed-width RHS values.
+
+All 45 language mode pairs and 216 source/sealed package cases pass normally and
+with strict C address/undefined/leak checks. Controls cover ten scalar types,
+72 integer type/qualifier combinations, the 256-character domain, native callback
+forwarding/results/identity, colliding native function-reference aliases, joined
+native threads, static methods and canonical record cleanup. Packages retain C,
+Rust or Go backing implementations and C/RS Sindarin bodies, with both C and
+Rust consumers across all nine optimization/arithmetic modes. Complete C/Rust
+suites pass 3,243/1,099; all 27 CI helpers and formatting pass.
+
+The original floating `as val` rejection program now executes without changing
+its source or original diagnostic. All 1,365 original programs, 1,158 original
+oracles and 281 accepted SDK files were rehashed unchanged. This standalone
+checkpoint retains all 195 thread-base gates and adds two definitions, requiring
+457 platform executions in 41 groups. Composition with corrected main and its
+own full hosted acceptance remain required. Feature publication remains frozen
+behind correction CI 40150376704. Wider pointer/ref, managed/value/interface,
+generic/callback package export and dependency lifecycle contracts remain open.
+Evidence: [scalar-value-qualifiers-local-validation.json](rust-parity-evidence/scalar-value-qualifiers-local-validation.json).
+
 ## Math and record-loan correction: complete hosted acceptance, 2026-10-25
 
 Corrected compiler main `169c68e1` passes all 49 required jobs in

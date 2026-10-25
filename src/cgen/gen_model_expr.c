@@ -869,13 +869,18 @@ static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
     int wrap_id = g_model_fn_wrapper_count++;
     json_object *wrapper = json_object_new_object();
     json_object_object_add(wrapper, "wrapper_id", json_object_new_int(wrap_id));
+    bool target_is_native = arg_sym->is_native;
+    const char *logical_name = arg_expr->as.variable.name.start;
+    const char *target_name = target_is_native && arg_sym->c_alias
+        ? arg_sym->c_alias : logical_name;
     json_object_object_add(wrapper, "target_name",
-        json_object_new_string(arg_expr->as.variable.name.start));
+        json_object_new_string(target_name));
+    if (strcmp(target_name, logical_name) != 0)
+        json_object_object_add(wrapper, "func_name", json_object_new_string(logical_name));
     json_object_object_add(wrapper, "return_type",
         gen_model_type(arena, fn_type->as.function.return_type));
 
     json_object *wrap_params = json_object_new_array();
-    bool target_is_native = arg_sym->is_native;
     bool has_borrow = false;
     for (int p = 0; p < fn_type->as.function.param_count; p++)
     {

@@ -2433,6 +2433,32 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "package-scalar-value-qualifiers",
+      "name": "Explicit scalar values, C/RS bodies and C/Rust/Go providers with sealed artifacts (36 language pairs and216 package mode cases)",
+      "command": [
+        "{python}",
+        "tests/package/scalar_value_qualifiers.py"
+      ],
+      "group": "providers",
+      "linux_only": false
+    },
+    {
+      "id": "package-scalar-value-qualifiers-sanitizers",
+      "name": "Scalar value qualifiers, integer promotions and imported native function aliases with C address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/scalar_value_qualifiers.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

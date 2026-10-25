@@ -285,7 +285,7 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
             int parameter_count = callable.function ? callable.function->param_count : callable.method->param_count;
             for (int i = 0; i < parameter_count; i++) {
                 Parameter *param = &parameters[i];
-                if (!import_type(param->type) || param->type->kind == TYPE_VOID || param->type->kind == TYPE_POINTER || param->mem_qualifier != MEM_DEFAULT) {
+                if (!import_type(param->type) || param->type->kind == TYPE_VOID || param->type->kind == TYPE_POINTER || !package_callable_parameter_supported(param)) {
                     fprintf(stderr, "error: %s: native parameter '%s' requires an implemented ABI representation\n", manifest, param->name.start);
                     success = false; break;
                 }

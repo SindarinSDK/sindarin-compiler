@@ -13,7 +13,8 @@ static bool native_callback_type_supported(json_object *type)
         json_object *param = json_object_array_get_idx(params, i);
         if (!native_scalar_type(param, false) && !native_string(param, "rust_native_record_wire") && !native_bool(param, "rust_native_handle_array") && (!native_string(param, "kind") || strcmp(native_string(param, "kind"), "string"))) return false;
         const char *qual = quals ? json_object_get_string(json_object_array_get_idx(quals, i)) : NULL;
-        if (qual && strcmp(qual, "default")) return false;
+        if (qual && strcmp(qual, "default") &&
+            !(strcmp(qual, "as_val") == 0 && native_scalar_kind(native_string(param, "kind"), false))) return false;
     }
     return true;
 }

@@ -174,6 +174,17 @@ static bool rust_by_value_assign_parameter_type_supported(json_object *type)
     return rust_scalar_ref_parameter_type_supported(type);
 }
 
+/* Explicit scalar values use the same callee-local storage as defaults.
+ * Managed value parameters retain their separate copy/owner lowering. */
+static bool rust_default_or_scalar_value_parameter(json_object *parameter)
+{
+    json_object *type = NULL;
+    json_object_object_get_ex(parameter, "type", &type);
+    return json_string_property_equals(parameter, "mem_qual", "default") ||
+        (json_string_property_equals(parameter, "mem_qual", "as_val") &&
+         rust_by_value_assign_parameter_type_supported(type));
+}
+
 static bool rust_direct_variable_named(json_object *node, const char *name)
 {
     return node && name &&
@@ -319,7 +330,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             ? NULL : rust_find_parameter(params, binding_name);
         json_object *type = NULL, *initializer = NULL;
         if (param &&
-            json_string_property_equals(param, "mem_qual", "default") &&
+            rust_default_or_scalar_value_parameter(param) &&
             json_object_object_get_ex(param, "type", &type) &&
             rust_by_value_assign_parameter_type_supported(type) &&
             json_object_object_get_ex(node, "initializer", &initializer) &&
@@ -352,7 +363,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         root_name = json_string_property(root, "name");
         json_object *param = rust_name_is_shadowed(scope, root_name)
             ? NULL : rust_find_parameter(params, root_name);
-        if (param && json_string_property_equals(param, "mem_qual", "default") &&
+        if (param && rust_default_or_scalar_value_parameter(param) &&
             !json_boolean_property(param, "rust_default_array_ref") &&
             !json_boolean_property(param, "rust_thread_aggregate_param"))
         {
@@ -368,7 +379,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         const char *target = json_string_property(node, "target");
         json_object *param = rust_name_is_shadowed(scope, target)
             ? NULL : rust_find_parameter(params, target);
-        if (param && json_string_property_equals(param, "mem_qual", "default"))
+        if (param && rust_default_or_scalar_value_parameter(param))
         {
             json_object *type = NULL, *value = NULL, *value_type = NULL;
             const char *type_kind = NULL, *value_kind = NULL;
@@ -408,6 +419,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                 if (!json_object_object_get_ex(value, "type", &value_type) ||
                     !(value_kind = json_string_property(value_type, "kind")) ||
                     (strcmp(type_kind, value_kind) != 0 &&
+                     !(rust_integer_type(type_kind) && rust_integer_type(value_kind)) &&
                      !rust_float_conversion_pair(type, value_type)))
                 {
                     fprintf(stderr,
@@ -441,7 +453,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             (target_name = json_string_property(target, "name")) &&
             !rust_name_is_shadowed(scope, target_name) &&
             (param = rust_find_parameter(params, target_name)) &&
-            json_string_property_equals(param, "mem_qual", "default"))
+            rust_default_or_scalar_value_parameter(param))
         {
             json_object *param_type = NULL, *value_type = NULL;
             const char *param_kind = NULL, *value_kind = NULL;
@@ -487,6 +499,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                     !json_object_object_get_ex(value, "type", &value_type) ||
                     !(value_kind = json_string_property(value_type, "kind")) ||
                     (strcmp(param_kind, value_kind) != 0 &&
+                     !(rust_integer_type(param_kind) && rust_integer_type(value_kind)) &&
                      !rust_float_arithmetic_pair(param_type, value_type)))
                 {
                     fprintf(stderr, "%s",
@@ -530,7 +543,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             (operand_name = json_string_property(operand, "name")) &&
             !rust_name_is_shadowed(scope, operand_name) &&
             (param = rust_find_parameter(params, operand_name)) &&
-            json_string_property_equals(param, "mem_qual", "default") &&
+            rust_default_or_scalar_value_parameter(param) &&
             json_object_object_get_ex(param, "type", &param_type) &&
             (param_kind = json_string_property(param_type, "kind")) &&
             (strcmp(param_kind, "float") == 0 ||
@@ -3264,7 +3277,8 @@ static bool rust_validate_model_impl(json_object *model,
                           (native && json_string_property_equals(
                               param_type, "kind", "char")))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
-                         (rust_heap_free_named_struct_type(param_type) ||
+                         (rust_by_value_assign_parameter_type_supported(param_type) ||
+                          rust_heap_free_named_struct_type(param_type) ||
                           (!native && (json_string_property_equals(param_type, "kind", "array") ||
                                        json_boolean_property(param_type, "rust_native_reference_handle"))) ||
                           (native && json_string_property(param_type, "rust_native_record_wire"))));
