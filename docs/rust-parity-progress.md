@@ -1,4 +1,4 @@
-## Zlib and borrowed scalar memory: final local checks running, 2026-10-25
+## Zlib and borrowed scalar memory: complete local composition, 2026-10-25
 
 The unchanged zlib API now builds as an independent C-backed package. ABI 1.9
 transports borrowed scalar references and pointers through C providers and
@@ -18,12 +18,25 @@ cases under sanitizers, and 18 slice ownership/order cases in each environment.
 The zlib control covers all 28 exports and 40 independent outputs. Borrowed
 memory tests exercise direct Rust calls, C and Sindarin providers, source/sealed
 artifacts, ten scalar families, aliases and distinct arguments, with 62 outputs
-per case. Full SDK21 composition and the fresh nine-mode original scan are still
-running; this batch has not been published or accepted by hosted CI.
+per case. All 828 complete SDK21 original-caller/stdin cases pass in each environment.
+All 18 final composed commands and seven completed checks pass, including the
+full suites, imports 52, artifacts 22, helpers 27, runtime ABI 17 / actual C-runtime
+sanitizers 8, and the prior array/record/field/numeric/string overlap controls.
+The fresh nine-mode scan successfully compiles all 24,570 C/Rust programs from
+1,365 originals: 10,418 output/exit and 1,854 exit-only contracts agree outside
+nine racy-counter and four unchecked-division C-undefined cases. Those 13 cases
+receive no parity credit. The initial failed sanitizer discovery is retained;
+the obsolete continuation was stopped and its incomplete SDK run is not counted.
+[Full local proof and 66 raw reports](rust-parity-evidence/zlib-borrowed-memory-local-validation.json).
+
+All 227 accepted main gate definitions remain intact. Six additions require
+529 platform executions in 41 groups. This batch now needs its own hosted
+acceptance.
 
 Existing Sindarin sources, public SDK modules and frozen oracles are unchanged.
-The latest hosted-accepted compiler remains array/SDK20 main `72aafc65`; method
-main `5b51af8c` has two required jobs still running without a failure. Seven other
+Method main `5b51af8c` is now hosted-accepted: all 49 required jobs, 517 gate
+executions and 41 groups passed on Linux/macOS/Windows.
+[Own hosted evidence](rust-parity-evidence/method-struct-parameters-ci-green.json). Seven other
 SDK modules remain outside the artifact migration after this local zlib work:
 core/fields, core/version, net/tcp, net/tls, net/dtls, net/ssh and net/git. Wider
 aliases, heap-owning records, copy hooks, interfaces/generics/callbacks and final
@@ -59,7 +72,9 @@ Linux/macOS/Windows CI jobs:501 and509 platform executions respectively, in41
 groups. [SDK20 acceptance](rust-parity-evidence/sdk20-udp-ci-green.json),
 [array acceptance](rust-parity-evidence/default-array-parameters-ci-green.json).
 This qualified-record batch preserves all223 accepted gate definitions and adds
-four, requiring517 executions in41 groups. Its own hosted acceptance is pending.
+four, requiring517 executions in41 groups. Its own hosted acceptance has passed all49 required jobs,517 executions and41
+groups in run40200415390.
+[Accepted method implementation](rust-parity-evidence/method-struct-parameters-ci-green.json).
 Wider aliases, effectful compound-assignment right sides, heap-owning records,
 copy hooks, interfaces/generics/callbacks, eight remaining SDK modules and final
 corpus/platform/ABI/lifecycle acceptance remain open. Full Rust/C parity is not

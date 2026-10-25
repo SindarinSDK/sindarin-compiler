@@ -1,0 +1,381 @@
+{
+  "status": "Complete local SDK21/ABI1.9 and caller-slice composition; own hosted acceptance remains required.",
+  "base": "5b51af8c769dd6c1bf28fb7b0e97d25b3cdb3596",
+  "compiler_sha256": "7214d9f4fc6ff3dbe995ebed53f7eaeeb4efef9b6a88ac4449e3ff7d000286ff",
+  "source_and_script_sha256": {
+    ".github/workflows/ci.yml": "03a05e5d3c79432c41e316d91635ad33e16b8d75e78cde41f3c05b5d6ce80744",
+    "scripts/array_call_argument_controls.py": "604aab2cded56a476efd1065bd5232fc99a6ebfbb9f1ed14be2f5dde6e936165",
+    "scripts/build_native_package.py": "34acbb3c5ec5a735b079f6abcb6d3ff461674f84bf299c5fe09fc0248202b516",
+    "scripts/build_sdk_package.py": "8453c0ab1bb9916b98e01e3f849f4ba5c1b196b3b5cf6b69e942e53317da5025",
+    "scripts/check_c_array_call_arguments.py": "eb4acac99c193e66791f5696ff82d1a6661269180c8a3fa8fc8dfbaf1ad72cc9",
+    "scripts/check_sdk_artifact.py": "a44561bf77ff492fc864d67c5b770accb14b672abb0d15b94caf19d2ab7bb526",
+    "scripts/check_sdk_zlib_artifact.py": "6c766f8186972ce169083eac0f68b7be3fa9000a38ee135ba36bc60668f02c1d",
+    "scripts/ci/gates.json": "aae21ad43015e697fc4e63fb55183a4106027013b8b86d3f37c71d88db370321",
+    "scripts/native_contract.py": "b598d02d7903b1995c4b41e9fdd220a84efe3fd10e2bc2024c07bd085f21337b",
+    "scripts/native_provider.py": "753ea8c96237533e09b7ce73a65f687d77a197109132677507be8e987ac203fe",
+    "scripts/prepare_native_imports.py": "e2474bbebb606c46e62124c00002bbbf5273d7acaf38568fc4a537bc5d1e7d4c",
+    "scripts/sindarin_library.py": "cdd070445fcde02e319ed67f74c1ee684ec18e22d357a3a0122d9c4bbcdba987",
+    "src/cgen/gen_model_chain_flatten.c": "f893f171b9c2d3ac64eaa67449ba5199552996b4d5417b7b51317aab81faaf73",
+    "src/gcc_backend.c": "20463654d34bdf944ca65e7d9b34ed43c4e2e9319e6f1ac8271255b72e81ab50",
+    "src/package/package_callable.c": "b21dad8340e2f3fd5e14be12e40e28066cbb0f01c7d670715b738ef9fe4c1ac7",
+    "src/package/package_import.c": "7452f08dcf70126ffdb69f3bf98b3a91e55fe7039571913c6d53bf694d4516b5",
+    "src/package/package_link.c": "33598c6c43aa33a87400176c28f852a0020a84a503733afbe5d25864571e894b",
+    "src/package/package_link.h": "5206afab11c8ffb5048528bcdc343df996ebd9106d0a456b57bc68e97d0c1eb8",
+    "src/package/package_yaml_native.c": "cbebb8d79a885882376bbccd3e7fe05250d439e9900c6b28ec5660c800b4f281",
+    "src/runtime/sn_abi.c": "7ebf3a324170d8d1fcb9ac4220e5c208400e84c2a9b68d5821dc988cdf222718",
+    "src/runtime/sn_abi.h": "8f9ef01b8d84c8ce859bbc9eff5701a189d71ff5e55ca7171ce8882b9b2893c1",
+    "src/target/rust/cc_sidecar.c": "ec6a1e07a15c4c3b354170cf47da15c64841c03cf9db24d7b5418a67a0d5836f",
+    "src/target/rust/projection/rust_model_expr.c": "d14a0068e061d7c2dabf2f49cc53657733acd972466186e85b45c52ee81bc087",
+    "src/target/rust/rust_native_plan.c": "01f8494a5f8bf7d49ea6b1466d4fe2618f47b4519449c6c64e5f48e42a6ed342",
+    "templates/c/partials/expr.hbs": "d158300819bf8a075b5eec6a48e41693b76d2c0c9135364201d7522c8317dc08",
+    "templates/rust/partials/expr/sized_array.hbs": "7e07adc40563ba8d2ee91ff7d6813e1e5f7a7e9c1b8fd6d315aaae4a638ba446",
+    "tests/ci/test_ci_helpers.py": "402294c5f28dddab947114652d85914c06cba2ee1d239eb4123300b741ac8d98",
+    "tests/package/borrowed_scalar_memory.py": "693a37ef30cbfbe9c49dedf96c670f3d92fd70a6a9a130f4492c0242a98029be",
+    "tests/runtime_abi/client.c": "842b218e565674e73acc520545205a1b37e8db498f3d8fb092730b00b8e48b9b",
+    "tests/runtime_abi/native_byte_array.c": "bf5a0da68a7eed00b11216924a4bf7aadd91963c8f846302eaacfecc49593638",
+    "tests/runtime_abi/native_string_array.c": "1c44e495bef1c2120862ac3fd39ced5437558a6584ce64bff161153fa2872ec4"
+  },
+  "full_C": 3243,
+  "full_Rust": 1099,
+  "composed_commands": 18,
+  "reused_completed_checks": [
+    {
+      "report": ".sn/sdk-zlib-artifact-sanitized.json",
+      "cases": 108,
+      "sha256": "bef26db5533154dc9b7e7e65bb7f22ce1f18209a148891ff8278e348d5c86379"
+    },
+    {
+      "report": ".sn/c-array-call-arguments.json",
+      "cases": 18,
+      "sha256": "61e77cbbd04a040cfaf1c428f291b4adfec499420004b316d19c5bf33f3d6aab"
+    },
+    {
+      "report": ".sn/c-array-call-arguments-sanitized.json",
+      "cases": 18,
+      "sha256": "a1445c625ee7cf72bba4dbe591bab37014378d286e83950a5464c795659fd58b"
+    },
+    {
+      "log": ".sn/zlib-goal/final-full-C.log",
+      "sha256": "f2ee47b7324b3e9dd88a53169bab3652cd4a4ab86134f9c4599f497e58060396"
+    },
+    {
+      "log": ".sn/zlib-goal/final-full-Rust.log",
+      "sha256": "884f9a1dfca2173b6d399e3d446b8c6563007fb080741fff5d08c9c5951945ee"
+    },
+    {
+      "log": ".sn/zlib-goal/runtime-ABI.log",
+      "sha256": "399faa77c8b99c9cb8319b95472dd6ebb9b248f95631691e0ee9752b645c83d0",
+      "scope": "Runtime implementation, staged header/archive and runtime client sources unchanged since these successful executions; later changes are compiler/C projection/templates only."
+    },
+    {
+      "log": ".sn/zlib-goal/runtime-ABI-sanitized.log",
+      "sha256": "3c5852e9cdd73bfe2ed7a77c980afd6f7c00d69994089636766fa4bfbd86cc78",
+      "scope": "Runtime implementation, staged header/archive and runtime client sources unchanged since these successful executions; later changes are compiler/C projection/templates only."
+    }
+  ],
+  "SDK21_original_and_stdin_cases_each_environment": 828,
+  "zlib_original_all_exports_legacy_source_sealed_cases_each_environment": 108,
+  "zlib_exports": 28,
+  "zlib_independent_control_outputs": 40,
+  "borrowed_memory_source_sealed_C_and_Sindarin_provider_cases_each_environment": 72,
+  "borrowed_memory_independent_outputs_per_case": 62,
+  "borrowed_memory_scalar_families": 10,
+  "slice_C_Rust_loan_pairs_each_environment": 9,
+  "slice_selected_C_order_controls_each_environment": 9,
+  "imports": 52,
+  "artifacts": 22,
+  "CI_helpers": 27,
+  "runtime_ABI_clients": 17,
+  "actual_C_runtime_SAN_clients": 8,
+  "fresh_original_sources": 1365,
+  "fresh_original_mode_cases": 12285,
+  "fresh_successful_C_and_Rust_compilations": 24570,
+  "mode_classifications": {
+    "Raw C/Rust agreement and original exit contract; no original output oracle": 1854,
+    "Raw C/Rust agreement and frozen original output/exit contracts": 10418,
+    "C undefined unsynchronized concurrent mutation; no parity credit": 9,
+    "C undefined unchecked integer division by zero; no parity credit": 4
+  },
+  "known_C_undefined_modes_not_credited": 13,
+  "source_preservation": {
+    "compiler_sources_and_oracles_unchanged": 2523,
+    "SDK_Sindarin_and_oracles_unchanged": 87,
+    "public_SDK_modules_unchanged": 28
+  },
+  "gate_definitions": 233,
+  "platform_executions": 529,
+  "platform_groups": 41,
+  "all227_main_gate_definitions_unchanged": true,
+  "before_findings": "Published method implementation C executes unchanged zlib caller; Rust rejects namespace default-array argument projection. Independent staging rejects scalar pointer API. Intermediate namespace repair exposes sized-array representation mismatch. SAN reproduces original C74-byte slice leak on published implementation. Later focused control finds ordinary-array helper header dereference in Rust private C island. All retained before failures are diagnostic evidence, not parity credit. Initial b58 continuation stopped after known SAN failure; no canceled SDK21 task is counted as passing.",
+  "scope": "Synchronous borrowed scalar storage for C/native and C-compiled Sindarin providers, unchanged28-export zlib API backed by C/header implementation, namespace default-array loans, sized canonical arrays, archive dependencies, slice caller cleanup and C helper headers. Native pointers retain backing API bounds/lifetime preconditions. Rust/Go memory providers, managed references/pointer results, seven remaining SDK modules and broader alias/record/copy-hook/interface/generic/callback/fullplatform acceptance remain open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-package-borrowed-scalar-memory.json.gz",
+      "sha256": "2b570a2666c88465aca17cfb4a5fbdfda12e8dbc1ced02d3522593b523b98e12"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-package-borrowed-scalar-memory-sanitized.json.gz",
+      "sha256": "85fa75e1275e1ac393bff1e63745bf9649da338e82593870da6a2cd376ca5e2f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-sdk-zlib-artifact.json.gz",
+      "sha256": "9722ec6889f45d3e43fcb6472960077f7e2a2696f2b3664d1a4896f2c03cd179"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-sdk-zlib-artifact-sanitized.json.gz",
+      "sha256": "8116893b38b3c40bcbee09c1aeb8bbe061fdd2cc1228429e4acdd6779a315219"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-c-array-call-arguments.json.gz",
+      "sha256": "12d51938fafb0b7c01e4de0000350320da9f509b6ad67ca9889051c0fe98219f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-c-array-call-arguments-sanitized.json.gz",
+      "sha256": "42468dca2957b522092d9ab7238ab102857a95bee4f977b2493442cf69875acb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-method-struct-parameters.json.gz",
+      "sha256": "76f5e84322d1b628a0c8a06d7e6aed4fbd82ceaae1a726df29582d3600ba11fe"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-method-struct-parameters-sanitized.json.gz",
+      "sha256": "1ffe6999846247062a5842ab6bd81a6ebcd4b8d746ab9c7cd172baac2ec39f17"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-default-array-parameters.json.gz",
+      "sha256": "079ad6f7477c9993115d3bddcd58b933882c869e81c0cb60ec9f81238a8bd6c9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-default-array-parameters-sanitized.json.gz",
+      "sha256": "a077188d226f0dde7add5971ccb33ebf828b2d84568d75f55fd7ac114f6fdeb4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-package-default-array-parameters.json.gz",
+      "sha256": "dd14da6cbcfeeee7e23a2baa47c8f771f885304150fa4c10bd50c152b67fc0c8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-package-default-array-parameters-sanitized.json.gz",
+      "sha256": "e1dfe041cd2f1b3f8258d8f071639746612cbb8337d31982d7adefd381bee37a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-native-array-fields.json.gz",
+      "sha256": "308b8bb131c5308fa8f38d5044cd29026c34c45cb22c4980c9cb22431ce4ae9c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "52ff3cc488242533889fa17fa7b9a663129503b3bc322a11b67e5510607aa9ef"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-string-call-arguments.json.gz",
+      "sha256": "bd0f4f378747f336477da2f9c333bd1506c147ed2fd9a523b5abba4a2ed8b20e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-string-call-arguments-sanitized.json.gz",
+      "sha256": "9ae6a0c31bca314a6fdf51466adf1705f33104f78be76f5cf2b4e8738de79b85"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-parity-numeric-places.json.gz",
+      "sha256": "9c957ec9ecca88b9cacdb9321cb5c3429fa775fb7d11c55fd33c936e97c4675c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-rust-parity-numeric-native-owners.json.gz",
+      "sha256": "fa78bf43ceeb99b9356ad46d52bffc22b44a6a7b8b80ba3bf8aaebc5a0804bb7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-SDK21-candidate-normal.json.gz",
+      "sha256": "5e0f19d73d2177df08d0734a5a498d86ab9775628dc57d3dc1f4da1b35f8c6dc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-SDK21-candidate-normal-execution.json.gz",
+      "sha256": "8318ca10dbbb85635c132313bc6fe76923113d6de904d40d9ca392d52802a40a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-SDK21-candidate-sanitized.json.gz",
+      "sha256": "5e0f19d73d2177df08d0734a5a498d86ab9775628dc57d3dc1f4da1b35f8c6dc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-SDK21-candidate-sanitized-execution.json.gz",
+      "sha256": "cf2e7451ada2a71584b4b34cb7af2096f756f2e97c6f4a54ef94e7d4c38497e8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-runtime-abi.json.gz",
+      "sha256": "9a58480d6a144d2b04b6719eb4d0674946687c9ff2b87a3247a4f967b6999803"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-report-runtime-abi-sanitizers.json.gz",
+      "sha256": "2f44cb3032261a0e024dce6257be1b3bd3881e6476d586293e74f8f06d0dcbbf"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-composed-validation.json.gz",
+      "sha256": "b2e4d441a502bb160a36a088713172550401cd9003e9b5cf8595de7f7cf7412a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-composition.py.gz",
+      "sha256": "da85359c9c4c1983a029abc30d1cbd14e324a8b8afdc2e76a40ee0d14e3b1940"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-composed-driver.log.gz",
+      "sha256": "c846b497e3f04aac7a28dcabc71fd5dacd634c1b1b30873bd094431cf51cec92"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-full-C.log.gz",
+      "sha256": "95ae03db8922d9dca4b746a0c3e5f949ba35ed90609d5260e9962ddbaad3c55a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-full-Rust.log.gz",
+      "sha256": "e81b3d23a2b0a9241186116fc17897a06f56066abc72c73493acc22a2abfeb9f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-runtime-ABI.log.gz",
+      "sha256": "f2f01ff731d1080cd3fc93753498b0c7b689221819e460fb614d6bd4d01437ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-runtime-ABI-sanitized.log.gz",
+      "sha256": "ba0931208460f8504314197c115460dad8199bf12bbed0d8979c2755c48230d5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-audit-original-modes-final.py.gz",
+      "sha256": "a6b791033816b3570d2e4004433bae5b7c01d0329f06d0ba6ffcddf9a364123b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-original-modes-final.log.gz",
+      "sha256": "2cd629bfe6f148e25fa4c9705a02bb858f24dd463179f3ae21e5a049023d1a4f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-original-corpus-final-all-mode-discovery.json.gz",
+      "sha256": "27615446392db61efc45188d48e27a2c3b1be12e4e8995179fbf06c91b1a4ae8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-baseline.json.gz",
+      "sha256": "f8f4609b33636b8be3d1f819f8129f61f77c1050f8020daf6d311ce5a5e1e3f3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-baseline.py.gz",
+      "sha256": "6303cef2b7dac2970a3e6e9764de539cdcfda5979d29f57a40c5b89b1ed7ed82"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-accepted-method-C-leak.json.gz",
+      "sha256": "4f0562066aab8ae1a02b6a057ac04dd35b3752c321d17b45f2a088578e23218c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-reproduce-accepted-C-leak.py.gz",
+      "sha256": "2364af95c9b309b4a552b1fbedd96ae53b47607dd9efdee2ec7972b9a5fb30e0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-legacy-after-namespace.json.gz",
+      "sha256": "85ad3b4548c6c5b00fdc5cddf75c7b389f4bd9e6a76fc84f50b1ee2349bc2c41"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-milestone-validation.json.gz",
+      "sha256": "6fa5b54de01dbc4d5b25873df487361977787d2c91d77395fc3d28fac75e9e0b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-milestone-driver.log.gz",
+      "sha256": "1fb7fe7e841eff098033d0b50a2dca05b94c950daf27ee007b6cc0166fc8c22f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-zlib-sanitized.log.gz",
+      "sha256": "e58b817bbd3c7c80813ebdfa1d73fd1e0a60e55666474791a8ecce81adfd3a9d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-array-loans-quick-sanitized.log.gz",
+      "sha256": "a15fc51f3dec14b60ffb3870fb2b2b35c1e5601974d93ee737ba1544f85687b1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-zlib-array-loan-quick.log.gz",
+      "sha256": "78fa3535e6aca9630570723d1554191bdd337df7eb5c14b168bda72019488b08"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-array-loans-header-quick-sanitized.log.gz",
+      "sha256": "b4ef0a8f1ef23fe26ca0f510e541714c106d689ece29186187dbd01f6dfa7ea8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-array-loans-full-normal.log.gz",
+      "sha256": "fc09e8de456814e689e856b19f6399ebac52c6f2aeabdc4078218541e3e91676"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-array-loans-full-sanitized.log.gz",
+      "sha256": "fc09e8de456814e689e856b19f6399ebac52c6f2aeabdc4078218541e3e91676"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-zlib-loan-full-sanitized.log.gz",
+      "sha256": "3454ec4023fefa5040ec5e470468daaaba4aadbb69b8187d140a83a44cdc5ed7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-memory-normal.log.gz",
+      "sha256": "2e86ac4bdd8e8a367498f692bd3b235df1fe2ce28b6872926678bfc91d7c293a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-artifacts.log.gz",
+      "sha256": "96d115cedbb5e8ffe24899da47c759881ac0da1bf5f5faa45cacaa11386e5993"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-memory-sanitized.log.gz",
+      "sha256": "2e86ac4bdd8e8a367498f692bd3b235df1fe2ce28b6872926678bfc91d7c293a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-zlib-normal.log.gz",
+      "sha256": "3454ec4023fefa5040ec5e470468daaaba4aadbb69b8187d140a83a44cdc5ed7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-method-normal.log.gz",
+      "sha256": "9ad8e65382eeca1ed90fe52ecd4f4070c5277c3263009690a9f516d8982e1464"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-method-sanitized.log.gz",
+      "sha256": "9ad8e65382eeca1ed90fe52ecd4f4070c5277c3263009690a9f516d8982e1464"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-array-normal.log.gz",
+      "sha256": "41bcfafd9e5b958659e05cc0232be605609d6802ecb306a4dc67e65c55e1f052"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-array-packages-normal.log.gz",
+      "sha256": "49cf9405b55adfc817f198854422c5f78cc49f8e3e1dc4601eb6a4591df607c9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-array-sanitized.log.gz",
+      "sha256": "41bcfafd9e5b958659e05cc0232be605609d6802ecb306a4dc67e65c55e1f052"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-array-packages-sanitized.log.gz",
+      "sha256": "49cf9405b55adfc817f198854422c5f78cc49f8e3e1dc4601eb6a4591df607c9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-numeric-owners.log.gz",
+      "sha256": "b441e74a3e6e310a445c0ba31960599490a3d23534f3b019fb9ae83e44e4f412"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-strings-normal.log.gz",
+      "sha256": "57bc87ff14413f4bda4e8c6db2514a036b9f9a5a63e3e3b7adb44c6d140e2a82"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-strings-sanitized.log.gz",
+      "sha256": "57bc87ff14413f4bda4e8c6db2514a036b9f9a5a63e3e3b7adb44c6d140e2a82"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-helpers.log.gz",
+      "sha256": "c346d87da5d342a4088b8f242fd5f47ff589bac54f9596fbab92ab3cba6399fb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-fields-normal.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-fields-sanitized.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-borrowed-memory-final-imports.log.gz",
+      "sha256": "41366fee39a05d05e1f6825a62eebcf8013694a2df79fcc9c03316fe6cc0f52d"
+    }
+  ],
+  "base_CI": 40200415390,
+  "base_hosted_jobs": 49,
+  "implementation_checkpoint": "d5c9d3a0",
+  "audit_revision_note": "The raw final original audit records HEAD5b51af8c, which was the current base while the candidate implementation was still local. The exact candidate is identified by compiler7214d9 and the complete source/script hashes. That implementation is now committed in d5c9d3a0; raw audit metadata remains unchanged."
+}

@@ -1,0 +1,30 @@
+{
+  "status": "Complete own-revision Linux/macOS/Windows hosted acceptance verified. Qualified plain-record method repair accepted on SDK20/array integrated main.",
+  "revision": "5b51af8c769dd6c1bf28fb7b0e97d25b3cdb3596",
+  "CI": 40200415390,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40200415390",
+  "required_jobs": 49,
+  "all_jobs_successful": true,
+  "platform_gate_executions": 517,
+  "platform_groups": 41,
+  "compilers": {
+    "Linux": "3ee319be706124d728af57622e4cd9704d2cefe4850af556e70968e390c81e05",
+    "Darwin": "50d5b6683a06d9d69b683cdcabbd552e66759d3588f27df23aaa719c60acf57b",
+    "Windows": "8bf10747b99ed476ab454f5d03b271c0f27b46a357c4a129ed479c71c5cf6fab"
+  },
+  "scope": "Accepts tested plain heap-free as-ref/as-val method arguments, scalar field stores, independent indexed places and shared C record-variable array construction. Broader aliases/effectful RHS/heap records/copy hooks/SDK/ABI/callback/finalplatformcorpus remain open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-ci-final.json.gz",
+      "sha256": "059eb55d872681b146ed5471471401eac1bc0047dd6f7ac2bbf737df04fecf47"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-ci-coverage.json.gz",
+      "sha256": "d85e87cedf292deda244c5ebfdc63b2192a7782e5db549d5cf97d7d2e9af7c0a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/method-struct-parameters-ci-artifacts.json.gz",
+      "sha256": "034b4d5502cc6df3ac7380917ad319ca0aca799c9fafc4513152cbdf07fa9899"
+    }
+  ]
+}
