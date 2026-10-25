@@ -2459,6 +2459,30 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "numeric-match-conversions",
+      "name": "Numeric match C expression widths, floating promotions and result storage (81 mode pairs)",
+      "command": [
+        "{python}",
+        "scripts/check_rust_numeric_match.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "numeric-match-conversions-sanitizers",
+      "name": "Numeric match C expression widths, floating promotions and result storage (81 mode pairs) with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_numeric_match.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc"
+      }
     }
   ]
 }

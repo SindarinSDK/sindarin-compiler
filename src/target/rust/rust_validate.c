@@ -2586,8 +2586,7 @@ static bool rust_string_match_result_access_is_stable(json_object *expr)
 typedef enum
 {
     RUST_FLOAT_MATCH_PATTERN_OK,
-    RUST_FLOAT_MATCH_PATTERN_NOT_LITERAL,
-    RUST_FLOAT_MATCH_PATTERN_WRONG_TYPE
+    RUST_FLOAT_MATCH_PATTERN_NOT_LITERAL
 } RustFloatMatchPatternStatus;
 
 static RustFloatMatchPatternStatus rust_float_match_literal_pattern(
@@ -2600,8 +2599,7 @@ static RustFloatMatchPatternStatus rust_float_match_literal_pattern(
         !(pattern_kind = json_string_property(pattern_type, "kind")) ||
         !rust_float_type(pattern_kind))
         return RUST_FLOAT_MATCH_PATTERN_NOT_LITERAL;
-    if (strcmp(pattern_kind, subject_kind) != 0)
-        return RUST_FLOAT_MATCH_PATTERN_WRONG_TYPE;
+    (void)subject_kind;
 
     json_object *literal = pattern;
     if (json_string_property_equals(pattern, "kind", "unary"))
@@ -2611,7 +2609,7 @@ static RustFloatMatchPatternStatus rust_float_match_literal_pattern(
             !json_object_object_get_ex(pattern, "operand", &literal) ||
             !json_object_is_type(literal, json_type_object) ||
             !json_object_object_get_ex(literal, "type", &operand_type) ||
-            !json_string_property_equals(operand_type, "kind", subject_kind))
+            !json_string_property_equals(operand_type, "kind", pattern_kind))
             return RUST_FLOAT_MATCH_PATTERN_NOT_LITERAL;
     }
 
@@ -2627,11 +2625,7 @@ static RustFloatMatchPatternStatus rust_float_match_literal_pattern(
 static bool rust_report_float_match_pattern_error(
     RustFloatMatchPatternStatus status, bool is_value_match)
 {
-    if (status == RUST_FLOAT_MATCH_PATTERN_WRONG_TYPE)
-        return rust_report_match_error(
-            is_value_match
-                ? "requires floating literal patterns in value match to have the exact subject type"
-                : "requires floating literal patterns in statement match to have the exact subject type");
+    (void)status;
     return rust_report_match_error(
         is_value_match
             ? "supports floating value match only with floating literal patterns"
@@ -2646,13 +2640,30 @@ static bool rust_computed_scalar_match_pattern(json_object *pattern,
 {
     json_object *type = NULL, *operand = NULL;
     if (!json_object_object_get_ex(pattern, "type", &type) ||
-        !json_string_property_equals(type, "kind", subject_kind) ||
+        (!json_string_property_equals(type, "kind", subject_kind) &&
+         !(rust_float_type(subject_kind) &&
+           rust_float_type(json_string_property(type, "kind")))) ||
         json_string_property_equals(pattern, "kind", "literal")) return false;
     if (json_string_property_equals(pattern, "kind", "unary") &&
         json_string_property_equals(pattern, "op", "negate") &&
         json_object_object_get_ex(pattern, "operand", &operand) &&
         json_string_property_equals(operand, "kind", "literal")) return false;
     return true;
+}
+
+/* Saved subjects have their declared storage width. Pattern expressions keep
+ * their C expression width, including unsuffixed C double literals originating
+ * from source float literals. Lowering supplies those expression annotations. */
+static void rust_prepare_float_match_comparison(json_object *pattern,
+                                                const char *subject_kind)
+{
+    json_object *type = NULL;
+    if (!rust_float_type(subject_kind) ||
+        !json_object_object_get_ex(pattern, "type", &type)) return;
+    const char *pattern_kind = json_string_property(type, "kind");
+    if (rust_float_type(pattern_kind) && strcmp(subject_kind, pattern_kind))
+        json_object_object_add(pattern, "rust_match_float_promotion",
+                               json_object_new_boolean(true));
 }
 
 static bool rust_validate_statement_match(json_object *expr)
@@ -2722,6 +2733,7 @@ static bool rust_validate_statement_match(json_object *expr)
             for (size_t p = 0; p < pattern_count; p++)
             {
                 json_object *pattern = json_object_array_get_idx(patterns, p);
+                rust_prepare_float_match_comparison(pattern, subject_kind);
                 if (subject_is_integral)
                     json_object_object_add(pattern, "rust_match_comparison_cast",
                                            json_object_new_boolean(true));
@@ -2838,6 +2850,7 @@ static bool rust_validate_value_match(json_object *expr)
             for (size_t p = 0; p < pattern_count; p++)
             {
                 json_object *pattern = json_object_array_get_idx(patterns, p);
+                rust_prepare_float_match_comparison(pattern, subject_kind);
                 if (subject_is_integral)
                     json_object_object_add(pattern, "rust_match_comparison_cast",
                                            json_object_new_boolean(true));
@@ -2912,7 +2925,10 @@ static bool rust_validate_value_match(json_object *expr)
             !json_object_object_get_ex(statement, "expr", &arm_expr) ||
             !json_object_is_type(arm_expr, json_type_object) ||
             !json_object_object_get_ex(arm_expr, "type", &arm_type) ||
-            !json_string_property_equals(arm_type, "kind", result_kind))
+            (!json_string_property_equals(arm_type, "kind", result_kind) &&
+             !rust_float_conversion_pair(result_type, arm_type) &&
+             !(rust_integer_type(result_kind) &&
+               rust_integer_type(json_string_property(arm_type, "kind")))))
         {
             if (strcmp(result_kind, "string") == 0)
                 return rust_report_match_error(

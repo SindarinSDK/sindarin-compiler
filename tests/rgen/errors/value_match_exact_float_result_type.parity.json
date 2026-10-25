@@ -1,0 +1,7 @@
+{
+  "source_sha256": "56685539e3a0a5a0860a11505dbefff12e78da2004d5a9d4118342bd4da0c2e4",
+  "legacy_oracle_sha256": "d7f57f1858f1c0b0f72ee8e708f87fad05ea879193d12ed13258baa08c5173f3",
+  "stdout_hex": "312e30303030300a",
+  "exit": 0,
+  "reason": "Rust preserves C floating comparison promotions and numeric arm conversion at the resolved match result type"
+}

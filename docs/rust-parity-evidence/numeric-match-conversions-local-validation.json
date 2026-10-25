@@ -1,0 +1,145 @@
+{
+  "status": "Complete local validation on corrected main; own hosted acceptance pending",
+  "base": "43a6d633c7d72c1ec8cf144ee720ef885f831490",
+  "compiler_sha256": "d91eb6b3f0d8fa8c1b2f2cccf96bc3125b43dcbf052cb0b567ea75b502d9072e",
+  "script_sha256": "6e34ed5fa9f45b83d582b2538f28376ec94ea7fc2863e68c0e8fdb219b9b115d",
+  "implementation_sha256": {
+    "src/target/rust/rust_lower_calls.c": "903b02208b8527237f4c39bf33bd3e1d4580c101dafffebae4ffc6793e29667c",
+    "src/target/rust/rust_validate.c": "70392c75eddbb505f1da2501dc9d09042e62509101051dda4f6bfb91219a7e60",
+    "templates/rust/partials/expr/match.hbs": "231b31f1830fb62bf3fc17d200b343f8a0c6085234f9fb31531681c6e5756bb6"
+  },
+  "focused_pairs_each_environment": 81,
+  "original_rejections_promoted_without_source_oracle_changes": 7,
+  "dynamic_match_pairs_each_environment": 72,
+  "numeric_contract": "Saved subjects retain declared storage precision. Pattern expressions and selected numeric result arms retain the actual C expression width and convert at the C result storage boundary. Source float literals are unsuffixed C double expressions; integer literals have LL width. Same-width/safely exact literal paths retain existing generated code snapshots.",
+  "independent_controls": "Computed mixed floating patterns are lazy with one saved subject, source ordering and short-circuit effects; 0.1 precision,16777216/16777217 boundaries, signed zero, negative patterns, float literal versus stored variable distinction, numeric result conversions,16 shared-checker-compatible integer type combinations,byte/uint32 narrowing.",
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "all_hashes_rechecked_unchanged": true,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "all_197_corrected_main_gate_definitions_unchanged": true,
+  "gate_definitions": 199,
+  "platform_gate_executions": 461,
+  "platform_groups": 41,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-validation.json.gz",
+      "sha256": "0a86b6c13a1118acf50083ae2a7ea9bfce86b92f55ea67a549a2a0ed75589b66"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-build.log.gz",
+      "sha256": "78f1c9c38a372698c8821435bd634af7a9c86ca87d0b1f9e4eaa5022177c0985"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-focused-normal.log.gz",
+      "sha256": "a22120e34afd3147c887e0204dbae633bc4148bacd4e04dd0aa749abc2abdab4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-focused-sanitized.log.gz",
+      "sha256": "b73be2bc7010dc7efc549ca72dd6a0589d0e5684993251d36278eb43928e9aeb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-full-C.log.gz",
+      "sha256": "f9a4737a48fb9727967c43fd68e69fa6c7cbb53f4f0f6fdfa278385f2abc7908"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-full-Rust.log.gz",
+      "sha256": "d9b5b7261ffd07dd634cae731bb159b22f394b9f7929053e3ef9f7a5b33c010d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-dynamic-match.log.gz",
+      "sha256": "c624f48ed70712209a202d3eb0e32b3d69fded4ecbb985544adb1499e484b63b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-dynamic-match-sanitized.log.gz",
+      "sha256": "c624f48ed70712209a202d3eb0e32b3d69fded4ecbb985544adb1499e484b63b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-CI-helpers.log.gz",
+      "sha256": "b479d720b80f08c92704f35c6df3c1eecdd541ae4b5fc061c29c68eae9fe1ac1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-final-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-before.json.gz",
+      "sha256": "52dd668905392891c561de663405865a507f6bde935f7741cceccb1cd6d60fb7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-before.log.gz",
+      "sha256": "95a951d19964af339bcfb4b84fbd5e8979f2353bd287d8edea4e0ddff42fd788"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-after.json.gz",
+      "sha256": "204e00126fa7956cc8ef7bdbc05c909b19e899f249933dccafd76799b7bc74d7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-after.log.gz",
+      "sha256": "cb1ef3fa0a481f7005510ec5f0e2659c629c824de6b35856385ba29b94032b1a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-focused-rounding-first-failure.log.gz",
+      "sha256": "851c01c4ca1f57e138345f7ad435bb82709580bdbc1287a6e26d6df204e0ada8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-focused-C-width-normal.log.gz",
+      "sha256": "25acbe496c2edfa7d6f298c3ba1614dd70eb38bf6abe0d03b3cca7cc397b43c6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-focused-inferred-normal.log.gz",
+      "sha256": "7643801d4bc017240d7fa357c6c527c3b94852492535c6f6c2636702d398987d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-focused-compatible-normal.log.gz",
+      "sha256": "9f914a065cf24a6f75de3faa97b4709c7879a8778d692d7ae1887dfcbedb7863"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-initial-full-Rust.log.gz",
+      "sha256": "be5710b6fc0c66e34ebc52f493807d237c280c1c85a227e88ab766407a030a9e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-initial-validation.json.gz",
+      "sha256": "243a9778e64115434d57a14f8cb29f7dcc4538f201a0a0f654bc4e2093f83868"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-parallel-harness-cleanup-diagnosis.json.gz",
+      "sha256": "64a8e4af83c9ede1067620a1fbc87292cc5c3611bbf829809ad6421e1ae8cac7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-rust-numeric-match.json.gz",
+      "sha256": "8c7eb2b237454e617cfb8e63a67fe26a7b485ecea1f519cdadbc45d1095493b6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-rust-numeric-match-sanitized.json.gz",
+      "sha256": "012a63c90b55b80287b0419a57516d9b3083d660a2a8fa212bd21c135a0da0ab"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-rust-parity-dynamic-scalar-match.json.gz",
+      "sha256": "fdbe0e5a78d8d144b84dd332ec06e004e6ee6eb133c95cacba0b1a6ab955cc80"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-rust-parity-dynamic-scalar-match-sanitizers.json.gz",
+      "sha256": "9c2e80a21627a23813efaf7f19afcf8e951891d9296a8297b479d11d2c349d66"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-conversions-sdk-artifact-validation.json.gz",
+      "sha256": "549756204caace6338e4766e6ee389a0d21041802bd3d7ec955e9a7755480f4c"
+    }
+  ],
+  "initial_failures": "New controls initially assumed a source float literal was a C float expression; generated C and raw output disproved that assumption. New controls requesting twenty incompatible integer result pairs were rejected by the shared C checker and receive no parity credit. Initial overly broad annotations changed32 Rust snapshots; final selective annotations retain all established snapshots. Two concurrent harness failures lost temporary linker/run artifacts to C runner global orphan cleanup; final full suites run serially. Prior unrelated historical failures remain separately unexplained.",
+  "scope": "Numeric match conversion slice only. No feature publication before correctionCI40150376704 acceptance and publication slot availability. Full SDK/native/ownership/interface/generic/lifecycle and final preserved corpus mode/platform parity remain open."
+}

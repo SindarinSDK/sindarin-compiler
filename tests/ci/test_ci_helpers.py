@@ -114,7 +114,15 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 41)
-        self.assertEqual(report['gates'], 457)
+        self.assertEqual(report['gates'], 461)
+        for sanitized in (False, True):
+            identity = 'numeric-match-conversions' + ('-sanitizers' if sanitized else '')
+            entries = [g for g in self.catalog['gates'] if g['id'] == identity]
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0]['command'], ['{python}', 'scripts/check_rust_numeric_match.py'] +
+                             (['--sanitize'] if sanitized else []))
+            self.assertEqual(entries[0]['group'], 'sanitizers' if sanitized else 'core')
+            self.assertEqual(entries[0]['linux_only'], sanitized)
         for sanitized in (False, True):
             identity = 'package-native-threads' + ('-sanitizers' if sanitized else '')
             matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]

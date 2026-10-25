@@ -1,3 +1,37 @@
+## Numeric match conversions: complete local validation, 2026-10-25
+
+Rust preserves C floating comparison promotions and numeric match result
+conversions. Subjects are saved once at their declared storage precision;
+computed patterns remain lazy and ordered, and selected arms convert into the
+resolved result type. Source float literals render as unsuffixed C double
+expressions, while stored float variables have already rounded to float width.
+Integer literals retain C LL expression width before final narrowing. Existing
+same-width paths and safely exact literals keep their established Rust snapshots.
+
+Seven original rejection programs execute without changing their sources or
+original diagnostic files. All 81 independent mode pairs pass normally and with
+strict C address/undefined/leak checks. Controls distinguish 0.1 literal/storage
+precision, the 16,777,216 boundary, signed zero and negative patterns, lazy effects,
+sixteen shared-checker-compatible integer result combinations, and byte/uint32
+narrowing. Existing dynamic match72 passes in both environments. Complete C/Rust
+suites pass 3,243/1,099 with every established snapshot intact; SDK19 smoke84,
+CI helpers27 and formatting pass. All original 1,365 programs, 1,158 oracles and
+281 accepted SDK inputs were rehashed unchanged. All 197 corrected-main gates
+remain intact; two additive gates require 461 platform executions in 41 groups.
+
+Initial overly broad annotations changed generated snapshots; selective lowering
+repairs that regression. A separate local C/Rust harness overlap deleted active
+temporary linker/run files through global orphan cleanup; final full harnesses
+run serially. Exploratory controls rejected by the shared C checker receive no
+parity credit. Their logs and the corrected literal-width analysis remain retained.
+
+This is local validation on correction main `43a6d633`. Feature publication
+remains frozen behind CI 40150376704; this slice needs composition with preceding
+feature batches and its own complete hosted acceptance. Wider match/ownership,
+SDK/native/interface/generic/lifecycle contracts and final original corpus
+mode/platform verification remain required. Evidence:
+[numeric-match-conversions-local-validation.json](rust-parity-evidence/numeric-match-conversions-local-validation.json).
+
 ## Native byte-array object views: correction locally verified, 2026-10-25
 
 Array main `f4b92f61` failed the existing byte-encoding gate on Linux, macOS
