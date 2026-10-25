@@ -1,3 +1,35 @@
+## Nested array search composed with thread main: complete local validation, 2026-10-25
+
+Rust nested `contains`/`indexOf` now use canonical C array-header identity.
+Copied inner headers remain distinct; stored slots, nil inner arrays, default
+and closure loans, owned temporaries and explicit value copies preserve their
+existing C behavior. Ranks two through 32 and eleven scalar/string leaf kinds
+are covered. Fresh helper names preserve user identifiers, and portable
+receiver/argument controls verify once-only effects. A nonportable independent
+argument/index-order probe is retained separately without parity credit.
+
+Both original rejection programs execute unchanged: nested array search and
+value-match prefix lexical order. Their source and original diagnostics remain
+intact. Composition with thread main `c5c24f18` passes all 45 array mode pairs
+normally and with C address/undefined/leak checks, all 72 thread cases normally
+and with sanitizers, complete C/Rust suites 3,243/1,099, all 27 CI helpers and
+formatting. The broader same-array-code proof also passes imports52,
+artifacts22, nineteen-module SDK smoke84, ABI17, and record-array432 plus six
+wire clients normally and with sanitizers. Initial missing SDK fixtures were
+restored from all281 byte-identical accepted SDK files before those full checks.
+
+All 1,365 original programs, 1,158 goal-start oracles and 281 SDK inputs retain
+their bytes. All 195 current-main gates remain unchanged; the two additive array
+gates require 457 platform executions in 41 groups. The refreshed sixty-source
+historical executable review finds sixteen agreeing cases, 43 Rust rejections,
+and one separately retained C leak; it is not a percentage or completion proof.
+This local checkpoint requires its own complete hosted acceptance. Whole SDK,
+qualifier/callback/ownership/interface/generic/lifecycle contracts and final
+frozen corpus mode/platform/oracle verification remain required. Evidence:
+[nested-array-search-thread-composed-local-validation.json](rust-parity-evidence/nested-array-search-thread-composed-local-validation.json),
+[broader package checks](rust-parity-evidence/nested-array-search-local-validation.json),
+[candidate review](rust-parity-evidence/nested-array-search-candidate-refresh.json).
+
 ## Math and record-loan correction: complete hosted acceptance, 2026-10-25
 
 Corrected compiler main `169c68e1` passes all 49 required jobs in
