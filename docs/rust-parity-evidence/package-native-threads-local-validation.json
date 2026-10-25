@@ -1,5 +1,5 @@
 {
-  "status": "complete local validation; feature publication frozen pending corrected main CI40144127442",
+  "status": "complete local validation; own hosted acceptance pending after corrected main169 CI40144127442 passed",
   "implementation_revision": "9fcd1a42d349026bfa4197e2987da9c65e440fb0",
   "base": "169c68e1822d438d5b83400abe6d637e505f8092",
   "fixes": [
