@@ -82,6 +82,19 @@ bool package_binding_is_sindarin(json_object *plan, json_object *binding)
     return false;
 }
 
+bool package_callable_parameter_supported(const Parameter *parameter)
+{
+    if (parameter->sync_modifier != SYNC_NONE) return false;
+    if (parameter->mem_qualifier == MEM_DEFAULT) return true;
+    if (parameter->mem_qualifier != MEM_AS_VAL || !parameter->type) return false;
+    switch (parameter->type->kind) {
+        case TYPE_INT: case TYPE_LONG: case TYPE_INT32: case TYPE_UINT: case TYPE_UINT32:
+        case TYPE_BYTE: case TYPE_BOOL: case TYPE_CHAR: case TYPE_FLOAT: case TYPE_DOUBLE:
+            return true;
+        default: return false;
+    }
+}
+
 bool package_callable_valid(const PackageCallable *callable, bool sindarin)
 {
     Parameter *params = NULL;
@@ -98,7 +111,7 @@ bool package_callable_valid(const PackageCallable *callable, bool sindarin)
         params = method->params; count = method->param_count;
     } else return false;
     for (int i = 0; i < count; i++)
-        if (params[i].mem_qualifier != MEM_DEFAULT || params[i].sync_modifier != SYNC_NONE) return false;
+        if (!package_callable_parameter_supported(&params[i])) return false;
     return true;
 }
 
@@ -129,6 +142,8 @@ json_object *package_callable_signature(CompilerOptions *options, const PackageC
         json_object *entry = json_object_new_object();
         json_object_object_add(entry, "name", json_object_new_string(parameters[i].name.start));
         json_object_object_add(entry, "type", package_native_model_type(&options->arena, parameters[i].type, module, modules, count));
+        if (parameters[i].mem_qualifier != MEM_DEFAULT)
+            json_object_object_add(entry, "mem_qual", json_object_new_string(gen_model_mem_qual_str(parameters[i].mem_qualifier)));
         json_object_array_add(params, entry);
     }
     return signature;

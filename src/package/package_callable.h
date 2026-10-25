@@ -13,6 +13,7 @@ typedef struct {
 bool package_find_callable(Arena *arena, Module *module, const char *file,
                             const char *name, const char *method_kind, PackageCallable *out);
 bool package_callable_valid(const PackageCallable *callable, bool sindarin);
+bool package_callable_parameter_supported(const Parameter *parameter);
 json_object *package_callable_signature(CompilerOptions *options, const PackageCallable *callable,
                                        json_object *plan, json_object *binding, Module *module,
                                        Module *const *modules, int count, const char *manifest);

@@ -1,0 +1,37 @@
+{
+  "status": "Additional regression validated on unchanged d190 implementation",
+  "implementation_revision": "d1903c49a54245d407cedd6840596c04bd7907ae",
+  "compiler_sha256": "d91eb6b3f0d8fa8c1b2f2cccf96bc3125b43dcbf052cb0b567ea75b502d9072e",
+  "script_sha256": "7f691329e4f78c95b3c24c197557ebe0a1f6cc8a21dd5a57416a3dfe47689567",
+  "focused_pairs_normal": 81,
+  "focused_pairs_C_sanitizers": 81,
+  "oracle": "(16777216.0f+1.0f)-16777216.0f in a selected float-result arm returns0 under typed checked helpers and1 under unchecked C double expression promotion. Default arithmetic is checked atO0/O1 andunchecked atO2. All9mode/optimization tuples match independent expected output through both executable targets.",
+  "broader_unchanged_implementation_proof": "docs/rust-parity-evidence/numeric-match-conversions-local-validation.json",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-wide-arm-rust-numeric-match.json.gz",
+      "sha256": "ccaff358f99076f8f2e2c024ea9bbabd55739af05eea66edad4e68c713e717e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-wide-arm-rust-numeric-match-sanitized.json.gz",
+      "sha256": "02b40a385a995e8d3d314458bb193efb1fe13db9509e9769e87f7a181bbcd35c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-wide-arm-wide-arm-normal.log.gz",
+      "sha256": "370edb3b85fb72a26f1b2dd28bb93496f5c77366cfafbda29843c1149ba9f062"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-wide-arm-wide-arm-sanitized.log.gz",
+      "sha256": "6e8d7675b731f33be8b12accb01e290b55141bed9209ed73c318b730477072fc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-wide-arm-wide-arm.json.gz",
+      "sha256": "d1efe19e781cdf841b227d68e6efbb751bff333a5fdd70b6b798fa5dba6bd2ab"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-wide-arm-wide-arm-probe.log.gz",
+      "sha256": "1995d669960eda225f6491446357d3d208f20c8100351f8cc4fcb7b478d2df9c"
+    }
+  ],
+  "scope": "Test extension only; no compiler/runtime/Sindarin source or existing oracle changes. Full parity goal and required hosted acceptance remain open."
+}

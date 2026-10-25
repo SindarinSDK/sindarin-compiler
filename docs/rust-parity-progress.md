@@ -32,6 +32,193 @@ Rust; it receives no parity credit. Complete computed target stores, public SDK
 field contracts and the full Rust/C parity goal remain open.
 [Retained evidence](rust-parity-evidence/native-array-fields-local-validation.json).
 
+## Historical candidate audit refreshed on numeric main, 2026-10-25
+
+The same 60 historical programs were compiled and executed against numeric
+main `9bd0d0d1` on Linux/O0/default arithmetic. Twenty-six now agree between
+C sanitizers and Rust, compared with sixteen in the preceding audit. Thirty-three
+still reject Rust executable generation after clean C sanitizer execution. One
+array-subject match still fails C leak checking and receives no parity credit.
+All 60 original sources and diagnostic oracles remain byte-identical.
+
+The ten new agreements cover two record-store cases, the scalar value qualifier
+and seven numeric match conversions. This subset does not establish an overall
+completion percentage, C-defined semantics or final corpus/mode/platform parity.
+The record and numeric main runs still require their own complete hosted
+acceptance. [Retained audit](rust-parity-evidence/numeric-main-candidate-refresh.json).
+
+## Numeric match conversions: complete local validation, 2026-10-25
+
+Rust preserves C floating comparison promotions and numeric match result
+conversions. Subjects are saved once at their declared storage precision;
+computed patterns remain lazy and ordered, and selected arms convert into the
+resolved result type. Source float literals render as unsuffixed C double
+expressions, while stored float variables have already rounded to float width.
+Integer literals retain C LL expression width before final narrowing. Existing
+same-width paths and safely exact literals keep their established Rust snapshots.
+
+Seven original rejection programs execute without changing their sources or
+original diagnostic files. All 81 independent mode pairs pass normally and with
+strict C address/undefined/leak checks. Controls distinguish 0.1 literal/storage
+precision, the 16,777,216 boundary, signed zero and negative patterns, lazy effects,
+sixteen shared-checker-compatible integer result combinations, and byte/uint32
+narrowing. Existing dynamic match72 passes in both environments. Complete C/Rust
+suites pass 3,243/1,099 with every established snapshot intact; SDK19 smoke84,
+CI helpers27 and formatting pass. All original 1,365 programs, 1,158 oracles and
+281 accepted SDK inputs were rehashed unchanged. All 197 corrected-main gates
+remain intact; two additive gates require 461 platform executions in 41 groups.
+
+Initial overly broad annotations changed generated snapshots; selective lowering
+repairs that regression. A separate local C/Rust harness overlap deleted active
+temporary linker/run files through global orphan cleanup; final full harnesses
+run serially. Exploratory controls rejected by the shared C checker receive no
+parity credit. Their logs and the corrected literal-width analysis remain retained.
+
+The correction at `43a6d633` is accepted by all 49 jobs of CI 40150376704.
+Numeric matches are now composed with record and scalar main `516bdf32`. All
+81 numeric, 45 record, 45 scalar-language, 216 scalar-package, 81 byte, 45 array
+and 72 thread cases pass in normal and sanitizer environments. Full C/Rust
+suites pass 3,243/1,099; imports52, artifacts22, SDK19 smoke84, CI helpers27
+and formatting pass. All original sources, oracles and 281 accepted SDK inputs
+remain byte-identical. All 201 main gate definitions remain unchanged; two
+additive gates require 469 platform executions in 41 groups.
+
+Scalar main `516bdf32` now passes all 49 jobs of CI 40155571314, including
+465 required platform executions. This numeric slice requires its own complete
+hosted acceptance. The preceding record run 40153334480 remains independently
+required and is still in progress.
+Wider match/ownership, SDK/native/interface/generic/lifecycle contracts and final
+original corpus mode/platform verification remain required. Evidence:
+[numeric-match-main-composed-local-validation.json](rust-parity-evidence/numeric-match-main-composed-local-validation.json),
+[numeric-match-conversions-local-validation.json](rust-parity-evidence/numeric-match-conversions-local-validation.json).
+
+## Scalar values composed with record main: hosted acceptance, 2026-10-25
+
+The independent scalar-value feature includes record main `9f37126e`. Local
+parameter preparation retains both the record model context and explicit scalar
+value handling. All 45 scalar language pairs, 216 C/RS/Go provider package cases,
+45 record pairs, 81 byte-encoding pairs, 45 array pairs and 72 thread cases pass
+normally and with strict C address/undefined/leak checks. Full C/Rust suites pass
+3,243/1,099; imports52, artifacts22, SDK19 smoke84, CI helpers27 and formatting
+pass. All original 1,365 programs, 1,158 oracles and 281 SDK inputs remain
+byte-identical. All 199 main gates remain intact; two additive scalar definitions
+require 465 platform executions in 41 groups.
+
+Main `516bdf32` passes all 49 jobs of CI 40155571314. Coverage verifies all
+465 executions in 41 platform groups using one recorded compiler per platform.
+Record main retains its distinct pending run 40153334480; later integrated
+acceptance does not replace that independent required run. Full Rust/C parity
+remains open. Evidence:
+[scalar-value-ci-green.json](rust-parity-evidence/scalar-value-ci-green.json),
+[scalar-values-record-composed-local-validation.json](rust-parity-evidence/scalar-values-record-composed-local-validation.json).
+
+## Scalar values composed with corrected main: locally verified, 2026-10-25
+
+The scalar-value package changes include correction main `43a6d633`. All 45
+language pairs, 216 C/RS/Go provider package cases, 81 byte-encoding pairs,
+45 array-search pairs and 72 native thread cases pass normally and with strict
+C address/undefined/leak checks. Complete C/Rust suites pass 3,243/1,099,
+imports52, artifacts22, SDK19 smoke84, CI helpers27 and formatting pass. All
+197 corrected-main gates, original 1,365 programs, 1,158 oracles and 281 SDK
+inputs remain byte-identical. Two additive scalar gates require 461 platform
+executions in 41 groups.
+
+The initial integration driver omitted native_ prefixes in two script paths.
+Its setup failure is retained; only missing checks were resumed on the same
+compiler, without repeating completed checks. This checkpoint remains independent
+of the unpublished record-value and numeric-match changes. Feature publication
+is frozen until correction CI 40150376704 has complete hosted acceptance; later
+composed main and this feature require their own validation. Full parity remains
+open. Evidence:
+[scalar-value-qualifiers-corrected-main-local-validation.json](rust-parity-evidence/scalar-value-qualifiers-corrected-main-local-validation.json).
+
+## Explicit scalar values: complete local validation, 2026-10-25
+
+Explicit scalar `as val` parameters use callee-local copies in Rust functions,
+methods, native calls and independent package contracts. Package signatures retain
+nondefault qualifiers, while existing default signatures keep their bytes. C
+function-reference wrappers now distinguish logical declarations from native
+aliases, preserving selected providers when aliases name other public callables.
+Integer parameter mutation uses the existing C promotion and final storage
+conversion lowering, including mixed-width RHS values.
+
+All 45 language mode pairs and 216 source/sealed package cases pass normally and
+with strict C address/undefined/leak checks. Controls cover ten scalar types,
+72 integer type/qualifier combinations, the 256-character domain, native callback
+forwarding/results/identity, colliding native function-reference aliases, joined
+native threads, static methods and canonical record cleanup. Packages retain C,
+Rust or Go backing implementations and C/RS Sindarin bodies, with both C and
+Rust consumers across all nine optimization/arithmetic modes. Complete C/Rust
+suites pass 3,243/1,099; all 27 CI helpers and formatting pass.
+
+The original floating `as val` rejection program now executes without changing
+its source or original diagnostic. All 1,365 original programs, 1,158 original
+oracles and 281 accepted SDK files were rehashed unchanged. This standalone
+checkpoint retains all 195 thread-base gates and adds two definitions, requiring
+457 platform executions in 41 groups. Composition with corrected main and its
+own full hosted acceptance remain required. Feature publication remains frozen
+behind correction CI 40150376704. Wider pointer/ref, managed/value/interface,
+generic/callback package export and dependency lifecycle contracts remain open.
+Evidence: [scalar-value-qualifiers-local-validation.json](rust-parity-evidence/scalar-value-qualifiers-local-validation.json).
+
+## Array native loan correction: complete hosted acceptance, 2026-10-25
+
+Correction main `43a6d633` passes all 49 required jobs in
+[CI 40150376704](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40150376704).
+Coverage verifies 457 gate executions in 41 groups and one compiler binary per
+Linux/macOS/Windows platform. The unchanged byte object-view regression passes
+all nine modes on every platform. This accepts the nested-array feature and
+its native array loan correction; the preceding failed run and its three
+platform reports remain retained. Feature publication is unfrozen.
+
+The record-value feature has complete local validation against this accepted
+base and requires its own hosted acceptance. Whole SDK, wider native, ownership,
+interface/generic/callback/lifecycle contracts and final preserved original
+corpus mode/platform verification remain required. Evidence:
+[array-byte-view-correction-ci-green.json](rust-parity-evidence/array-byte-view-correction-ci-green.json).
+
+## Value record stores composed with corrected main: locally verified, 2026-10-25
+
+The record-value changes now include byte-array correction `43a6d633`.
+All 45 record pairs, 81 byte-encoding pairs, 45 array-search pairs and 72 native
+thread cases pass normally and with strict C address/undefined/leak checks.
+Complete C/Rust suites pass 3,243/1,099, SDK19 smoke84, CI helpers27 and formatting
+pass. All 197 corrected-main gate definitions and all original 1,365 programs,
+1,158 oracles and 281 SDK inputs remain byte-identical. Two additive record
+gates require 461 platform executions in 41 groups.
+
+The earlier composition omitted the separately gated byte-encoding check; this
+checkpoint explicitly verifies it against the corrected native loan template.
+Feature publication remains frozen until correction CI 40150376704 completes
+successfully. This feature then requires its own complete hosted acceptance.
+Evidence: [value-record-stores-corrected-main-local-validation.json](rust-parity-evidence/value-record-stores-corrected-main-local-validation.json).
+
+## Value record parameter stores: complete local validation, 2026-10-25
+
+Rust permits local field and whole-slot stores on heap-free value record
+parameters, preserving the C assignment result and leaving the caller's value
+unchanged. Shared thread-field storage retains this value-copy contract through
+ordinary declarations, nested records, calls, stores and returns. Place
+projections continue to address the actual local field owners.
+
+Two original rejection programs execute unchanged, with their original
+rejection diagnostics retained through promotion metadata. All 45 independent
+mode pairs pass normally and with C address/undefined/leak checks. Controls cover
+ten scalar field types, nested assignment results, RHS reference calls, explicit
+value/reference qualifiers, caller isolation, methods, recursion, shadowing,
+function references, indexed arguments, private-name collisions and joined
+thread composition. Complete C/Rust suites pass 3,243/1,099, the existing scalar
+parameter gate passes 27 pairs, and all 27 CI helpers and formatting pass.
+
+All original 1,365 program sources, 1,158 oracles and 281 accepted SDK files remain
+byte-identical. All 193 corrected-main gates remain intact; two new definitions
+require 453 platform executions in 41 groups. A separate exploratory C array
+initializer compilation failure is retained without parity credit. This is local
+validation only, queued behind prior feature batches.
+Managed/native/interface/packed/serialized records and the wider completion goal
+remain open. Evidence:
+[value-record-stores-local-validation.json](rust-parity-evidence/value-record-stores-local-validation.json).
+
 ## Native byte-array object views: correction locally verified, 2026-10-25
 
 Array main `f4b92f61` failed the existing byte-encoding gate on Linux, macOS

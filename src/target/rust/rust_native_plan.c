@@ -190,11 +190,12 @@ static bool validate_native_function(json_object *function)
                 (mem && strcmp(mem, "default") != 0 &&
                         strcmp(mem, "as_ref") != 0 &&
                         !(strcmp(mem, "as_val") == 0 &&
-                          native_string(type, "rust_native_record_wire"))) ||
+                          (native_string(type, "rust_native_record_wire") ||
+                           native_scalar_kind(native_string(type, "kind"), false)))) ||
                 (sync && strcmp(sync, "none") != 0))
             {
                 fprintf(stderr,
-                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; C-compatible value records permit default/as-val/as-ref\n",
+                        "Error: Rust target native function '%s' parameter '%s' must be an unsynchronized string, default-qualified raw pointer, or default/as-ref native scalar; C-compatible value records permit default/as-val/as-ref; explicit scalar as-val parameters are also supported\n",
                         name ? name : "<anonymous>",
                         native_string(param, "name") ? native_string(param, "name") : "<anonymous>");
                 return false;

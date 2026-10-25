@@ -148,6 +148,80 @@ static void rust_lower_split_lines_accesses(json_object *node)
 /* Floating array methods preserve the actual C argument object bytes. */
 #include "rust_lower_float_array.c"
 
+static void rust_numeric_c_values(json_object *node);
+static bool rust_fixed_integral_kind(const char *kind);
+
+static bool rust_match_literal_exact_in_float(json_object *node)
+{
+    if (json_string_property_equals(node, "kind", "unary") &&
+        json_string_property_equals(node, "op", "negate")) {
+        json_object *operand = NULL;
+        json_object_object_get_ex(node, "operand", &operand);
+        return rust_match_literal_exact_in_float(operand);
+    }
+    json_object *value = NULL;
+    if (!json_string_property_equals(node, "kind", "literal") ||
+        !json_string_property_equals(node, "value_kind", "double") ||
+        !json_object_object_get_ex(node, "value", &value)) return false;
+    double number = json_object_get_double(value);
+    return (double)(float)number == number;
+}
+
+/* Match comparisons use C expression promotions, and each selected value arm
+ * converts once into its resolved result storage. Source float literals render
+ * as C double expressions; fields, calls and variables retain their real type. */
+static void rust_lower_numeric_match_values(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_lower_numeric_match_values(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object_object_foreach(node, key, child) {
+        if (strncmp(key, "rust_", 5)) rust_lower_numeric_match_values(child);
+    }
+    if (!json_string_property_equals(node, "kind", "match")) return;
+    json_object *arms = NULL, *subject = NULL, *subject_type = NULL, *result_type = NULL;
+    json_object_object_get_ex(node, "arms", &arms);
+    json_object_object_get_ex(node, "subject", &subject);
+    json_object_object_get_ex(subject, "type", &subject_type);
+    json_object_object_get_ex(node, "type", &result_type);
+    for (size_t a = 0; arms && a < json_object_array_length(arms); a++) {
+        json_object *arm = json_object_array_get_idx(arms, a), *patterns = NULL;
+        json_object_object_get_ex(arm, "patterns", &patterns);
+        for (size_t p = 0; patterns && p < json_object_array_length(patterns); p++) {
+            json_object *pattern = json_object_array_get_idx(patterns, p);
+            bool needs_wide_literal = json_string_property_equals(subject_type, "kind", "float") &&
+                rust_float_array_c_kind(pattern) &&
+                strcmp(rust_float_array_c_kind(pattern), "double") == 0 &&
+                !rust_match_literal_exact_in_float(pattern);
+            if (json_boolean_property(pattern, "rust_match_float_promotion") || needs_wide_literal) {
+                json_object_object_add(pattern, "rust_match_float_promotion", json_object_new_boolean(true));
+                rust_float_array_c_values(pattern);
+            }
+        }
+        if (json_boolean_property(node, "rust_value_match")) {
+            json_object *body = NULL, *statements = NULL, *value = NULL, *type = NULL;
+            json_object_object_get_ex(arm, "body", &body);
+            json_object_object_get_ex(body, "statements", &statements);
+            size_t count = statements ? json_object_array_length(statements) : 0;
+            if (count) json_object_object_get_ex(json_object_array_get_idx(statements, count-1), "expr", &value);
+            if (value) json_object_object_get_ex(value, "type", &type);
+            const char *kind = json_string_property(type, "kind");
+            bool changes_type = kind && !json_string_property_equals(result_type, "kind", kind);
+            bool wide_float_expression = json_string_property_equals(value, "kind", "binary") &&
+                json_string_property_equals(type, "kind", "float") &&
+                rust_float_array_c_kind(value) && strcmp(rust_float_array_c_kind(value), "double") == 0;
+            if (rust_numeric_floating_kind(kind) && (changes_type || wide_float_expression))
+                rust_float_array_c_values(value);
+            else if (rust_fixed_integral_kind(kind) && changes_type)
+                rust_numeric_c_values(value);
+        }
+    }
+}
+
 static void rust_lower_float_array_calls(json_object *node)
 {
     if (!node) return;
@@ -1780,6 +1854,7 @@ static bool rust_model_has_interface_arguments(json_object *node)
 
 static bool rust_lower_calls(json_object *model)
 {
+    rust_lower_numeric_match_values(model);
     if (rust_model_has_interface_arguments(model))
         json_object_object_add(model, "rust_has_interface_arguments", json_object_new_boolean(true));
     rust_lower_reference_record_reads(model, model);

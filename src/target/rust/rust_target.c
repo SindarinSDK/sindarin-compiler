@@ -381,6 +381,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_concurrency(model);
     rust_lower_thread_arrays(model);
     rust_lower_thread_receivers(model);
+    rust_prepare_value_record_copies(model);
     rust_lower_native_record_storage(model, model);
 
     char template_dir[1024];

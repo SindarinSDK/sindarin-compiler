@@ -176,9 +176,9 @@ static bool binding_wrappers(json_object *model, PackageNativeBinding *bindings,
             json_object *wrapper = json_object_array_get_idx(wrappers, i);
             if (!binding_true(wrapper, "is_native")) continue;
             const char *name = binding_string(wrapper, "target_name");
-            /* Thread targets retain their source identity separately from the
+            /* Aliased targets retain their source identity separately from the
              * original C alias, which may itself name another public callable. */
-            const char *logical = k == 1 ? binding_string(wrapper, "func_name") : NULL;
+            const char *logical = binding_string(wrapper, "func_name");
             PackageNativeBinding *found = binding_find(bindings, count, logical ? logical : name, "function");
             if (!found && name && !logical) {
                 for (size_t j = 0; j < count; j++) {

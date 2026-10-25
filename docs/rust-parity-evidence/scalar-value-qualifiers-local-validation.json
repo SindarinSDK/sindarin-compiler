@@ -1,0 +1,124 @@
+{
+  "status": "Complete standalone local validation; composition with corrected current main and own hosted acceptance required",
+  "base": "c5c24f18d7fc4248702210b534ed935bee853494",
+  "compiler_sha256": "6563d88a36ce7dd259f560cc62bf7e9ea5e8d3ff4c79108cbfc90f9d2c5cc29f",
+  "test_script_sha256": "01e56b3b92647da049e72a178203a7b720613f90c3ef117dedb43ee413bf77a4",
+  "language_pairs_each_environment": 45,
+  "package_cases_each_environment": 216,
+  "native_provider_languages": [
+    "C",
+    "RS",
+    "GO"
+  ],
+  "Sindarin_body_runtimes": [
+    "C",
+    "RS"
+  ],
+  "consumers": [
+    "C",
+    "Rust"
+  ],
+  "artifact_forms": [
+    "source",
+    "sealed with backing implementation removed"
+  ],
+  "modes": [
+    "default",
+    "checked",
+    "unchecked"
+  ],
+  "optimizations": [
+    "-O0",
+    "-O1",
+    "-O2"
+  ],
+  "coverage": "Ten scalar types, callee-local mutation and caller isolation, 72 integer type/qualifier compound families,256character domain, native callback forwarding/results/identity, native function references with colliding aliases, joined native threads, static methods and canonical record cleanup.",
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "all_hashes_rechecked_unchanged": true,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "gate_definitions": 197,
+  "all_195_base_gates_unchanged": true,
+  "platform_gate_executions": 457,
+  "platform_groups": 41,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-original-before-after.json.gz",
+      "sha256": "511fa96167666bbb0d3df961238c833aaa7ea4eedf2fdfb5bc64c783e749b930"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-validation.json.gz",
+      "sha256": "417f5dbc9fe22ddfdbac1d39b8bf953b02c6f28eff9c6e89f9f8d71f49354454"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-full-C.log.gz",
+      "sha256": "2e6cd2a1f779d2fec3787458c1ecb16f12f7e21db58deeb08bd8fdaff36ba163"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-full-Rust.log.gz",
+      "sha256": "2e70082af097bb6f1ef1bd00e06cadc3734dd2db9ee61e82507c67ad4260bd9f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-CI-helpers.log.gz",
+      "sha256": "fdb84510c74ee938c0f9177bf49cb594e2ff980f42d472f2f27a96c40fd68dff"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-focused-go-importable-normal.log.gz",
+      "sha256": "0772cf6a6c90d53d4b79b1e3bc8f90c51f2795f2a2e67196941cb4146450c7fc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-focused-language-callbacks-normal.log.gz",
+      "sha256": "e09bf099c417c5c868df51259d62fd8afdeb9a5d24f717431d10ac516f508a13"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-focused-go-importable-sanitized.log.gz",
+      "sha256": "872d4b1159a4a8a9fafdad28d03ab7d743c946b1fb27069527c0a504465196cd"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-initial-validation.json.gz",
+      "sha256": "a37bca74bb810d395b20371af8f08f12f8a7feee63a75c037724f43decce3315"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-initial-full-Rust.log.gz",
+      "sha256": "ae6fdcb7bf2c5b668993bd4ee9cd888b2b0acd16fb03fc9a193005271dfef3ec"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-focused-rust-literals-normal.log.gz",
+      "sha256": "7b613163c09b3c510a72f9cc58e8bbc09c8a65a044e41b8be78bc3dda44e63ba"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-native-values-probe.json.gz",
+      "sha256": "6ad3953e786f8251dd8da15cf289dd93520be43c67a6305f647944268dd5f94c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-package-scalar-value-language.json.gz",
+      "sha256": "4e99578aaae990788debcf6ade9b45cc25c1d893571851a8b7fce595ba0b6c8b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-package-scalar-value-language-sanitized.json.gz",
+      "sha256": "143e35ca6e3a9781c85477396ef4e22830f8e253d5d5e29ab2233b137758e372"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-package-scalar-value-packages.json.gz",
+      "sha256": "04a1cf83e4e7fcbcc282751b99beba27b2f934489c59b341f17cf7d5eea14131"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-qualifiers-package-scalar-value-packages-sanitized.json.gz",
+      "sha256": "efa5a78d1b40e51b7f612109f0b183cd2c18eeda1cfdcc99295eaf29f7c3f205"
+    }
+  ],
+  "resolved_local_setup": "New Go fixture uses an importable package with exported provider functions, module isolated from C backing, and correct RS entry/typed floating literals. Initial native diagnostic wording failure was fixed by preserving the exact original prefix; original expected files unchanged.",
+  "scope": "Scalar as-val support only. Native pointer/ref, managed/value/interface/generic/callback package export and dependency lifecycle contracts remain open; no final corpus or full parity claim. Feature publication frozen behind correctionCI40150376704."
+}

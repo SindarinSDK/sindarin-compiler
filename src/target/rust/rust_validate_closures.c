@@ -116,7 +116,7 @@ static bool rust_closure_type_supported(json_object *type)
             if (!rust_closure_scalar_type(json_object_array_get_idx(params, i))) return false;
             const char *qual = i < rust_closure_length(quals)
                 ? json_object_get_string(json_object_array_get_idx(quals, i)) : "default";
-            if (strcmp(qual, "default")) return false;
+            if (strcmp(qual, "default") && strcmp(qual, "as_val")) return false;
         }
     }
     for (size_t i = 0; i < rust_closure_length(params); i++)

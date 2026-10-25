@@ -1,0 +1,155 @@
+{
+  "status": "Complete local composition with corrected main; own hosted acceptance pending",
+  "revision": "b98fe66d195cda229a7598b691533a725cfaaefb",
+  "corrected_main": "43a6d633c7d72c1ec8cf144ee720ef885f831490",
+  "corrected_main_pending_CI": 40150376704,
+  "compiler_sha256": "48c3cc80ed13c548341eeddc7b8aa02de4da6e38b5a64f13e2ed9daa7290f7d9",
+  "language_pairs_each_environment": 45,
+  "package_cases_each_environment": 216,
+  "byte_pairs_each_environment": 81,
+  "array_pairs_each_environment": 45,
+  "thread_cases_each_environment": 72,
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "imports_tests": 52,
+  "artifact_tests": 22,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "all_hashes_rechecked_unchanged": true,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "all_197_corrected_main_gate_definitions_unchanged": true,
+  "gate_definitions": 199,
+  "platform_gate_executions": 461,
+  "platform_groups": 41,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-validation.json.gz",
+      "sha256": "c6997e705450f66fbedd74501e424238879f8cf1994a55fc27d9561ab04a6337"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-build.log.gz",
+      "sha256": "a8516a8622e1824a45f5b0cebd72528b51c441a0ecf1e104346749063ccc085e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-validation-initial-driver-path.json.gz",
+      "sha256": "ab660a8b8e00f36fd3e71b143eb7256e35f74cc4a589fd606946c2774c0d75d5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-imports-initial-driver-path.log.gz",
+      "sha256": "0fab51ef8e726fbb1d2f2590b08da6ecf2e53995fad7f2121ce386d5f574d7ee"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-scalar-normal.log.gz",
+      "sha256": "a0305f7ed170cb780921783480e97e2da8baf15a6be6f9884809093f0acaff92"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-scalar-sanitized.log.gz",
+      "sha256": "25a68263069487624a39837d88a5757eba936820dae9619cbb8e208e0428def8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-thread-normal.log.gz",
+      "sha256": "f3ffc7b2708f47d76be841f8ecd1c6fb68af3cd599da30ee63ddb1c8890e53e8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-thread-sanitized.log.gz",
+      "sha256": "434f69eb03d079974f37b2a6f55bef0ea17960abaf9c8440c0bebd09bf332ba0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-full-C.log.gz",
+      "sha256": "6182d555f4841314608502fdc37132558e7a003f1d2a9013477ff9b45773453e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-full-Rust.log.gz",
+      "sha256": "6ffd6c9e2d2d6c25d6547d1da95130a8fc766c1aa9391ef00850450b55dcb4b7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-imports.log.gz",
+      "sha256": "c63d5c78755ec3298374de92de881d4f6beed68a7398ecf74547076b4e34b4de"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-artifacts.log.gz",
+      "sha256": "fed4936af0db37ac7a61123ddf47df8a89fa16a3b014e900c7b997e80ea7c7bd"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-CI-helpers.log.gz",
+      "sha256": "487b20a44fbcfbd0207b77aeb1584af2e1d2aaf4ee2cff8364104208e065304f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-corrected-main-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-package-scalar-value-language.json.gz",
+      "sha256": "17773c947b85fc425e18cf47cd8d0b35b9eda8f6a3b78fefd2b6ceedbd8e8cd8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-package-scalar-value-language-sanitized.json.gz",
+      "sha256": "d090f66560527e7ee353ddcd5dbca1289904ff77f91b2b8ba2cf9f65ab1e4d1f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-package-scalar-value-packages.json.gz",
+      "sha256": "1549bd53e6a79a8bbd696b6fde9f3c3ff13cb6eb5f44f482c73af88cc138ab65"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-package-scalar-value-packages-sanitized.json.gz",
+      "sha256": "9ff81fbecc1d879fcabce017f313c667b65659b1f01df59ec66305ab161b0ced"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-rust-parity-byte-encoding.json.gz",
+      "sha256": "9416e06cc29024415c6512651cd1149cbfcab96188382ae2a36064f17e19b130"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-rust-nested-array-search.json.gz",
+      "sha256": "59266b3d2cb251fed4bbe7ef2c89aeed41490ad3b241158e2598a2b8f9436c78"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-rust-nested-array-search-sanitized.json.gz",
+      "sha256": "1f8e5a3ec610c4704cdd51b73b851d581158cae9fa19402d3609432b2395d3e9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-package-native-threads.json.gz",
+      "sha256": "8d2f45589698061632a3617669acf79c6f5fa188b715b3ea26b1f46fdbcd0700"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-package-native-threads-sanitized.json.gz",
+      "sha256": "5779233b366c6458b527a38569f1b530cf387bb7ca249e96e52dba0d049aa126"
+    },
+    {
+      "path": "docs/rust-parity-evidence/scalar-value-corrected-main-sdk-artifact-validation.json.gz",
+      "sha256": "7a74512af15ae5c6ced9ffefd8420bcfbecc19a520eb7b547b1cf36dd32eea65"
+    }
+  ],
+  "resolved_driver_setup": {
+    "cause": "Two orchestrator script paths omitted native_ prefixes; imported checks never ran in the initial attempt.",
+    "initial_report": ".sn/scalar-value-goal/corrected-main-validation-initial-driver-path.json",
+    "action": "Resume only missing native imports/artifact checks and remaining SDK/helpers/format; preserve all completed results."
+  },
+  "scope": "Explicit scalar values and native alias function references composed with nested arrays, native threads and byte view correction. Still independent of unpublished record-value and numeric-match features; future combined main requires its own checks. No feature push before complete correction acceptance. Whole parity remains open."
+}
