@@ -10,7 +10,7 @@ import tempfile
 from build_sdk_package import prepare, checked, MODULES
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ('io/bytes','io/textfile','io/binaryfile','io/path','io/directory','io/stdio','os/env','os/os','crypto/crypto','time/time','time/date','core/random','core/uuid','encoding/text','os/process','encoding/json','encoding/xml','encoding/yaml','core/math','net/udp','encoding/zlib')
+FIXTURES = ('io/bytes','io/textfile','io/binaryfile','io/path','io/directory','io/stdio','os/env','os/os','crypto/crypto','time/time','time/date','core/random','core/uuid','encoding/text','os/process','encoding/json','encoding/xml','encoding/yaml','core/math','net/udp','encoding/zlib','net/tcp')
 STDIN_CASES = (
     ('words', b'line one\nZalpha beta',
      b'true\ntrue\nfalse\nline one\n90\nalpha\nbeta\ntrue\nfalse\nfalse\n-1\nfalse\n0\nfalse\n0\nline one\n\n',
@@ -53,7 +53,12 @@ def verify(compiler, sdk, all_modes=True, fixtures=FIXTURES):
                 oracle=source.with_suffix('.expected')
                 sources[source.relative_to(sdk).as_posix()]=hashlib.sha256(source.read_bytes()).hexdigest()
                 sources[oracle.relative_to(sdk).as_posix()]=hashlib.sha256(oracle.read_bytes()).hexdigest()
-                shutil.copyfile(source,app/'main.sn')
+                entry=app/'main.sn'
+                if module=='net/tcp':
+                    # TCP uses ../../src/net/tcp; keep its original path.
+                    entry=package/source.relative_to(sdk)
+                    entry.parent.mkdir(parents=True,exist_ok=True)
+                shutil.copyfile(source,entry)
                 expected=oracle.read_bytes().replace(b'\r\n',b'\n')
                 expected_error=b'OK\n'*4 if module=='io/stdio' else b''
                 if os.name=='nt':
@@ -62,7 +67,7 @@ def verify(compiler, sdk, all_modes=True, fixtures=FIXTURES):
                 for opt,mode in modes:
                     for target in ('c','rust'):
                         executable=app/(target+'.exe')
-                        command=[compiler,'main.sn','--no-install','--target',target,opt,'-o',executable]
+                        command=[compiler,entry,'--no-install','--target',target,opt,'-o',executable]
                         if mode!='default':command.append('--'+mode)
                         checked(command,app)
                         run=checked([executable],app)

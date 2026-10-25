@@ -131,6 +131,35 @@ static void test_is_variable_used(void)
  * Test: Full optimization passes
  * ============================================================================ */
 
+static void test_unused_initializers_preserve_effects(void)
+{
+    Arena arena;
+    arena_init(&arena, 4096);
+    Optimizer opt;
+    optimizer_init(&opt, &arena);
+    Expr *static_call = arena_alloc(&arena, sizeof(Expr));
+    memset(static_call, 0, sizeof(Expr));
+    static_call->type = EXPR_STATIC_CALL;
+    Expr *method_call = arena_alloc(&arena, sizeof(Expr));
+    memset(method_call, 0, sizeof(Expr));
+    method_call->type = EXPR_METHOD_CALL;
+    Expr *nested = create_binary_expr(&arena, create_int_literal(&arena, 1),
+                                     TOKEN_PLUS, static_call);
+    Expr *effects[] = {static_call, method_call, nested};
+    for (size_t i = 0; i < sizeof(effects) / sizeof(effects[0]); i++)
+    {
+        Stmt *body[] = {create_var_decl(&arena, "unused", effects[i]),
+                       create_var_decl(&arena, "literal", create_int_literal(&arena, 0)),
+                       create_var_decl(&arena, "scalar", create_binary_expr(&arena,
+                           create_int_literal(&arena, 1), TOKEN_PLUS, create_int_literal(&arena, 2)))};
+        int count = 3;
+        assert(remove_unused_variables(&opt, body, &count) == 2);
+        assert(count == 1);
+        assert(body[0]->as.var_decl.initializer == effects[i]);
+    }
+    arena_free(&arena);
+}
+
 static void test_optimizer_dead_code_elimination_function(void)
 {
     Arena arena;

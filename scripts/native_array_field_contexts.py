@@ -201,6 +201,22 @@ FIELD_CASES = [
 """,
         b'true\n',
     ),
+    (
+        'borrowed-record-parameter-fields',
+        """fn parameterFieldStore(value: UdpReceiveResult as ref): void =>
+  value._data[0]=3b
+  value._sender="after"
+  value._data={4b,5b}
+fn main(): void =>
+  var value: UdpReceiveResult = makeResult()
+  var alias: UdpReceiveResult = value
+  var retained: byte[] = value._data
+  parameterFieldStore(value)
+  println(alias._sender=="after" && alias._data[0]==4b && alias._data[1]==5b)
+  println(retained[0]==1b && retained[1]==2b)
+""",
+        b'true\ntrue\n',
+    ),
 ]
 
 

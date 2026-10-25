@@ -55,6 +55,7 @@ void run_optimizer_tests(void)
     TEST_RUN("is_variable_used", test_is_variable_used);
 
     /* Full optimization pass tests */
+    TEST_RUN("unused_initializers_preserve_effects", test_unused_initializers_preserve_effects);
     TEST_RUN("optimizer_dead_code_elimination_function", test_optimizer_dead_code_elimination_function);
     TEST_RUN("optimizer_noop_simplification", test_optimizer_noop_simplification);
 

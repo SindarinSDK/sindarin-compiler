@@ -26,6 +26,7 @@ static Expr *create_variable_expr(Arena *arena, const char *name)
 static Expr *create_binary_expr(Arena *arena, Expr *left, SnTokenType op, Expr *right)
 {
     Expr *expr = arena_alloc(arena, sizeof(Expr));
+    memset(expr, 0, sizeof(Expr));
     expr->type = EXPR_BINARY;
     expr->as.binary.left = left;
     expr->as.binary.right = right;

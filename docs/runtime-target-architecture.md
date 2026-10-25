@@ -5,14 +5,14 @@ The [completion ledger](rust-parity-progress.md) distinguishes local validation,
 required hosted acceptance and remaining work. C remains the default application
 target; the full Sindarin Go backend remains outside this goal.
 
-Accepted compiler main `169c68e1` passes all 49 required hosted jobs on
-Linux/macOS/Windows (449 gate executions/41 platform groups). It includes
-nineteen reusable C-backed SDK modules, canonical record/record-array adapters,
-and the void reflection, character iterator and scalar parameter assignment
-repairs. The accepted SDK pin is `db7dfe94`. Public Sindarin APIs, original C
-operations, caller outputs, nil behavior and sealed archives retain their
-existing tested contracts. The independently published Yaml batch also passed
-all 49 jobs; retained evidence is linked from the completion ledger.
+Accepted compiler main `61633bb8` passes all 49 required hosted jobs on
+Linux/macOS/Windows (532 gate executions/41 platform groups). It includes
+21 reusable C-backed SDK modules, canonical record/record-array adapters,
+borrowed scalar memory and the required Windows zlib/header correction.
+That revision was validated with SDK `6e796dd3`. Public Sindarin APIs,
+original C operations, caller outputs, nil behavior and sealed archives retain
+their existing tested contracts. Retained evidence is linked from the
+completion ledger.
 
 The shared [C ABI](runtime-abi.md) implements value transport, typed resources,
 initialization/call leases/shutdown, replacement with live aliases and reentrant
@@ -21,13 +21,16 @@ rank 32. C/Rust/Go native providers and C/Rust Sindarin bodies use these
 transports. Go implementations retain their original language and generated
 C-callable bridges; Sindarin bodies requiring a Go backend remain unsupported.
 
-ABI 1.8 canonical record-array transports, generated providers/consumers,
+ABI 1.9 borrowed scalar memory, canonical record-array transports, generated providers/consumers,
 private native-call adapters inside C/Rust package bodies and the complete XML
 and Yaml APIs have hosted acceptance. The accepted reusable SDK stage contains
-nineteen modules/38 C-Sindarin units, with all 756 SDK cases passing. Math's
+21 modules/42 C-Sindarin units, with all 828 SDK cases passing. Math's
 145 original exports, public source and all pure Sindarin bodies remain
-unchanged. Corrected main169 has complete hosted acceptance, including private
-provider record loans and owning handwritten-wire input transports.
+unchanged. SDK `9d2e6e79` independently passes its seven hosted jobs for the TCP
+native foundation, including original record layouts and resource lifetimes.
+Compiler integration of TCP as module 22 has complete local validation,
+including all 864 SDK cases in normal and sanitizer environments. Its own
+compiler hosted acceptance remains required.
 
 Whole SDK packaging (including wider encoding/network modules), package-exported
 qualifiers and callbacks, complete value record/interface/generic contracts,

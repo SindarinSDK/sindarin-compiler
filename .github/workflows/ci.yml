@@ -157,7 +157,7 @@ jobs:
       uses: actions/checkout@v7
       with:
         repository: SindarinSDK/sindarin-pkg-sdk
-        ref: 6e796dd36fdaea7d99a7407b19949456fb7e37d4
+        ref: 9d2e6e792746ce22d4ee3e744bc3f9938b59b104
         path: .sn/sdk-native-integration
         persist-credentials: false
     - name: Download the platform build
@@ -199,10 +199,12 @@ jobs:
           .sn/sdk-math-artifact*.json
           .sn/sdk-udp-artifact*.json
           .sn/sdk-zlib-artifact*.json
+          .sn/sdk-tcp-artifact*.json
           .sn/zlib-header-widths*.json
           .sn/package-borrowed-scalar-memory*.json
           .sn/c-array-call-arguments*.json
           .sn/sdk-native-integration/.sn/udp-*.json
+          .sn/sdk-native-integration/.sn/tcp-*.json
           .sn/native-header-aliases*.json
           .sn/package-native-threads*.json
           .sn/package-scalar-value-*.json

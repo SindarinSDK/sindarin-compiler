@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-CHECKS = {'time-date': 'check_time_date_native.py', 'dtls': 'check_dtls_lifecycle.py', 'random': 'check_random_native.py', 'uuid': 'check_uuid_native.py', 'stringbuilder': 'check_stringbuilder_native.py', 'process': 'check_process_native.py', 'json': 'check_json_native.py', 'xml': 'check_xml_native.py', 'yaml': 'check_yaml_native.py', 'udp': 'check_udp_native.py'}
+CHECKS = {'time-date': 'check_time_date_native.py', 'dtls': 'check_dtls_lifecycle.py', 'random': 'check_random_native.py', 'uuid': 'check_uuid_native.py', 'stringbuilder': 'check_stringbuilder_native.py', 'process': 'check_process_native.py', 'json': 'check_json_native.py', 'xml': 'check_xml_native.py', 'yaml': 'check_yaml_native.py', 'udp': 'check_udp_native.py', 'tcp': 'check_tcp_native.py'}
 
 
 def main():

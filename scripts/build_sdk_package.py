@@ -16,13 +16,14 @@ from pathlib import Path
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
            'time/time', 'time/date', 'core/random', 'core/uuid',
-           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml', 'core/math', 'net/udp', 'encoding/zlib')
+           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml', 'core/math', 'net/udp', 'encoding/zlib', 'net/tcp')
 SUPPORTED_MODULES = MODULES
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
     ('time/date', 'Date.toTime'): 'src/time/time.sn::Time',
 }
 RECORDS = {
+    'net/tcp': ('TcpStream', 'SnSdkTcpStreamRecord', 'sn_sdk_tcp_stream'),
     'net/udp': ('UdpSocket', 'SnSdkUdpSocketRecord', 'sn_sdk_udp_socket'),
     'encoding/text': ('StringBuilder', 'SnSdkStringBuilderRecord', 'sn_sdk_text'),
     'os/process': ('Process', 'SnSdkProcessRecord', 'sn_sdk_process'),
@@ -37,6 +38,7 @@ RECORDS = {
     'time/date': ('Date', 'SnSdkDateRecord', 'sn_sdk_date'),
 }
 EXTRA_RECORDS = {
+    'net/tcp': (('TcpListener', 'SnSdkTcpListenerRecord', 'sn_sdk_tcp_listener'),),
     'net/udp': (('UdpReceiveResult', 'SnSdkUdpReceiveResultRecord', 'sn_sdk_udp_result'),),
 }
 RAW = {'int': 'long long', 'long': 'long long', 'int32': 'int32_t',
@@ -206,7 +208,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
         if (destination/'src'/(module+'.sn.c')).is_file():
             lines.append('      provides_sources: [src/'+module+'.sn.c]')
         libraries = re.findall(r'^@link[ \t]+([^\s]+)', (destination/'src'/(module+'.sn')).read_text(), re.M)
-        if module == 'net/udp' and os.name == 'nt':
+        if module in ('net/udp', 'net/tcp') and os.name == 'nt':
             libraries.append('ws2_32')
         if libraries:
             lines.append('      libraries: ['+', '.join(libraries)+']')

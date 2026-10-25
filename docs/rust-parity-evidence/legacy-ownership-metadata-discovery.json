@@ -1,0 +1,71 @@
+{
+  "status": "Diagnostic prototypes only; no production SDK/ownership fix is claimed.",
+  "SDK_revision": "9d2e6e792746ce22d4ee3e744bc3f9938b59b104",
+  "accepted_compiler_revision": "61633bb80d15bc0df80b4aee2d86ac2bbe75082e",
+  "prototype_compiler_sha256": "d8a5e3a83c7d605ad23aec2177557098078046b9026cd41c5be4ebc94ac14329",
+  "baseline_current_compiler_sha256": "9d0f91f5d64f2efae7548378d347caeeb9226bbdf04cdc45008da40b607b7ff4",
+  "root": "Legacy generated release frees the outer Random record. has_dispose only recognizes explicitly aliased dispose methods; the unchanged Random.dispose wrapper has no C alias, so its separately allocated state leaks 640bytes/20allocations.",
+  "Random_native_only_profile_cases": 4,
+  "SDK22_native_only_Yaml_and_Bytes_cases": 8,
+  "partial_two_module_profile_rejections": 8,
+  "production_SDK_manifest_unchanged": true,
+  "Sindarin_sources_changed": false,
+  "implementation": "Existing canonical C implementations and resource callbacks, explicit native bindings; original Sindarin facade bodies inherit the application target. No new compiler/runtime/backend code was needed for these prototypes.",
+  "limitation": "A partial native package plan rejects uncovered per-application @source backing. The two-module profile cannot retain other SDK imports. A complete native/source ownership migration is required before publishing the SDK manifest; six SDK artifact modules and the four legacy debug findings remain open.",
+  "generated_proxy_sources_sha256": {
+    "native/core_uuid.c": "f8e0b4d8b609200d879eee18c01cb8c86e154cc9103cc35ce5a4adc824f9b942",
+    "native/net_tcp.c": "f1424e5a6d8dc88caaf708b1e8da17925115e811d6ca4267a0159904dbda79ba",
+    "native/os_env.c": "eb7a4c5721704af94ae4c24f591da1d424ef7d92f953215b85e37e5570f6dce0",
+    "native/io_textfile.c": "a505721655fbc836e263b8b3d73c99bcffb997415ed18c3dc08c983443038c15",
+    "native/os_process.c": "cc056aa8257583a1866dfedaee4e85a2fd8436036e10ac717ce01f7837b2aa4b",
+    "native/core_math.c": "21aae9b83675733015a2259b188fd1be5c1b9492c2f755c4e0ce3d8167dfbfed",
+    "native/encoding_zlib.c": "308d382a8298396650be984bc6ac7d4cf54320d3fdb1da0f524b25ff0d244e29",
+    "native/crypto_crypto.c": "8d72e70702c81973d4eca9c8c6c132ccdae4d3d2153af613c63927444c1f5679",
+    "native/io_bytes.c": "802ae361bf557e983e83413543fef88288fcf6644b4ae3411f3a477fd31c0d63",
+    "native/time_date.c": "2ac2f6356cebe404d07c58c25fd9f0780ac8e69790b7d52d3815b270bbb93fda",
+    "native/core_random.c": "644abe74a46b365dbed17582324ddd1df40563dc500d80a994dcd2046a6a66e8",
+    "native/io_stdio.c": "0442abb3ddba6cf6652eb2e979e64f850a842ea348dc3c31a190a702d41be160",
+    "native/time_time.c": "6e988d5d629328ee45d286d696ce9662918afee972d7f7725065f35096c05a5f",
+    "native/io_path.c": "9c910f794801195b82bd373991cc87851be58cb1f1ff56b7eff179df228ed021",
+    "native/net_udp.c": "fdd4b4f72b4dfc34d79aaebd80b1f6c99017a882249fd14a9e3aaa10477b9c1f",
+    "native/encoding_text.c": "03d00adbdbd08ba7c8cf9eb260cad0c0d0e8c035c5beb004a19ffad30aaa49af",
+    "native/os_os.c": "b66d01cab8329deaa9a4c03dd50ead63bd960d8bcdd46bc79803282c1ad44bab",
+    "native/io_binaryfile.c": "6b70a35edcb8557f9b7b2d8d802aca5270faa91df5edd70ff6df53279bd38dfe",
+    "native/encoding_xml.c": "ce05528d7a5063a1778e53b33f1dd1366ac9fbe4f5e6c634f1f5bfa81b79fbbb",
+    "native/encoding_yaml.c": "0a5b556d1fbe669bf4c031a146f27961567cff0db46a30d16d14940c0b19ec8f",
+    "native/io_directory.c": "c4946f3b76dc31123e9b3460fc7946d94bcc2640c5f3e27273e62cd462eb0555",
+    "native/encoding_json.c": "b0062dff394ee8e47cf078e1adea0906ce34333ba38967eb0d1ab782a98535b3"
+  },
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/ownership-discovery-legacy-random-diagnosis-baseline.json.gz",
+      "sha256": "6ee220fdea062b196a574bea66c6014d9c17db9206d7e242f399ff64ece2a982",
+      "raw_sha256": "3749ddabffa3d002e1643061995f54c8953281f11a1d753d8c1e16c601322ed3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/ownership-discovery-legacy-random-diagnosis-app-.sn-build-main_1526500-sn_types.h.gz",
+      "sha256": "d8e235ae2a09e3b3aa327cf47ac847af484f302b5c31bf1bdb7120d9cfccce93",
+      "raw_sha256": "6db199e1058f2515e84b4c3997d84bc15cdbce819a1774cbb19f90561bfc5a79"
+    },
+    {
+      "path": "docs/rust-parity-evidence/ownership-discovery-legacy-ownership-prototype-report.json.gz",
+      "sha256": "df179a68381396330941528c98c0d4be89143d529ddd164f3d2ec19c160e0c6a",
+      "raw_sha256": "d63c6d0f204b36d7741b243816ba082ff26a5d6d10dabbc75706eb54287c2983"
+    },
+    {
+      "path": "docs/rust-parity-evidence/ownership-discovery-legacy-ownership-yaml-prototype-report.json.gz",
+      "sha256": "8cf5eeef8c8b86a7fa498831f0789300debecc44620bd2df40ec50a1b620b4e2",
+      "raw_sha256": "deccf23acb9b28437409e8319c4b11cc452ad1c9d55559603d25eef19a587048"
+    },
+    {
+      "path": "docs/rust-parity-evidence/ownership-discovery-legacy-ownership-SDK22-prototype-report.json.gz",
+      "sha256": "527b4da5ddcd7868ca07d612bab28a6b8321a307e56f0bbff528b6907c1786fe",
+      "raw_sha256": "47d37d2b40e6b0538f095265c01efbcb23991d584e3b5f615a0b1f985614a9d2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/ownership-discovery-legacy-ownership-SDK22-prototype-app-.sn-sindarin-pkg-sdk-sn.yaml.gz",
+      "sha256": "971c945f4d377bdd5d619cd2ea0a359b66b9fdfe2a2850b65df6ff4d08c3a940",
+      "raw_sha256": "4a360348a1a25f75c84c6399f00c3d12d6ea997b6e4142a12c99e6c3eefa9ce6"
+    }
+  ]
+}

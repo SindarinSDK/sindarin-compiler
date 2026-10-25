@@ -2936,6 +2936,61 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "sdk-tcp-artifacts",
+      "name": "Canonical SDK TCP artifacts: original callers, binary streams, shutdown wakeups, aliases, fields and resource lifetimes",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_tcp_artifact.py"
+      ],
+      "group": "sdk-artifacts",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-tcp-artifacts-sanitizers",
+      "name": "Canonical SDK TCP artifacts: original callers, binary streams, shutdown wakeups, aliases, fields and resource lifetimes with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_tcp_artifact.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "sdk-tcp-native",
+      "name": "Canonical SDK TCP native: original callers, binary streams, shutdown wakeups, aliases, fields and resource lifetimes",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "tcp"
+      ],
+      "group": "sdk-native",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-tcp-native-sanitizers",
+      "name": "Canonical SDK TCP native: original callers, binary streams, shutdown wakeups, aliases, fields and resource lifetimes with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "tcp",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

@@ -1,3 +1,67 @@
+## TCP/SDK22 integration: complete local validation, 2026-10-25
+
+SDK `9d2e6e79` passed all seven jobs in its own
+[hosted run](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/40222092078).
+The original TCP Sindarin API and tests remain unchanged. Independent C/Rust
+clients, 18 layout values derived from the original generated C, reference
+ownership, byte/string snapshots, shutdown wakeups and socket closure pass on
+Linux/macOS/Windows. Linux also passes actual C module/runtime instrumentation;
+Linux/macOS verify disconnected writes without process-global SIGPIPE changes.
+[Retained SDK acceptance](rust-parity-evidence/sdk-tcp-foundation-ci-green.json).
+
+Compiler integration is local and unaccepted: module 22 supplies all 25 logical
+TCP exports through two independently built C/Sindarin units. The original TCP
+test keeps its `../../src/net/tcp` import and original bytes. Generated Rust
+caller functions are checked directly in both source and sealed consumers.
+A C-supported field store through a borrowed native record parameter exposed a
+Rust validation gap; the backend now permits the existing shared-record setter
+path. Temporary Python-generated controls cover explicit/default reference
+parameters, named callables, static/instance methods, aliases and resource
+lifetimes. No tracked Sindarin source or oracle was changed.
+
+The TCP lifetime control also exposed shared optimizer removal of an unused
+connection initializer at `-O1`, leaving `accept()` blocked. Static/method calls,
+nested calls and other potentially effectful initializers are now retained;
+the established scalar dead-arithmetic rule is preserved. A C unit regression
+and five independent counter outputs cover direct, static, instance, nested
+and array initializers. All 508 original Rust generation oracles remain intact.
+
+TCP value copies have no legacy C copy hook and fail legacy C compilation too.
+Missing-copy-contract rejections are retained separately and receive no parity
+credit. The final local compiler passes C 3,244/Rust 1,099, all 21 composed
+regression groups, TCP 144 cases plus 16 separate contract rejections in both
+normal and sanitizer environments, and native TCP 21 normal/one actual C/runtime
+sanitizer case. The fresh 24,570-compilation corpus audit verifies all 1,365
+original sources across nine Linux modes: 10,418 frozen output/exit contracts
+and 1,854 exit-only contracts agree; nine racy C counter modes and four C
+unchecked division-by-zero modes receive no parity credit. All 2,523 compiler
+and 87 SDK source/oracle hashes remain unchanged.
+
+Review also exercises string and byte-array field stores through a borrowed
+record parameter, including element updates, field replacement and independent
+array snapshots. Legacy C and canonical C/Rust agree. These controls now pass
+the existing 72 native-field pairs and 108 UDP artifact cases per normal and
+sanitizer environment, without changing the compiler binary or Sindarin files.
+
+The full SDK22 matrix passes all 864 cases in both normal and sanitizer
+environments. Complete local evidence is retained in
+[86 reports](rust-parity-evidence/tcp-artifact-local-validation.json).
+All 234
+prior gate definitions remain unchanged; four new definitions bring the
+planned integrated acceptance to 540 executions/41 groups. The accepted compiler
+remains `61633bb8` with SDK21 until this batch passes its own hosted CI. Full
+parity and final integrated platform acceptance remain open. Four known legacy
+C debug lifetime leaks and the historical unadjudicated TLS failure remain open.
+
+Legacy cleanup diagnosis confirms that ordinary, unaliased `dispose()` wrappers
+are omitted from generated legacy release functions. Temporary native-only
+ownership profiles, using the accepted `61633bb8` compiler and unchanged C
+implementations, pass the original Random and Yaml programs under C/Rust debug
+checks. A partial profile rejects uncovered legacy backing sources, so these
+prototypes cannot replace the production SDK manifest while its migration is
+incomplete. No legacy failure is marked closed.
+[Diagnostic evidence](rust-parity-evidence/legacy-ownership-metadata-discovery.json).
+
 ## Required Windows CI correction: hosted acceptance complete, 2026-10-25
 
 Zlib main `4a0ebda6` failed its own hosted run

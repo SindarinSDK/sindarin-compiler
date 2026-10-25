@@ -6,6 +6,32 @@
  * ============================================================================
  */
 
+static bool unused_initializer_has_effects(Expr *expr)
+{
+    if (!expr) return false;
+    switch (expr->type)
+    {
+    case EXPR_LITERAL:
+    case EXPR_VARIABLE:
+    case EXPR_SIZEOF:
+    case EXPR_TYPEOF:
+        return false;
+    case EXPR_BINARY:
+        /* Overloaded operators invoke user code. Keep existing scalar dead
+         * arithmetic elision, but never discard effects in either operand. */
+        return expr->as.binary.operator_method != NULL ||
+            unused_initializer_has_effects(expr->as.binary.left) ||
+            unused_initializer_has_effects(expr->as.binary.right);
+    case EXPR_UNARY:
+        return unused_initializer_has_effects(expr->as.unary.operand);
+    default:
+        /* Static/method calls, mutations, threads and copies are observable.
+         * Other containers may contain such expressions; keep them unless a
+         * recursive analysis explicitly proves them inert. */
+        return true;
+    }
+}
+
 int remove_unused_variables(Optimizer *opt, Stmt **stmts, int *count)
 {
     if (stmts == NULL || *count <= 0) return 0;
@@ -37,27 +63,7 @@ int remove_unused_variables(Optimizer *opt, Stmt **stmts, int *count)
                    1. It has no initializer, OR
                    2. The initializer has no side effects */
                 Expr *init = stmt->as.var_decl.initializer;
-                bool has_side_effects = false;
-
-                if (init != NULL)
-                {
-                    /* Conservative: assume function calls and thread operations have side effects */
-                    switch (init->type)
-                    {
-                    case EXPR_CALL:
-                    case EXPR_INCREMENT:
-                    case EXPR_DECREMENT:
-                    case EXPR_ASSIGN:
-                    case EXPR_INDEX_ASSIGN:
-                    case EXPR_THREAD_SPAWN:
-                    case EXPR_THREAD_SYNC:
-                    case EXPR_THREAD_DETACH:
-                        has_side_effects = true;
-                        break;
-                    default:
-                        has_side_effects = false;
-                    }
-                }
+                bool has_side_effects = unused_initializer_has_effects(init);
 
                 if (!has_side_effects)
                 {

@@ -1,0 +1,491 @@
+{
+  "status": "Complete local TCP/SDK22 integration; own integrated hosted acceptance remains required.",
+  "base": "61633bb80d15bc0df80b4aee2d86ac2bbe75082e",
+  "SDK_revision": "9d2e6e792746ce22d4ee3e744bc3f9938b59b104",
+  "compiler_sha256": "9d0f91f5d64f2efae7548378d347caeeb9226bbdf04cdc45008da40b607b7ff4",
+  "full_C": 3244,
+  "full_Rust": 1099,
+  "composed_commands": 21,
+  "source_and_script_sha256": {
+    ".github/workflows/ci.yml": "26b9ba8eabb044e1eb6bec859f7f8819645af5c612310428f1b69d8ba5d48bab",
+    "scripts/build_sdk_package.py": "d9f4b24ffa237646e45c9a4d502d8721e0f5af800c594adcf50de8ee652019c8",
+    "scripts/check_sdk_artifact.py": "d89ecceb8c3b072d8f4f5ea6fbd6244433f5ca6380341279c5b036cfd1287a3f",
+    "scripts/check_sdk_native.py": "3fa64cb48f0b24d86c9401c765335d71dac9fee643d0aed2ebfa8364ef156c32",
+    "scripts/check_sdk_tcp_artifact.py": "15996028494e291c8cecc5cf1fbc948774e5e7bece31a333e0c02906b3c3e740",
+    "scripts/ci/gates.json": "e72abadc65d201d25027c885ba3ec1287a54ddd213ad094d2b8655a17c141e8f",
+    "scripts/native_array_field_contexts.py": "09e4dc3166330ed9234947d2cf1576fd668780fa1e0132449d7408b67e688afd",
+    "scripts/tcp_artifact_controls.py": "c075aada5f9a48aaecf62ee10787b1a28c57e2d3de0dc554b64ecd99729d5f62",
+    "src/optimizer/optimizer_util_dead.c": "3a71e87190d864ab3bc5757b82e6cd08bf5c66ca19f82fa69ad650fc0986137e",
+    "src/target/rust/rust_validate.c": "07abce35d10b746fab0539bf7625ecf80c914b9df61f4ec1a26d1388ecf49856",
+    "tests/ci/test_ci_helpers.py": "6146873bbaa25bd17c15279635f90850cfa1488fcb0d2e66021fb238bf535801",
+    "tests/unit/optimizer/optimizer_tests.c": "c58701710eae233d637271ed2437c4a361e5e112b8531073de815514a8f01dfd",
+    "tests/unit/optimizer/optimizer_tests_helpers.c": "981de109df3d0ae46689e1b4ab3b111effe03733c49b732d0122a8c15ad3ca08",
+    "tests/unit/optimizer/optimizer_tests_passes.c": "21ad84a6b439141521e1f3fc7cceb248ea5446a62badb09a2c0a110c6ce10e37"
+  },
+  "SDK_modules": 22,
+  "SDK_C_Sindarin_units": 44,
+  "SDK_cases_each_environment": 864,
+  "TCP_artifact_cases_each_environment": 144,
+  "TCP_exports": 25,
+  "TCP_artifact_units": 2,
+  "TCP_separate_copy_contract_rejections_each_environment": 16,
+  "TCP_native_cases": 21,
+  "TCP_actual_C_runtime_SAN_cases": 1,
+  "CI_helpers": 27,
+  "gate_definitions": 238,
+  "platform_executions": 540,
+  "platform_groups": 41,
+  "all_234_prior_gates_unchanged": true,
+  "fresh_original_sources": 1365,
+  "fresh_original_mode_cases": 12285,
+  "fresh_successful_C_and_Rust_compilations": 24570,
+  "mode_classifications": {
+    "Raw C/Rust agreement and original exit contract; no original output oracle": 1854,
+    "Raw C/Rust agreement and frozen original output/exit contracts": 10418,
+    "C undefined unsynchronized concurrent mutation; no parity credit": 9,
+    "C undefined unchecked integer division by zero; no parity credit": 4
+  },
+  "known_C_undefined_modes_not_credited": 13,
+  "source_preservation": {
+    "compiler_sources_and_oracles_unchanged": 2523,
+    "SDK_sources_and_oracles_unchanged": 87,
+    "SDK_public_modules_unchanged": 28
+  },
+  "repairs": [
+    "Borrowed canonical native record parameter field stores use shared setters and preserve caller aliases.",
+    "Unused static/method/nested initializer calls retain effects and cleanup; established scalar arithmetic elision is preserved."
+  ],
+  "scope": "Unchanged TCP API, original relative imports, independent source/sealed C artifacts, verified Rust caller bodies, all25exports, aliases/fields, scoped socket cleanup, escaped binary bytes/UTF8 strings/address results, nil/default records, timeout/EOF and shutdown. TCP copies are unsupported by legacy C too; matching rejection receives no parity credit. Remaining SDK modules core/fields,core/version,net/tls,net/dtls,net/ssh,net/git, broader ownership/interface/generic/callback/dependency-lifecycle contracts and final integrated platform/corpus acceptance remain open. Four legacy C debug lifetime leaks and a historical unadjudicated TLS failure remain open; fresh passing controls do not erase those findings.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-full-C.log.gz",
+      "sha256": "05545260f384a683bf100020cb77fcdb5a3e9f7de801cbd9491522762947b84a",
+      "raw_sha256": "c42425972257178ccff671f6bed0b4fe809849979c9c50c0067763ae938dfbbc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-full-Rust.log.gz",
+      "sha256": "d5555d7fff6c77a420cbbbb6c1b807bfeabe699f687d01ec8a77b4e1de60ee39",
+      "raw_sha256": "e5b2461f5188e25fb4bdd6da1f2cb22c2e1e7488d011f00d47ddfbebb96c7999"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-artifacts.log.gz",
+      "sha256": "57cf268d3921006a6ce31d73c4b817342cd3249298676acd2df17b663ca1c563",
+      "raw_sha256": "c570da72d2dc397ddcd3bd25b0320a7eb7c7681672ada218a2654cf107675e6b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-memory-normal.log.gz",
+      "sha256": "2e86ac4bdd8e8a367498f692bd3b235df1fe2ce28b6872926678bfc91d7c293a",
+      "raw_sha256": "8b8711562cd070ac56ae8476448f97e2b729ed61805698556b0809533e4c37dc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-method-normal.log.gz",
+      "sha256": "9ad8e65382eeca1ed90fe52ecd4f4070c5277c3263009690a9f516d8982e1464",
+      "raw_sha256": "487120f985d3f1264b01d2d5dafa052218580f6a27f95aff02f75b7232ee3223"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-memory-sanitized.log.gz",
+      "sha256": "2e86ac4bdd8e8a367498f692bd3b235df1fe2ce28b6872926678bfc91d7c293a",
+      "raw_sha256": "8b8711562cd070ac56ae8476448f97e2b729ed61805698556b0809533e4c37dc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-method-sanitized.log.gz",
+      "sha256": "9ad8e65382eeca1ed90fe52ecd4f4070c5277c3263009690a9f516d8982e1464",
+      "raw_sha256": "487120f985d3f1264b01d2d5dafa052218580f6a27f95aff02f75b7232ee3223"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-array-normal.log.gz",
+      "sha256": "41bcfafd9e5b958659e05cc0232be605609d6802ecb306a4dc67e65c55e1f052",
+      "raw_sha256": "199546ac3bfce91669997248a263185b5228862222984dfeadcea33ef8b83bf3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-array-packages-normal.log.gz",
+      "sha256": "49cf9405b55adfc817f198854422c5f78cc49f8e3e1dc4601eb6a4591df607c9",
+      "raw_sha256": "2a2eee69a2c30a91bed6b4252c8af2e88b2d183af79687b888d8f16f8df8fc67"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-array-packages-sanitized.log.gz",
+      "sha256": "49cf9405b55adfc817f198854422c5f78cc49f8e3e1dc4601eb6a4591df607c9",
+      "raw_sha256": "2a2eee69a2c30a91bed6b4252c8af2e88b2d183af79687b888d8f16f8df8fc67"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-array-sanitized.log.gz",
+      "sha256": "41bcfafd9e5b958659e05cc0232be605609d6802ecb306a4dc67e65c55e1f052",
+      "raw_sha256": "199546ac3bfce91669997248a263185b5228862222984dfeadcea33ef8b83bf3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-strings-normal.log.gz",
+      "sha256": "57bc87ff14413f4bda4e8c6db2514a036b9f9a5a63e3e3b7adb44c6d140e2a82",
+      "raw_sha256": "239c1f1ca21040e02315392084ed4909987948ddfd56c257021929f5fc01bd54"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-zlib-normal.log.gz",
+      "sha256": "7ca869fd8ca266989fbfba26b183dcdc10d1bb2ecfe26a97c4407fc85a58162e",
+      "raw_sha256": "4997d5ac7da2e499780c4bce7ed9cb845c70267aac2cb67737e0fc42277e85ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-strings-sanitized.log.gz",
+      "sha256": "57bc87ff14413f4bda4e8c6db2514a036b9f9a5a63e3e3b7adb44c6d140e2a82",
+      "raw_sha256": "239c1f1ca21040e02315392084ed4909987948ddfd56c257021929f5fc01bd54"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-numeric-owners.log.gz",
+      "sha256": "b441e74a3e6e310a445c0ba31960599490a3d23534f3b019fb9ae83e44e4f412",
+      "raw_sha256": "0f158790eda04e6144e333857f4902e23f668d4662c43d63c96d0bee08e65e96"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-record-copy-normal.log.gz",
+      "sha256": "e661b4cc9f04ced715ee2edf976b65fbd16519cf6d4af537bfccebc40af32149",
+      "raw_sha256": "3c99922ec7efd601f1e681d5df312df9adff1a69d7a32549a206b3faaebac2eb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-record-copy-sanitized.log.gz",
+      "sha256": "c559821b469f76bec92b58b88bf5eb5013f6df917b51dcaebbe2e15936670d80",
+      "raw_sha256": "83540f784e8f432b0a1d00c3dd8b7f5ec110acf9497808834b5977e81db9fe18"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-fields-normal.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56",
+      "raw_sha256": "2f380c5a928e201e2c97c804003647405475461fd06e5718488395363813a6a9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-udp-normal.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844",
+      "raw_sha256": "99666abe8ea162b8fdb45903391b718793680e96d3930beda24b690da32343a1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-udp-sanitized.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844",
+      "raw_sha256": "99666abe8ea162b8fdb45903391b718793680e96d3930beda24b690da32343a1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-fields-sanitized.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56",
+      "raw_sha256": "2f380c5a928e201e2c97c804003647405475461fd06e5718488395363813a6a9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-zlib-sanitized.log.gz",
+      "sha256": "7ca869fd8ca266989fbfba26b183dcdc10d1bb2ecfe26a97c4407fc85a58162e",
+      "raw_sha256": "4997d5ac7da2e499780c4bce7ed9cb845c70267aac2cb67737e0fc42277e85ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-imports.log.gz",
+      "sha256": "adbab1eee24b257c0b6955482733bfd4084f3b7e16665382ee9a266a266da36a",
+      "raw_sha256": "387fb53f29b1341443a6ac8678f7046bb5498c349bb1bda0a48816817e2852b0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-package-borrowed-scalar-memory.json.gz",
+      "sha256": "dd83b2aae09e857d6c4d71e93b6386433eab08623af5a090d87c9cda1d3c3c4d",
+      "raw_sha256": "3832bc5a83a95ec53d96ca9f1bfd2bc3dc0f02510eedb9fb230e7f3a0a4c34c6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-package-borrowed-scalar-memory-sanitized.json.gz",
+      "sha256": "c91e27592ef33950487f2cb51c428238fabbfab8c37627c2890068c2d41a5e55",
+      "raw_sha256": "21ac0e90a9c52077175732fece634c2f9d8a9ffa3192618d18fa9bf3bac08f99"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-sdk-zlib-artifact.json.gz",
+      "sha256": "2b13e3882dd631e697389969cc66b5dd46f4ac5df4afbd1eaefd8e7badc788eb",
+      "raw_sha256": "3cf2fb744c387ce65ec128e3fe3cfb5d67fc46e9a9c53c064dfa0d0342f962d9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-sdk-zlib-artifact-sanitized.json.gz",
+      "sha256": "b20c580b6b76663b87599d926a455302908c3a0e4bd08f11f99e3a3700d9504d",
+      "raw_sha256": "2403b789d91a47304888e098b246eeeadf5be875458c84bc9d0c8101332d1f72"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-method-struct-parameters.json.gz",
+      "sha256": "a54616e57e2bc32af7f7d5885bbe6b4e1d9ab198172e8a5647c11b399b944b7f",
+      "raw_sha256": "5e7e7d41a1acc6572dd8268c7c98a44b5136e96e1a64e0311bbab6f3f63241e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-method-struct-parameters-sanitized.json.gz",
+      "sha256": "d4f3cc3bfcad14f501f50d3023b5e188bf159009bf8f711366d97299a99b36a8",
+      "raw_sha256": "e26c673fc31c789d47b2a80d11a621cae35186f5e7b83afc65aad3f04ca48b11"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-default-array-parameters.json.gz",
+      "sha256": "b9e87e735ad05edf37d81f3247939aab50e959afe5c583fc442ae0bb5d5143e3",
+      "raw_sha256": "49c12499e23c63af0181dd0378857a4c108dcbaef4dd23d16f44792f5a181ee2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-default-array-parameters-sanitized.json.gz",
+      "sha256": "1b91330eba33fae973415dab39634b5392b2877298ffeddd1a0e49ff08f30e60",
+      "raw_sha256": "c612d14f2bfa03f772bd22be8e3ab07ac81d96666be25374356e898990e3b8ed"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-package-default-array-parameters.json.gz",
+      "sha256": "44c6892bf1dafde2436618e6d997115495bbac7813f9a67dab2c4ee431bbd01a",
+      "raw_sha256": "efb2fb58280be713df420e582e33e3560f8426f06d2bd403c64e689b11942e26"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-package-default-array-parameters-sanitized.json.gz",
+      "sha256": "b8e87c290e8cc9bf7fe40516d66465c38418f5b0ec443f6060fa810ac55a75ba",
+      "raw_sha256": "682d82001d5fd04231fda9683dc561faf836bdf8fb005d0693d9f2d5560213c7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-native-array-fields.json.gz",
+      "sha256": "fafca4e273fe779b332ca25d78f94205479eb5c81fe911cf86b80b8c34ba95cf",
+      "raw_sha256": "085d0be4ec45ac12fcd91e3b624687e78a7526d036570f29395477bc81e18e6b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "8a7a0a2f2e8826de185a409f4a43d8b6a4af249a6be2e6dda7ee2f9e3ba0c745",
+      "raw_sha256": "599753e3cefcc9c310f56b0e4a6e9459b426f29363eca1068802cbb54e8eb2ee"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-string-call-arguments.json.gz",
+      "sha256": "60937cd51d4ba717697dd729359462b08bb4fc9f4fd5244c717a4a7133f18395",
+      "raw_sha256": "f5b40adef9f3f10fc3fddd4ff1bffa22358d831279e271f8d6a02bec94d53946"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-string-call-arguments-sanitized.json.gz",
+      "sha256": "01345d9fd4325cd2a0f3f03ea820f7aebd4940f1babed0b575da9c8233b137e5",
+      "raw_sha256": "c77131d0e686547f9347f197fbc92093f8631f244fad23338bb6812413bb54e9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-sdk-udp-artifact.json.gz",
+      "sha256": "de45cc279c2a758498a6f2b9c67b8fb92f2d94f9f7a885d4b4c8d9f7f0b939a3",
+      "raw_sha256": "2928f29808177f65ad3386a42ec1f6dab6a0bd401b8523aa15100246fedc9ea0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-sdk-udp-artifact-sanitized.json.gz",
+      "sha256": "5bf734e41d3d10616fbd4d8d8b30976694b3f053baf1e8c25e5dbc042829c1de",
+      "raw_sha256": "680cffa7adab13c25184665240ab31cb047ed35bfeaa9461837c89d76f05936d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-sdk-tcp-artifact.json.gz",
+      "sha256": "2577ca22474dcbe1f84cad2b5ce1c7b1443363b87c9db49ab1a16d02cc85c5da",
+      "raw_sha256": "0a7ece2af922abbc084457a46a31a189d943b08a10145e39a1b35a024c116008"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-sdk-tcp-artifact-sanitized.json.gz",
+      "sha256": "3d668e8bf23f0ba6e933810f88136844c7ee1f54acc4918f3e3dabeb68e8c66d",
+      "raw_sha256": "a0c641c3a653a7cfe365542d074d7b34a285830f9b3d228a579a55b9adf473fe"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-record-copy-contract.json.gz",
+      "sha256": "2a890fab82c72bd34d5269ad8b6d9feb1821a456853b4075e5e7914b2e5aa461",
+      "raw_sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-record-copy-contract-sanitized.json.gz",
+      "sha256": "2a890fab82c72bd34d5269ad8b6d9feb1821a456853b4075e5e7914b2e5aa461",
+      "raw_sha256": "54cff07900a0318c9ed700422a76c5bcf474ea88ed8e70c237e29cb1333fac8c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-parity-numeric-places.json.gz",
+      "sha256": "74f81f24477f440d42ceafe187d0e6619f3c4e0d4b2682ec81adab9938326e17",
+      "raw_sha256": "1a26f8c39622c24388bde23964d952ec0519c756470d9ded47e399983cc1905b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-rust-parity-numeric-native-owners.json.gz",
+      "sha256": "3b399f44b2851714104335e46cbc0bb4e87b50107efbe5b945a1d6521618a9f6",
+      "raw_sha256": "96bc251566acc9fbf94a690ced6ff6bc5a9928a28b0d170334901c3c1bc76ae9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-full-sdk-normal.json.gz",
+      "sha256": "92390e9ee99ef503cae042423c217a5902ead507fc334bfb57f05f8cd1c40e5b",
+      "raw_sha256": "adef8375a6c8805d9783e31d3469554cacd5a943ab90c41cad6ff55419bbdde0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-full-sdk-normal.log.gz",
+      "sha256": "b3e9b01847907a466bf6b6a46eecbe3ac76b68549a7b485b7cb78576232c375e",
+      "raw_sha256": "7347d61853e0f9ca5c4707d91b512f17554f6ca046cf1a5190d5561e4d8d5970"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-full-sdk-normal-execution.json.gz",
+      "sha256": "d97ee1b02fb944f4924894d91c48a71211c57bfccd40ce1d688ec5a9dedc04f2",
+      "raw_sha256": "1a71ae8f55ac67371f8406f0040ff9d6dc80a48363d3ec43a28411cd10a411d8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-full-sdk-sanitized.json.gz",
+      "sha256": "92390e9ee99ef503cae042423c217a5902ead507fc334bfb57f05f8cd1c40e5b",
+      "raw_sha256": "adef8375a6c8805d9783e31d3469554cacd5a943ab90c41cad6ff55419bbdde0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-full-sdk-sanitized.log.gz",
+      "sha256": "b3e9b01847907a466bf6b6a46eecbe3ac76b68549a7b485b7cb78576232c375e",
+      "raw_sha256": "7347d61853e0f9ca5c4707d91b512f17554f6ca046cf1a5190d5561e4d8d5970"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-full-sdk-sanitized-execution.json.gz",
+      "sha256": "8e03709f235017b211e7e6a71d3aac71b58d2110795286e72a870af3845898db",
+      "raw_sha256": "bf8638ca788deb5ff44edf27733e821d082fb58169c6f7bbd51a65a7d35625c2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-SDK-tcp-native.json.gz",
+      "sha256": "4a6d8e14053754aa1fccc5cd73b1862cb18b8387d5f8e9e7db1e93091dc7cd62",
+      "raw_sha256": "212494416cc14276562b667a24250c8d1e2b95d948eb3e567cf650c281b96a07"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-SDK-tcp-sanitizers.json.gz",
+      "sha256": "3c9415787efa9d8c15fc1dcadc1c665a28db2da82af72867ae17243ac6d91b59",
+      "raw_sha256": "32a5620fa77a5f38c4b2c4b350814bc665d009b2cdf5206cd88821598055d572"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-validation.json.gz",
+      "sha256": "e724a66113b14106f9659a8bc817eb0ce489d8c1c26b0483726489416d1aed88",
+      "raw_sha256": "b3f7315d6720cfcbf9d8c90f35377b6ffaccbd5694189e778c255d519cffcc84"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-checks.json.gz",
+      "sha256": "f0e1b79d5018420dc338d70b568ed111689123e2cd4ce8288062635d3476d57a",
+      "raw_sha256": "7770cd3540787d774d428f559263e94e37a0fbb1dccf6b0d528b2d6b5dc79613"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-validate-composed.py.gz",
+      "sha256": "e89606b67885097b2fa885b41a48e4a01a68c062fad4e49b8a2d6b39e4068351",
+      "raw_sha256": "ded1ca56a82534f29ece917158657cee31020d3c155c2ac2797aa2efe6ec084d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-composed-driver.log.gz",
+      "sha256": "2681c1ef47ada8f8aa2923bb0cce42689e9e20cddf223c45592a23623b0842e3",
+      "raw_sha256": "12d15a39540767645f7c4ee221435af3a64a078b4ad055aecc78b2f1c459bee0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-helpers.log.gz",
+      "sha256": "0d9b697b3b949bbe534f728a067a776ed26ebf21473886cb5adc9e96fd4bc9b4",
+      "raw_sha256": "58481f7275b68cac236b8ab96d727b3ee90b2e2d280e579b13ec678757dc4b0d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae",
+      "raw_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-audit-original-modes-final.py.gz",
+      "sha256": "1e79191b0e604395afd02fa00eec9c4d84235b93d4aa7cac7646545d7e2191ec",
+      "raw_sha256": "a9404d6a12d50fe91f033276d60ae60ed7ca7766314e61809712cf44bf460522"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-original-modes.log.gz",
+      "sha256": "510624290ee8c3d31fb5a0f71fbf749e6bf1243e83d24d5a1d8fe857059cd245",
+      "raw_sha256": "7fd4edd0ccca4139f7bf858b0aa4cdf29d106e9b6deacb98d000932cbc39f5af"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-source-preservation.json.gz",
+      "sha256": "f92b47ceda4b5a57560b78deb99c42ff4f83597e86a6543bcf509ffd46741c50",
+      "raw_sha256": "e26a2ee5a46ca16459568221f683cb97cc0956542cceefdc02ca33713453b2b0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-regressions-before-after.json.gz",
+      "sha256": "c91424c0c554846e2aefe398700468ad0f25a1621b59178765957009a0d17474",
+      "raw_sha256": "20be8180a2ff481d01a47935015ed2da3401b30de96d9e23c65cfc557d727856"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-reference-field-before.json.gz",
+      "sha256": "22ad791d4c84c9cbdd6a1b015aace918e836a3d632aa09b5121e2578edd0ce76",
+      "raw_sha256": "3e6a69a43ab41280737797e413cbc9125845a42f4e392be93b7a8b6c155f9c80"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-reference-field-before.log.gz",
+      "sha256": "248d63fce8f41293e2608823610b22d4f11432ad7f12671f0605148c18c9a1e2",
+      "raw_sha256": "bf3a6acc386b70aa4f8a4d3a11667e7b9cf6f34422862feaa14809384699200f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-legacy-field-copy.json.gz",
+      "sha256": "96ff689b7d84b0ac34694c45a30c3e7a34c979a06e48652c3b0f317e86919d40",
+      "raw_sha256": "7d5e08a557d80f9db71a61638133ec391f982e4097a9e9bfa124c8cdb2b550a0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-legacy-field-copy.py.gz",
+      "sha256": "a673b0af5cb856934f293de7cc1103f14d0f673d30e57304eb6d51b283b33ef6",
+      "raw_sha256": "f810fa3e425a0e8e539a25438f443d8250e43c5691683cf9ed56781ab50e042f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-legacy-field-copy.log.gz",
+      "sha256": "0aa6a5ef11f2c14f41d426388319a4c498524341cef4f56b970248b2305be936",
+      "raw_sha256": "43a960ebfc23dfc37e88d7820101da30a4de8b382d7297c774955d07ce9a5acb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-focused-first-timeout.log.gz",
+      "sha256": "21e6fb8ed015eebbaa978d16b2cef088b37a054485015b2105b1944400dd8289",
+      "raw_sha256": "9c05cb2ef9b29ddf79cfb6cd251b28260cf030642d236b959cc0a465e9bd8451"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-before-optimizer-focused-normal.log.gz",
+      "sha256": "e584c6e134971422a217be23af9ab43cc1369306a4aedbdcf9653f876a49f9b2",
+      "raw_sha256": "a4ee0a526957d99df0f396744d39729a25d2b58783b2f0fe68b0467847fe3a66"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-api-O1-hang.sn.raw.gz",
+      "sha256": "214cc49fbbdd537c53a6eaacaa7f7f8d6e8feea834d04a388178c3df98fc5c85",
+      "raw_sha256": "8409a34d01da87c1c32a984f7ef1a4b97f0530fd8c2820ad5e495726dc8d33cb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-api-O1-generated-after.c.gz",
+      "sha256": "3c3b8e79dfa1bdc861c63669e84f7c24d3e8812b6a3caa5690cf5f4bd1cf2888",
+      "raw_sha256": "f84345138fe9f053c57e79ab0f881bf860751cd5a9dae35e558d18a9c033198d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-api-O1-generated-after.json.gz",
+      "sha256": "0e002dd8f97ad6be11bf1571081cfa3044189e19e066e2777b3fee4dd0621988",
+      "raw_sha256": "5ea734788b439e9d46852ad4b3e5014ed0fa413150e3f9a45e1625a8b50bcdca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-native-normal.log.gz",
+      "sha256": "141e25b56a14e7e6c7f6362678fca135fbfbbb8ab509b267100b0e15122d5aae",
+      "raw_sha256": "29fe21f1357cc2974108f9b19f0360446d8d4b1dc10628697a95620414de21a0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-native-sanitized.log.gz",
+      "sha256": "c215de7903edec24b3573e8155b2ccfc6bb547bff9073d3e8f20abce6260a92c",
+      "raw_sha256": "08d543dbe35c1f9edbf93a2b37b580faaa7b5ff93512b02744bbaddf50a50c04"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-observe-sdk-environment.py.gz",
+      "sha256": "e4c9d593bf880756749da880ab26f1c7ffbf8b45c8d9afae068c9807fa57f472",
+      "raw_sha256": "7a14f94f5ebcde75212ca6acdb0b20efd3f9170ae8da4509c1cf5ef3acdb3f2f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-retain-local.py.gz",
+      "sha256": "a95429c3edc66562d589b90928e1047e4fd936e9d748998b267023b594dcd0db",
+      "raw_sha256": "91220b65be2d7914231d2360c28c0b2ce1c70e61dd05262781231c82978e0ef3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-original-corpus.json.gz",
+      "sha256": "e421bb0cdc533b0cd7b427803c255193a00aee21a746da692a3adc94e3d5caf6",
+      "raw_sha256": "31174471f75c9c5753e7d9779560b6f08a629f55681ca0f6cf9d2db60f190fd4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-api-O1-generated-before.c.gz",
+      "sha256": "9efa60fb7da3b284a04cd9c1412e022032af9c1e7aabee9291973d8a1bcd4c24",
+      "raw_sha256": "6bc7693e1ff166daf20fb683e70fa4f4f5cd504da5768a56934ce3d2e4bf797e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-borrowed-field-overlap.json.gz",
+      "sha256": "d32193877968b380d09292abc59a6a84c6978edb4d8e83bb1323d10b23f24496",
+      "raw_sha256": "ae8723064ceaa9f8a01099d33434998d579aaa3f0e48ee3b0984c8f0edafeab1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-borrowed-field-legacy.json.gz",
+      "sha256": "2157cd5c6faf7cc36a8571d4c0dbe2c1218c3ccfb6c9658148c53c54272cf9b2",
+      "raw_sha256": "7057a2f1a6c825993b0492af2dd52aa21ceaaa8dc4b0e6a79f97d923f640a1fa"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-borrowed-field-legacy-rust.json.gz",
+      "sha256": "e3f351ff4bfc44b73a2ee74ab642018e89ed867f701b60c242968f0fd6600c49",
+      "raw_sha256": "52890e57b6c0ea3518f4dbb86c5d097959276f7cff9e592e536bd2aa4c3f0bec"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-managed-overlap-checks.json.gz",
+      "sha256": "0845a37b3ab52b78cde480abd0505578abbc93fcfe5c16633b870f2df0f5ff0d",
+      "raw_sha256": "ecb7c0af87a41ab7186c0bfb36a859ba31bd2254de490ff88f03de3b49181c6f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-managed-overlap-validation.json.gz",
+      "sha256": "1b97b66b152fc97de29566699e1bc371b7274ba652b9c2981f831bb062d93a78",
+      "raw_sha256": "44b650d708870c1cbcf52f1446caee0baf8999c0cfb09c364d19a477b679157e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-managed-overlap-driver.log.gz",
+      "sha256": "2863e55261e9e7d0301e036fa06a567318cbad1586f866bb00919e48c9f3c77e",
+      "raw_sha256": "315cdcf6abbde0ff4c46d72c1b78cc09c9dc4e71802dc6c98c98eb536bcb3456"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-artifact-validate-managed-overlap.py.gz",
+      "sha256": "cd8d50c582c9301b5ec6958d6f0d08b14efcdde809a12ffa54d7f4ce2fdd4b5a",
+      "raw_sha256": "31c9bc714d1aced83b2598855c67c71abb9b42556d5724f7ee05247556c3e063"
+    }
+  ]
+}

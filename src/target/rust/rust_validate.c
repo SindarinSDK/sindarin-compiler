@@ -391,7 +391,14 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *model, json_ob
         {
             json_object *param_type = NULL;
             json_object_object_get_ex(param, "type", &param_type);
-            if (rust_heap_free_value_record_parameter_type(model, param_type))
+            if (json_boolean_property(param, "rust_native_handle_borrow_param") &&
+                json_boolean_property(param_type, "rust_native_reference_handle"))
+            {
+                /* Native reference parameters borrow the shared C record.
+                 * Field stores use its generated setters and must remain
+                 * visible through the caller's aliases. */
+            }
+            else if (rust_heap_free_value_record_parameter_type(model, param_type))
             {
                 json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
                 if (member)
