@@ -21,7 +21,29 @@
 static int g_chain_tmp_count = 0;
 static json_object *g_model_structs = NULL;
 static json_object *g_chain_names = NULL;
+typedef enum { CHAIN_ALL, CHAIN_LEGACY, CHAIN_FIELDS } ChainMode;
+static ChainMode g_chain_mode = CHAIN_ALL;
 static void flatten_body(json_object *body);
+
+static bool string_call_property(json_object *node, const char *key, const char *value)
+{
+    json_object *property = NULL;
+    return node && json_object_object_get_ex(node, key, &property) &&
+        json_object_is_type(property, json_type_string) &&
+        strcmp(json_object_get_string(property), value) == 0;
+}
+
+static json_object *string_call_child(json_object *node, const char *key)
+{
+    json_object *child = NULL;
+    if (node) json_object_object_get_ex(node, key, &child);
+    return child;
+}
+
+static bool string_call_flag(json_object *node, const char *key)
+{
+    return json_object_get_boolean(string_call_child(node, key));
+}
 
 static void collect_chain_names(json_object *node)
 {
@@ -109,6 +131,40 @@ static bool needs_temp_extraction(json_object *expr)
 
     /* Everything else needs a temp */
     return true;
+}
+
+static bool field_owns_array_container(json_object *object)
+{
+    json_object *kind = NULL, *parent = NULL;
+    if (!object || !json_object_object_get_ex(object, "kind", &kind)) return false;
+    const char *name = json_object_get_string(kind);
+    if (strcmp(name, "array_access") == 0 &&
+        json_object_object_get_ex(object, "array", &parent))
+        return needs_temp_extraction(parent) || field_owns_array_container(parent);
+    if (strcmp(name, "member") == 0 &&
+        json_object_object_get_ex(object, "object", &parent))
+        return field_owns_array_container(parent);
+    return false;
+}
+
+static bool field_needs_receiver_cleanup(json_object *expr)
+{
+    json_object *flag = NULL, *kind = NULL, *type = NULL, *object = NULL, *object_type = NULL;
+    if (json_object_object_get_ex(expr, "c_owned_field_receiver", &flag) &&
+        json_object_get_boolean(flag)) return true;
+    if (!json_object_object_get_ex(expr, "kind", &kind) ||
+        strcmp(json_object_get_string(kind), "member") != 0 ||
+        !json_object_object_get_ex(expr, "type", &type) ||
+        !json_object_object_get_ex(type, "kind", &kind) ||
+        strcmp(json_object_get_string(kind), "array") != 0 ||
+        !json_object_object_get_ex(expr, "object", &object) ||
+        !json_object_object_get_ex(object, "type", &object_type)) return false;
+    json_object *base = NULL;
+    if (json_object_object_get_ex(object_type, "base_type", &base)) object_type = base;
+    json_object *name = NULL;
+    return json_object_object_get_ex(object_type, "name", &name) &&
+        struct_is_pass_by_ref(json_object_get_string(name)) &&
+        field_owns_array_container(object);
 }
 
 /* Add cleanup annotations to a chain temp var_decl based on its struct type.
@@ -420,9 +476,19 @@ static void flatten_expr(json_object *expr, json_object *inserts)
     if (!json_object_object_get_ex(expr, "kind", &kind_obj)) return;
     const char *kind = json_object_get_string(kind_obj);
 
-    /* Closure bodies execute in their separately emitted definitions. Never
-     * extract their receivers into the scope creating the closure. */
-    if (strcmp(kind, "lambda") == 0) return;
+    /* Preserve the established chain extraction of ordinary lambda expressions.
+     * New field receiver cleanup belongs only to the invoked lambda body. */
+    if (strcmp(kind, "lambda") == 0 && g_chain_mode != CHAIN_LEGACY)
+    {
+        if (g_chain_mode == CHAIN_FIELDS) return;
+        ChainMode previous = g_chain_mode;
+        g_chain_mode = CHAIN_LEGACY;
+        flatten_expr(expr, inserts);
+        g_chain_mode = previous;
+        return;
+    }
+    bool field_cleanup = field_needs_receiver_cleanup(expr);
+    if (field_cleanup && g_chain_mode == CHAIN_LEGACY) return;
 
     /* Declare a nil cleanup slot, but acquire its receiver inline. Hoisting
      * the initializer would evaluate factories in skipped branches and only
@@ -438,7 +504,10 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             needs_temp_extraction(object) &&
             json_object_object_get_ex(object, "type", &type))
         {
+            ChainMode previous = g_chain_mode;
+            g_chain_mode = CHAIN_ALL;
             flatten_expr(object, inserts);
+            g_chain_mode = previous;
             char name[64];
             chain_temp_name(name, sizeof(name));
             json_object *decl = json_object_new_object();
@@ -459,6 +528,20 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             json_object_object_del(expr, "c_owned_field_receiver");
             return;
         }
+    }
+
+    if (g_chain_mode == CHAIN_FIELDS)
+    {
+        if (field_cleanup)
+        {
+            json_object *object = NULL;
+            json_object_object_get_ex(expr, "object", &object);
+            g_chain_mode = CHAIN_ALL;
+            flatten_expr(object, inserts);
+            g_chain_mode = CHAIN_FIELDS;
+            return;
+        }
+        goto recurse_children;
     }
 
     /* Bind native ownership snapshots to the actual, flattened arguments.
@@ -743,6 +826,7 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         return;
     }
 
+recurse_children:
     /* Struct literal field initializers: the "fields" array contains
      * objects with "name" and "value" keys but no "kind". The generic
      * recursion below would call flatten_expr on each field descriptor,
@@ -979,8 +1063,131 @@ static void flatten_body(json_object *body)
     }
 }
 
+static json_object *string_call_method_parameters(json_object *call)
+{
+    const char *type_name = NULL, *method_name = NULL;
+    json_object *type = string_call_child(call, "struct_type");
+    json_object *name = string_call_child(call, "type_name");
+    if (!name) name = string_call_child(type, "name");
+    if (name) type_name = json_object_get_string(name);
+    name = string_call_child(call, "method_name");
+    if (name) method_name = json_object_get_string(name);
+    if (string_call_property(call, "kind", "call"))
+    {
+        json_object *callee = string_call_child(call, "callee");
+        type = string_call_child(string_call_child(callee, "object"), "type");
+        name = string_call_child(type, "name");
+        type_name = name ? json_object_get_string(name) : NULL;
+        name = string_call_child(callee, "member_name");
+        method_name = name ? json_object_get_string(name) : NULL;
+    }
+    if (!type_name || !method_name || !g_model_structs) return NULL;
+    for (size_t i = 0; i < json_object_array_length(g_model_structs); i++)
+    {
+        json_object *structure = json_object_array_get_idx(g_model_structs, i);
+        if (!string_call_property(structure, "name", type_name)) continue;
+        json_object *methods = string_call_child(structure, "methods");
+        for (size_t m = 0; methods && m < json_object_array_length(methods); m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
+            if (string_call_property(method, "name", method_name))
+                return string_call_child(method, "params");
+        }
+    }
+    return NULL;
+}
+
+static bool string_call_borrows_argument(json_object *call, size_t index)
+{
+    json_object *params = string_call_method_parameters(call);
+    if (params && index < json_object_array_length(params))
+    {
+        json_object *param = json_object_array_get_idx(params, index);
+        return string_call_property(param, "mem_qual", "default") &&
+            string_call_property(string_call_child(param, "type"), "kind", "string");
+    }
+    json_object *callee = string_call_child(call, "callee");
+    /* Built-in print and primitive/array methods have their own ownership
+     * lowering. Only ordinary callable string parameters are borrowed here. */
+    if (!string_call_property(callee, "kind", "variable") ||
+        string_call_property(callee, "name", "print") ||
+        string_call_property(callee, "name", "println")) return false;
+    json_object *type = string_call_child(callee, "type");
+    json_object *types = string_call_child(type, "param_types");
+    if (!string_call_property(type, "kind", "function") || !types ||
+        index >= json_object_array_length(types) ||
+        !string_call_property(json_object_array_get_idx(types, index), "kind", "string")) return false;
+    json_object *quals = string_call_child(type, "param_mem_quals");
+    return !quals || index >= json_object_array_length(quals) ||
+        strcmp(json_object_get_string(json_object_array_get_idx(quals, index)), "default") == 0;
+}
+
+static void collect_string_call_aliases(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            collect_string_call_aliases(json_object_array_get_idx(node, i));
+    }
+    else if (json_object_is_type(node, json_type_object))
+    {
+        json_object_object_foreach(node, key, child)
+        {
+            if (strcmp(key, "c_alias") == 0 && json_object_is_type(child, json_type_string))
+                json_object_object_add(g_chain_names, json_object_get_string(child), json_object_new_boolean(true));
+            else collect_string_call_aliases(child);
+        }
+    }
+}
+
+/* A default string parameter borrows its input. Bind a concatenation at its
+ * original argument site and release it after the call. Nil declarations
+ * preserve the C compiler's ordering of argument/receiver side effects. */
+static void own_string_call_arguments(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            own_string_call_arguments(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object) ||
+        string_call_flag(node, "c_string_call_frame")) return;
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) != 0) own_string_call_arguments(child);
+    if (!string_call_property(node, "kind", "call") &&
+        !string_call_property(node, "kind", "static_call") &&
+        !string_call_property(node, "kind", "method_call")) return;
+    json_object *args = string_call_child(node, "args");
+    json_object *slots = json_object_new_array();
+    for (size_t i = 0; args && i < json_object_array_length(args); i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (!string_call_property(arg, "kind", "binary") ||
+            !string_call_property(arg, "op", "add") ||
+            !string_call_property(string_call_child(arg, "type"), "kind", "string") ||
+            string_call_child(arg, "borrow_tmp_var") || string_call_flag(arg, "consumes_source") ||
+            !string_call_borrows_argument(node, i)) continue;
+        char name[64];
+        chain_temp_name(name, sizeof(name));
+        json_object_object_add(arg, "c_string_argument_slot", json_object_new_string(name));
+        json_object *slot = json_object_new_object();
+        json_object_object_add(slot, "name", json_object_new_string(name));
+        json_object_array_add(slots, slot);
+    }
+    if (json_object_array_length(slots))
+    {
+        json_object_object_add(node, "c_string_call_frame", json_object_new_boolean(true));
+        json_object_object_add(node, "c_string_call_slots", slots);
+    }
+    else json_object_put(slots);
+}
+
 void gen_model_flatten_chains(json_object *model)
 {
+    g_chain_mode = CHAIN_ALL;
     g_chain_tmp_count = 0;
     g_chain_names = json_object_new_object();
     collect_chain_names(model);
@@ -989,6 +1196,7 @@ void gen_model_flatten_chains(json_object *model)
     json_object_object_get_ex(model, "structs", &g_model_structs);
 
     json_object *lambdas = NULL;
+    g_chain_mode = CHAIN_FIELDS;
     if (json_object_object_get_ex(model, "lambdas", &lambdas))
     {
         for (size_t i = 0; i < json_object_array_length(lambdas); i++)
@@ -1008,6 +1216,7 @@ void gen_model_flatten_chains(json_object *model)
             }
         }
     }
+    g_chain_mode = CHAIN_ALL;
 
     /* Process function bodies */
     json_object *functions = NULL;
@@ -1051,6 +1260,8 @@ void gen_model_flatten_chains(json_object *model)
     if (json_object_object_get_ex(model, "top_level_statements", &top_level))
         flatten_stmt_list(top_level);
 
+    collect_string_call_aliases(model);
+    own_string_call_arguments(model);
     g_model_structs = NULL;
     json_object_put(g_chain_names);
     g_chain_names = NULL;

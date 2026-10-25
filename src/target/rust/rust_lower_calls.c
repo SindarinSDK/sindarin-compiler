@@ -248,6 +248,55 @@ static bool rust_lower_integer_match_bridges(json_object *model, RustNativePlan 
     return ok;
 }
 
+/* Preserve string assignment values only in the new match expression contexts. */
+static void rust_string_match_assignment_values(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_string_match_assignment_values(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+    json_object *type = NULL;
+    json_object_object_get_ex(node, "type", &type);
+    if (json_string_property_equals(node, "kind", "assign") &&
+        json_string_property_equals(type, "kind", "string"))
+        json_object_object_add(node, "rust_string_assignment_value", json_object_new_boolean(true));
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5)) rust_string_match_assignment_values(child);
+}
+
+static void rust_lower_string_match_values(json_object *node)
+{
+    /* String match patterns and selected arms use assignment expression
+     * values; ordinary statement assignments retain their existing output. */
+    json_object *string_arms = NULL, *match_type = NULL;
+    json_object_object_get_ex(node, "type", &match_type);
+    if (json_object_object_get_ex(node, "arms", &string_arms)) {
+        for (size_t a = 0; a < json_object_array_length(string_arms); a++) {
+            json_object *arm = json_object_array_get_idx(string_arms, a), *patterns = NULL;
+            json_object_object_get_ex(arm, "patterns", &patterns);
+            for (size_t p = 0; patterns && p < json_object_array_length(patterns); p++) {
+                json_object *pattern = json_object_array_get_idx(patterns, p);
+                if (json_boolean_property(pattern, "rust_string_pattern_computed"))
+                    rust_string_match_assignment_values(pattern);
+            }
+            if (json_boolean_property(node, "rust_value_match") &&
+                json_string_property_equals(match_type, "kind", "string")) {
+                json_object *body = NULL, *statements = NULL, *tail = NULL;
+                json_object_object_get_ex(arm, "body", &body);
+                json_object_object_get_ex(body, "statements", &statements);
+                size_t count = statements ? json_object_array_length(statements) : 0;
+                if (count) {
+                    json_object_object_get_ex(json_object_array_get_idx(statements, count - 1), "expr", &tail);
+                    rust_string_match_assignment_values(tail);
+                }
+            }
+        }
+    }
+}
+
 /* Match comparisons use C expression promotions, and each selected value arm
  * converts once into its resolved result storage. Source float literals render
  * as C double expressions; fields, calls and variables retain their real type. */
@@ -264,6 +313,7 @@ static void rust_lower_numeric_match_values(json_object *node)
         if (strncmp(key, "rust_", 5)) rust_lower_numeric_match_values(child);
     }
     if (!json_string_property_equals(node, "kind", "match")) return;
+    rust_lower_string_match_values(node);
     json_object *arms = NULL, *subject = NULL, *subject_type = NULL, *result_type = NULL;
     json_object_object_get_ex(node, "arms", &arms);
     json_object_object_get_ex(node, "subject", &subject);

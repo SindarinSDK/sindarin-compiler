@@ -1,3 +1,72 @@
+## String effects and caller/callee loans: local validation, 2026-10-25
+
+Eight original String programs now execute through Rust without source changes:
+computed indexed/assignment patterns, selected mutation/copy results, and local
+rebinding/appending of default String parameters. Patterns remain lazy, results
+own independent values and caller strings retain their values. Assignment-only
+local storage survives optimization. Rust-private C function, method and lambda
+projection shares the canonical borrowed-parameter context and return-copy rules.
+
+The unchanged SDK Directory caller exposed a separate C caller leak:348 bytes
+from14 concatenated arguments, reproduced on accepted72 and maina5 while Rust
+was clean. Borrowed calls now bind these strings at their original argument
+sites into cleanup slots and release them after the call. C argument order and
+native-name collisions have independent controls. No original source, output,
+diagnostic or generation snapshot was edited.
+
+All32 composed local checks pass: full C3,243/Rust1,099;90 String language pairs
+and36 source/sealed package cases per environment;18 caller-loan/order cases per
+environment;72 field pairs,153+9 computed numeric cases and all prior overlap
+families. The two String controls have29/30 outputs; the caller control has10.
+Imports52, artifacts22, SDK19 smoke84, helpers27 and formatting pass. All1,365
+original programs,1,158 oracles,281 accepted SDK fixture inputs and87 SDK
+Sindarin/oracle files retain their hashes. All209 accepted-main gate commands
+remain intact; six additions require493 platform executions in41 groups.
+[Local proof](rust-parity-evidence/string-effects-loans-local-validation.json).
+
+The composed field correction on maina5 separately passed all49 required jobs,
+481 platform executions and41 groups on Linux/macOS/Windows.
+[Verified accepted-main proof](rust-parity-evidence/native-array-fields-correction-ci-green.json).
+The String batch still needs its own hosted acceptance. SDK20 staging and the
+array-parameter prototype remain separate dependent work. A refreshed historical
+inventory has44 agreements,24 Rust rejections after clean C sanitizers,50 C
+failures and61 unavailable/changed historical paths. That Linux/O0 subset does
+not prove C-defined semantics or final original-corpus parity. Broader SDK,
+interface/generic/callback/ownership/lifecycle and complete mode/platform
+acceptance remain open.
+
+## Native array fields: combined correction locally validated, 2026-10-25
+
+Field main d3ce failed the computed numeric mutation gate on all three hosted
+platforms: nine modes of the unchanged temporary-owner program produced a
+changed C lambda call sequence. The correction preserves legacy chain
+extraction at closure construction while applying field cleanup in the invoked
+body. Rust also avoids extracting unused original numeric operands and keeps
+indexed field container owners inside block and expression closures.
+[Retained hosted failure and local roots](rust-parity-evidence/native-array-fields-ci-failure.json).
+
+All26 local checks pass: full C3,243/Rust1,099, the unchanged153 numeric pairs plus
+nine new native-array closure pairs,72 field pairs normally and with sanitizers,
+and all composed numeric/record/scalar/byte/array/thread/integer regressions.
+The field control now has26 independent effect/release outputs. Imports52,
+artifacts22, SDK19 smoke84, helpers27 and formatting pass. Every original1,365
+program and1,158 oracle remains unchanged, along with281 accepted SDK fixture
+inputs and87 SDK Sindarin/oracle files. All209 gate commands/IDs remain intact;
+the numeric gate now also runs the nine additive cases. Required coverage remains
+481 platform executions in41 groups.
+[Complete local proof](rust-parity-evidence/native-array-fields-correction-local-validation.json).
+
+The older record revision9f37 has separately passed all49 required jobs on its
+own same-revision retry2:461 platform executions in41 groups. Attempt1 explicitly
+reported runner communication loss; its evidence remains retained.
+[Original runner loss](rust-parity-evidence/record-required-run-runner-loss.json),
+[verified own retry](rust-parity-evidence/record-own-retry-ci-green.json).
+
+The combined correction still requires its own full hosted acceptance before
+feature publication resumes. SDK20 and String work remain separate local batches.
+Broader native/SDK/interface/generic/callback/lifecycle gaps and final original
+corpus, mode and platform acceptance remain open.
+
 ## Native array fields: accepted integer-main composition, 2026-10-25
 
 The field feature is composed with hosted-accepted integer main72. All27 local

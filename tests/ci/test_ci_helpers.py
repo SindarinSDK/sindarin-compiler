@@ -114,7 +114,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 41)
-        self.assertEqual(report['gates'], 489)
+        self.assertEqual(report['gates'], 501)
         for sanitized in (False, True):
             identity = 'numeric-match-conversions' + ('-sanitizers' if sanitized else '')
             entries = [g for g in self.catalog['gates'] if g['id'] == identity]
@@ -123,6 +123,19 @@ class CoverageTests(unittest.TestCase):
                              (['--sanitize'] if sanitized else []))
             self.assertEqual(entries[0]['group'], 'sanitizers' if sanitized else 'core')
             self.assertEqual(entries[0]['linux_only'], sanitized)
+        for stem, script in (
+                ('string-match-effects', 'scripts/check_rust_string_match_effects.py'),
+                ('package-string-match-effects', 'tests/package/string_match_effects.py'),
+                ('string-call-arguments', 'scripts/check_rust_string_call_arguments.py')):
+            for sanitized in (False, True):
+                identity = stem + ('-sanitizers' if sanitized else '')
+                entries = [g for g in self.catalog['gates'] if g['id'] == identity]
+                self.assertEqual(len(entries), 1, identity)
+                self.assertEqual(entries[0]['command'], ['{python}', script])
+                self.assertEqual(entries[0]['group'], 'sanitizers' if sanitized else 'native')
+                self.assertEqual(entries[0]['linux_only'], sanitized)
+                if sanitized:
+                    self.assertIn('-fsanitize=address,undefined', entries[0]['env']['SN_CFLAGS'])
         for sanitized in (False, True):
             identity = 'package-scalar-value-qualifiers' + ('-sanitizers' if sanitized else '')
             matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]

@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "symbol_table.h"
 #include "compiler.h"
+#include "cgen/gen_model_borrowed_parameters.h"
 #include <json-c/json.h>
 #include <stdio.h>
 #include <string.h>
@@ -173,10 +174,6 @@ const char *gen_model_var_cleanup_kind(Type *type, bool suppress_local);
 void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param, bool callee_is_native);
 
 /* Statement emission */
-typedef struct { json_object *parameters; int id; } GenModelBorrowedParamContext;
-GenModelBorrowedParamContext gen_model_borrowed_parameters_enter(json_object *parameters);
-void gen_model_borrowed_parameters_restore(GenModelBorrowedParamContext context);
-
 json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             ArithmeticMode arithmetic_mode);
 

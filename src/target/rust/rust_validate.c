@@ -420,6 +420,23 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *model, json_ob
                 json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
                 json_object_object_add(node, "rust_by_value_record_parameter_assign", json_object_new_boolean(true));
             }
+            else if (json_string_property_equals(type, "kind", "string"))
+            {
+                if (!json_object_object_get_ex(node, "value", &value) ||
+                    !json_object_object_get_ex(value, "type", &value_type) ||
+                    !json_string_property_equals(value_type, "kind", "string"))
+                {
+                    fprintf(stderr, "Error: Rust target requires string parameter assignment to preserve its exact string type\n");
+                    return false;
+                }
+                if (rust_rhs_mutates_parameter(value, target, false))
+                {
+                    fprintf(stderr, "Error: Rust target does not support string parameter assignment when its RHS mutates or forwards the same parameter as ref\n");
+                    return false;
+                }
+                json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
+                json_object_object_add(node, "rust_by_value_string_parameter_assign", json_object_new_boolean(true));
+            }
             else
             {
                 if (!json_object_object_get_ex(param, "type", &type) ||
@@ -475,7 +492,26 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *model, json_ob
             json_object *param_type = NULL, *value_type = NULL;
             const char *param_kind = NULL, *value_kind = NULL;
             const char *op = json_string_property(node, "op");
-            if (json_object_object_get_ex(param, "type", &param_type) &&
+            json_object_object_get_ex(param, "type", &param_type);
+            if (json_string_property_equals(param_type, "kind", "string"))
+            {
+                if (!json_object_object_get_ex(node, "value", &value) ||
+                    !json_object_object_get_ex(value, "type", &value_type) ||
+                    !json_string_property_equals(value_type, "kind", "string") ||
+                    !op || strcmp(op, "add") != 0)
+                {
+                    fprintf(stderr, "Error: Rust target supports string parameter compound assignment only for += with a string value\n");
+                    return false;
+                }
+                if (rust_rhs_mutates_or_forwards_parameter(value, target_name))
+                {
+                    fprintf(stderr, "Error: Rust target does not support string parameter compound assignment when its RHS mutates or forwards the same parameter as ref\n");
+                    return false;
+                }
+                json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
+                json_object_object_add(node, "rust_by_value_string_parameter_mutation", json_object_new_boolean(true));
+            }
+            else if (json_object_object_get_ex(param, "type", &param_type) &&
                 (param_kind = json_string_property(param_type, "kind")) &&
                 (strcmp(param_kind, "float") == 0 ||
                  strcmp(param_kind, "double") == 0 ||
@@ -2570,6 +2606,8 @@ static char *rust_string_match_constant_pattern_value(json_object *pattern)
     return combined;
 }
 
+static bool rust_string_match_result_access_is_stable(json_object *expr);
+
 static bool rust_prepare_string_match_pattern(json_object *pattern)
 {
     char *value = rust_string_match_constant_pattern_value(pattern);
@@ -2591,6 +2629,18 @@ static bool rust_prepare_string_match_pattern(json_object *pattern)
         !json_string_property_equals(type, "kind", "string"))
         return false;
 
+    /* Assignment patterns keep their string result, and stable indexed
+     * patterns read an existing element. Child expressions are validated
+     * after the match's complete shape has been checked. */
+    if (json_string_property_equals(pattern, "kind", "assign") ||
+        (json_string_property_equals(pattern, "kind", "array_access") &&
+         rust_string_match_result_access_is_stable(pattern)))
+    {
+        json_object_object_add(pattern, "rust_string_pattern_computed",
+                               json_object_new_boolean(true));
+        return true;
+    }
+
     json_object *root = pattern;
     while (json_string_property_equals(root, "kind", "member"))
     {
@@ -2603,46 +2653,6 @@ static bool rust_prepare_string_match_pattern(json_object *pattern)
     json_object_object_add(pattern, "rust_string_pattern_borrowed",
                            json_object_new_boolean(true));
     return true;
-}
-
-/* Keep result-form string calls inside the established read-only call
- * envelope. Mutating array methods may themselves return a string element;
- * mutating struct methods carry the target-local receiver analysis completed
- * before method bodies are validated. */
-static bool rust_string_match_result_call_is_mutating(json_object *expr)
-{
-    if (rust_is_mutating_array_call(expr)) return true;
-    if (!json_string_property_equals(expr, "kind", "call")) return false;
-
-    json_object *callee = NULL, *object = NULL, *object_type = NULL;
-    if (!json_object_object_get_ex(expr, "callee", &callee) ||
-        !json_string_property_equals(callee, "kind", "member") ||
-        !json_object_object_get_ex(callee, "object", &object) ||
-        !json_object_object_get_ex(object, "type", &object_type)) return false;
-
-    if (json_string_property_equals(object_type, "kind", "pointer"))
-    {
-        json_object *base_type = NULL;
-        if (!json_object_object_get_ex(object_type, "base_type", &base_type))
-            return false;
-        object_type = base_type;
-    }
-    if (!json_string_property_equals(object_type, "kind", "struct")) return false;
-
-    json_object *structure = rust_find_struct(
-        rust_validation_model, json_string_property(object_type, "name"));
-    json_object *methods = NULL;
-    const char *called_name = json_string_property(callee, "member_name");
-    if (!structure || !called_name ||
-        !json_object_object_get_ex(structure, "methods", &methods)) return false;
-    size_t method_count = json_object_array_length(methods);
-    for (size_t i = 0; i < method_count; i++)
-    {
-        json_object *method = json_object_array_get_idx(methods, i);
-        if (json_string_property_equals(method, "name", called_name))
-            return json_boolean_property(method, "rust_mutating");
-    }
-    return false;
 }
 
 /* Generic array access currently renders its receiver more than once in both
@@ -2866,6 +2876,12 @@ static bool rust_validate_statement_match(json_object *expr)
             }
         }
 
+        for (size_t p = 0; p < pattern_count; p++) {
+            json_object *pattern = json_object_array_get_idx(patterns, p);
+            if (json_boolean_property(pattern, "rust_string_pattern_computed") &&
+                !rust_validate_expr(pattern)) return false;
+        }
+
         if (!rust_validate_block(body)) return false;
     }
 
@@ -3056,7 +3072,10 @@ static bool rust_validate_value_match(json_object *expr)
                  strcmp(arm_kind, "interpolated_string") == 0 ||
                  strcmp(arm_kind, "call") == 0 ||
                  strcmp(arm_kind, "static_call") == 0 ||
-                 strcmp(arm_kind, "match") == 0);
+                 strcmp(arm_kind, "match") == 0 ||
+                 strcmp(arm_kind, "assign") == 0 ||
+                 strcmp(arm_kind, "copy_of") == 0 ||
+                 strcmp(arm_kind, "compound_assign") == 0);
             if (!supported)
                 return rust_report_match_error(
                     "supports str value-match results only for literals, borrowed variables, members, indexed elements, concatenation, interpolation, supported non-mutating calls, or nested str-result matches");
@@ -3066,12 +3085,6 @@ static bool rust_validate_value_match(json_object *expr)
                 return rust_report_match_error(
                     "requires indexed str value-match results to use a stable local/member receiver and stable indices");
 
-            /* Array mutation methods can return an element and therefore have
-             * exact str type for str[]. Their effect/value ordering remains a
-             * separate semantic family, not an implicit part of this slice. */
-            if (rust_string_match_result_call_is_mutating(arm_expr))
-                return rust_report_match_error(
-                    "does not support mutating calls as str value-match results");
         }
     }
 
@@ -3087,6 +3100,14 @@ static bool rust_validate_value_match(json_object *expr)
         if (!json_object_object_get_ex(arm, "body", &body) ||
             !json_object_object_get_ex(body, "statements", &body_statements))
             return rust_report_match_error("encountered malformed value match model");
+
+        json_object *patterns = NULL;
+        json_object_object_get_ex(arm, "patterns", &patterns);
+        for (size_t p = 0; patterns && p < json_object_array_length(patterns); p++) {
+            json_object *pattern = json_object_array_get_idx(patterns, p);
+            if (json_boolean_property(pattern, "rust_string_pattern_computed") &&
+                !rust_validate_expr(pattern)) return false;
+        }
 
         size_t statement_count = json_object_array_length(body_statements);
         for (size_t s = 0; s + 1 < statement_count; s++)

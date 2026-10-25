@@ -57,8 +57,11 @@ void collect_used_variables(Expr *expr, Token **used_vars, int *used_count,
         break;
 
     case EXPR_ASSIGN:
-        /* The variable being assigned TO is not a "use" (it's a def),
-           but the value being assigned IS a use */
+        /* A retained assignment still needs its destination storage. This
+         * pass removes declarations without removing stores; dropping an
+         * otherwise unread destination leaves invalid generated code and
+         * loses managed-value cleanup, including assignment-valued matches. */
+        add_used_variable(used_vars, used_count, used_capacity, arena, expr->as.assign.name);
         collect_used_variables(expr->as.assign.value, used_vars, used_count, used_capacity, arena);
         break;
 
