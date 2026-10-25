@@ -104,11 +104,17 @@ int {{rust_native_handle_refs}}(void *pointer) {
     return ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}};
 }
 {{#if rust_native_handle_set}}
-void {{rust_native_handle_set}}(void *pointer, {{c_type type}} value) {
+{{#if rust_native_handle_array_field}}SnArray *{{rust_native_handle_set}}(void *pointer, SnArray *value, int copy) {
+    SnArray *next = copy && value ? sn_array_copy(value) : value;
+    sn_cleanup_array(&((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
+    ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = next;
+    return next;
+}
+{{else}}void {{rust_native_handle_set}}(void *pointer, {{c_type type}} value) {
 {{#if (eq type.kind "string")}}    char *copy = value ? strdup(value) : NULL;
     free(((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
     ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = copy;
 {{else}}    ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = value;
 {{/if}}
 }
-{{/if}}{{/if}}{{/each}}{{/each}}
+{{/if}}{{/if}}{{/if}}{{/each}}{{/each}}

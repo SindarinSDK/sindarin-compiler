@@ -226,6 +226,20 @@ static bool native_prepare_records(json_object *model)
         json_object_put(type);
         if (!registered) goto fail;
     }
+    /* Public native reference fields also expose array element layouts even
+     * when no foreign callable mentions those element records directly. */
+    for (size_t i = 0; structures && i < json_object_array_length(structures); i++)
+    {
+        json_object *structure = json_object_array_get_idx(structures, i);
+        if (!native_bool(structure, "is_native") || !native_bool(structure, "pass_self_by_ref")) continue;
+        json_object *fields = native_record_child(structure, "fields");
+        for (size_t f = 0; fields && f < json_object_array_length(fields); f++)
+        {
+            json_object *type = native_record_child(json_object_array_get_idx(fields, f), "type");
+            if (native_string(type, "kind") && !strcmp(native_string(type, "kind"), "array") &&
+                !native_record_register_callable_types(model, type, records)) goto fail;
+        }
+    }
     json_object *functions = native_record_child(model, "functions");
     for (size_t i = 0; functions && i < json_object_array_length(functions); i++)
     {

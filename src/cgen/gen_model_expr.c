@@ -2835,6 +2835,16 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_new_string(mname));
                 c_model_field_alias(obj, obj_type, mname);
 
+                /* A borrowed field still needs the owned reference receiver
+                 * to remain live. The chain pass provides a cleanup slot,
+                 * acquired at the original expression site (also in lazy
+                 * conditions and repeated loop headers). */
+                if (obj_type && obj_type->kind == TYPE_STRUCT &&
+                    obj_type->as.struct_type.pass_self_by_ref &&
+                    ownership_kind(expr->as.member.object) == OWNERSHIP_OWNED)
+                    json_object_object_add(obj, "c_owned_field_receiver",
+                        json_object_new_boolean(true));
+
                 /* Issue #49: Member access on a value-struct rvalue with
                  * non-trivial cleanup (e.g. `build().probs`).  Without
                  * intervention, the rvalue's other refcounted/heap fields

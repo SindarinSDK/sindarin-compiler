@@ -1,3 +1,37 @@
+## Native array fields and receiver cleanup: locally verified slice, 2026-10-25
+
+Native reference records expose canonical C array fields through generated
+accessors. Field loans keep owned temporary receivers alive and preserve the
+actual array header at borrowed calls. Existing places support replacement,
+owned RHS transfer, borrowed RHS copies and assignment-result identity. String
+element views retain their field guard; value-record element layouts and forward
+native handle elements reuse the existing canonical array ownership callbacks.
+
+The C projection acquires owned field receivers at the expression site into
+scope cleanup slots, preserving skipped branches and repeated loop evaluations.
+Closure bodies receive cleanup in their own definitions. Generated C receiver
+names avoid user identifiers. The original 91-byte receiver and 182-byte closure
+leaks, a helper-name collision and initial Rust accessor/view failures are
+retained beside the fixes.
+
+All 63 C/Rust pairs pass normally and with C address/undefined/leak checks:
+eleven scalar leaves, ranks2-32, plain and managed-string value records, native
+reference elements, nested reference elements and twenty ownership/store/closure/
+control-flow/hygiene contexts. Full C/Rust suites pass 3,243/1,099, imports52,
+artifacts22, accepted SDK19 smoke84, CI helpers27 and formatting. All 1,365
+original programs, 1,158 original oracles and 281 accepted SDK inputs remain
+byte-identical. The two additive gates preserve all 197 base gates and require
+461 executions in 41 platform groups. The coverage assertion was updated for
+those four added platform executions; its initial failure is retained.
+
+This is local verification on correction base `43a6d633`; composition with
+current main and complete own hosted acceptance remain required. Canonical UDP
+SDK C and source/sealed artifact staging are separate local work. A new computed
+receiver store probe still repeats/leaks its receiver in C and is rejected by
+Rust; it receives no parity credit. Complete computed target stores, public SDK
+field contracts and the full Rust/C parity goal remain open.
+[Retained evidence](rust-parity-evidence/native-array-fields-local-validation.json).
+
 ## Native byte-array object views: correction locally verified, 2026-10-25
 
 Array main `f4b92f61` failed the existing byte-encoding gate on Linux, macOS

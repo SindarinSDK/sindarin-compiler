@@ -1,0 +1,128 @@
+{
+  "status": "Complete local verification of the field-access and existing-place slice on correction main43; composition with current main and own hosted acceptance still required",
+  "base": "43a6d633c7d72c1ec8cf144ee720ef885f831490",
+  "compiler_sha256": "17efb4c27829897463bf5fff9eec89267525a4214a0cddecf4ef6c8fe2ac3ea6",
+  "focused_pairs_each_environment": 63,
+  "family_programs": 7,
+  "receiver_store_closure_effect_and_hygiene_controls": 20,
+  "families": "Eleven scalar leaves, nested integer rank2-32, scalar and managed-string value records, native reference-record elements and nested native reference elements. Header identity and copies are independently checked.",
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "imports_tests": 52,
+  "artifact_tests": 22,
+  "accepted_SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "runtime_ABI_normal_clients": 17,
+  "runtime_ABI_actual_C_sanitizer_clients": 8,
+  "ABI_scope": "Direct unchanged C runtime ABI checks were performed before the final name-hygiene/field registration generalization. The shared runtime sources/archive are unchanged; focused final source-generated field gates cover the new lowering.",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "accepted_SDK_input_files": 281,
+    "all_hashes_rechecked_unchanged": true,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "all_197_corrected_main_gate_definitions_unchanged": true,
+  "gate_definitions": 199,
+  "platform_gate_executions": 461,
+  "platform_groups": 41,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-native-fields-broad-validation.json.gz",
+      "sha256": "2e9cd719ebde959692ffae81f876f36287a50aeea55cece5716815a7307fbb8e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-build-string-field-view-final.log.gz",
+      "sha256": "d5c8a8f111184ed45c12e88253067dfa1cd635a6e63318eb2bafa3eeceff17d4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-final-native-fields-full-C.log.gz",
+      "sha256": "54d7865508475cbf5af082ecd0598ce1fb2ab29d58d79ec5aee8b6e8d3f8099c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-final-native-fields-full-Rust.log.gz",
+      "sha256": "6522b94e6be78c087bafe7d907637679c33d6da7eb5173caf85c97dd95113a7a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-final-native-fields-imports.log.gz",
+      "sha256": "fce3288e31c111892ec82a6b255f4175824d4fa424a14b9e48cf5875b25aee8c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-final-native-fields-artifacts.log.gz",
+      "sha256": "2614aa7a165fca6daf25851a4e0776edcf3c9ae147db54115b736618372dbc8d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-final-native-fields-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-final-native-fields-CI-helpers.log.gz",
+      "sha256": "c42365154fc2d515318b91099b346a5b3f615c8c2a0e592eab5d34d463920762"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-final-native-fields-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-rust-native-array-fields.json.gz",
+      "sha256": "661f126ed5796cdea22a05535ebf1cd7bab66284646a513e30a6d71de9143089"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "8a296d2dca769c99861077f818fe705dde3cd87134f9ac4f941ac4b395220ae6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-runtime-abi.json.gz",
+      "sha256": "903436ac070a9e28c702c6cfb1280d6d4a257b99c88ec2556b06289383c569eb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-runtime-abi-sanitizers.json.gz",
+      "sha256": "b16af6d98a46e6ae9bb9cfc5c1341f32b54f665b2c71145b364cc6066579feb5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-field-context-before-C-owner-guard.json.gz",
+      "sha256": "bd658aac89e29e0cf6a2de5dd42f07657318d3695c6a352836317f382d7e8e1e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-field-control-flow-before-closure-cleanup.json.gz",
+      "sha256": "7d78c752da9ff1a12c4c1936c351c492fff5d1bc1cf91e8185dc67be81b7561c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-field-helper-hygiene-before-fix.json.gz",
+      "sha256": "fd67b6204857a1988e7366b4f2a6bb8b6b89da6f6660d7a77a11d3b2c11d403c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-field-family-before-generalization.json.gz",
+      "sha256": "a2a9ce103611edb82650e73df5520a3d2fb9a5a9c9b6b5a73b23669217482e94"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-initial-field-family-indentation-failure.json.gz",
+      "sha256": "10becaa383fc5289b2c071256f67bd48fbe09e0637fbc47cb1c331f44703f401"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-initial-field-family-helper.py.gz",
+      "sha256": "cde3685b8f3c60047bae22571ba2f0d897f0fc63edb7dd6789df461419ad1930"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-field-store-effects-probe.json.gz",
+      "sha256": "8be797a2239c3573188cd724eb7bbf0eb3082d3b0e3d2ed6d512426d12314384"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-initial-native-fields-CI-helpers.log.gz",
+      "sha256": "3f474b7d4cd5a4ecbf4ef44e54daac199a6a9904fd19339164f5cba4af01f6d6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-initial-native-fields-broad-validation.json.gz",
+      "sha256": "049632b746c63360c9734a5b964eafc167338ba42b916a2eb300fcfa5d4e74ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-fields-sdk-artifact-validation.json.gz",
+      "sha256": "6d486455cb6f912baa608674d46783b1c91e6e5604ae6eb160fc388d9dcdc61c"
+    }
+  ],
+  "known_open_computed_target_store": "A separate new effect probe remains C-leaking/repeated receiver evaluation and Rust-rejected for owner(record).array = rhs(). It receives no parity credit. This slice does not claim complete computed target store or whole public SDK field parity.",
+  "initial_failures": "C owned receiver reads leaked91bytes; escaped closures leaked182bytes; generated C names collided with source names. String array field views initially failed lifetime checking and record element fields lacked registration/accessors. These repairs have focused regression coverage. The CI coverage test initially retained its457 execution assertion; adding the two new gates requires461. Only failed helpers and omitted formatting were resumed on the unchanged compiler, with the original failure retained. The first newly extracted family fixture had indentation errors and a native-reference literal control was not valid C emission; only new generated controls were corrected, never original sources or oracles.",
+  "scope": "Compiler-only native array field representation, loans/copies/accessors and C receiver cleanup. UDP SDK source/sealed staging and canonical native C remain separate local dependent work. Full language, SDK/native/interface/generic/callback/lifecycle contracts and final preserved corpus mode/platform goal remain open."
+}

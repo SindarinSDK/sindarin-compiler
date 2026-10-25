@@ -20,6 +20,39 @@
 
 static int g_chain_tmp_count = 0;
 static json_object *g_model_structs = NULL;
+static json_object *g_chain_names = NULL;
+static void flatten_body(json_object *body);
+
+static void collect_chain_names(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            collect_chain_names(json_object_array_get_idx(node, i));
+    }
+    else if (json_object_is_type(node, json_type_object))
+    {
+        json_object_object_foreach(node, key, value)
+        {
+            if ((strcmp(key, "name") == 0 || strcmp(key, "target") == 0) &&
+                json_object_is_type(value, json_type_string))
+                json_object_object_add(g_chain_names, json_object_get_string(value), json_object_new_boolean(true));
+            else
+                collect_chain_names(value);
+        }
+    }
+}
+
+static void chain_temp_name(char *name, size_t size)
+{
+    json_object *found = NULL;
+    do
+    {
+        snprintf(name, size, "__chain_tmp_%d", g_chain_tmp_count++);
+    } while (json_object_object_get_ex(g_chain_names, name, &found));
+    json_object_object_add(g_chain_names, name, json_object_new_boolean(true));
+}
 
 /* Look up a struct definition by name in the model's structs array to get
  * the authoritative pass_self_by_ref flag. Expression types from unresolved
@@ -262,7 +295,7 @@ static void extract_heap_producing_args(json_object *args, json_object *inserts)
 
         /* Extract into a temp variable with cleanup */
         char tmp_name[64];
-        snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d", g_chain_tmp_count++);
+        chain_temp_name(tmp_name, sizeof(tmp_name));
 
         json_object *var_decl = json_object_new_object();
         json_object_object_add(var_decl, "kind", json_object_new_string("var_decl"));
@@ -328,7 +361,7 @@ static void extract_interp_string_args(json_object *args, json_object *inserts)
 
         /* Extract into a temp variable with sn_auto_str cleanup */
         char tmp_name[64];
-        snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d", g_chain_tmp_count++);
+        chain_temp_name(tmp_name, sizeof(tmp_name));
 
         json_object *str_type = json_object_new_object();
         json_object_object_add(str_type, "kind", json_object_new_string("string"));
@@ -386,6 +419,47 @@ static void flatten_expr(json_object *expr, json_object *inserts)
     json_object *kind_obj = NULL;
     if (!json_object_object_get_ex(expr, "kind", &kind_obj)) return;
     const char *kind = json_object_get_string(kind_obj);
+
+    /* Closure bodies execute in their separately emitted definitions. Never
+     * extract their receivers into the scope creating the closure. */
+    if (strcmp(kind, "lambda") == 0) return;
+
+    /* Declare a nil cleanup slot, but acquire its receiver inline. Hoisting
+     * the initializer would evaluate factories in skipped branches and only
+     * once in a loop header. Reassignment releases any previous receiver;
+     * the ordinary scope cleanup releases the last one. The field itself
+     * remains a borrow of the actual receiver, including at default calls. */
+    if (strcmp(kind, "member") == 0)
+    {
+        json_object *flag = NULL, *object = NULL, *type = NULL;
+        if (json_object_object_get_ex(expr, "c_owned_field_receiver", &flag) &&
+            json_object_get_boolean(flag) &&
+            json_object_object_get_ex(expr, "object", &object) &&
+            needs_temp_extraction(object) &&
+            json_object_object_get_ex(object, "type", &type))
+        {
+            flatten_expr(object, inserts);
+            char name[64];
+            chain_temp_name(name, sizeof(name));
+            json_object *decl = json_object_new_object();
+            json_object_object_add(decl, "kind", json_object_new_string("var_decl"));
+            json_object_object_add(decl, "name", json_object_new_string(name));
+            json_object_object_add(decl, "type", json_object_get(type));
+            annotate_chain_temp(decl, type);
+            json_object_array_add(inserts, decl);
+
+            json_object *assign = json_object_new_object();
+            json_object_object_add(assign, "kind", json_object_new_string("assign"));
+            json_object_object_add(assign, "type", json_object_get(type));
+            json_object_object_add(assign, "target_type", json_object_get(type));
+            json_object_object_add(assign, "target", json_object_new_string(name));
+            json_object_object_add(assign, "assign_cleanup", json_object_new_string("release_ref"));
+            json_object_object_add(assign, "value", json_object_get(object));
+            json_object_object_add(expr, "object", assign);
+            json_object_object_del(expr, "c_owned_field_receiver");
+            return;
+        }
+    }
 
     /* Bind native ownership snapshots to the actual, flattened arguments.
      * Rebuilding their AST expressions evaluates factories/indexes twice and
@@ -494,7 +568,7 @@ static void flatten_expr(json_object *expr, json_object *inserts)
                         {
                             /* Extract: create a temp variable */
                             char tmp_name[64];
-                            snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d", g_chain_tmp_count++);
+                            chain_temp_name(tmp_name, sizeof(tmp_name));
 
                             /* Get the type from the object expression */
                             json_object *obj_type = NULL;
@@ -586,7 +660,7 @@ static void flatten_expr(json_object *expr, json_object *inserts)
                         strcmp(json_object_get_string(type_kind_obj), "array") == 0)
                     {
                         char tmp_name[64];
-                        snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d", g_chain_tmp_count++);
+                        chain_temp_name(tmp_name, sizeof(tmp_name));
 
                         json_object *var_decl = json_object_new_object();
                         json_object_object_add(var_decl, "kind", json_object_new_string("var_decl"));
@@ -629,7 +703,7 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             if (needs_temp_extraction(object))
             {
                 char tmp_name[64];
-                snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d", g_chain_tmp_count++);
+                chain_temp_name(tmp_name, sizeof(tmp_name));
 
                 json_object *obj_type = NULL;
                 json_object_object_get_ex(object, "type", &obj_type);
@@ -908,9 +982,32 @@ static void flatten_body(json_object *body)
 void gen_model_flatten_chains(json_object *model)
 {
     g_chain_tmp_count = 0;
+    g_chain_names = json_object_new_object();
+    collect_chain_names(model);
 
     /* Cache the structs array for lookups during flattening */
     json_object_object_get_ex(model, "structs", &g_model_structs);
+
+    json_object *lambdas = NULL;
+    if (json_object_object_get_ex(model, "lambdas", &lambdas))
+    {
+        for (size_t i = 0; i < json_object_array_length(lambdas); i++)
+        {
+            json_object *lambda = json_object_array_get_idx(lambdas, i);
+            json_object *body = NULL;
+            if (json_object_object_get_ex(lambda, "body_stmts", &body))
+                flatten_body(body);
+            else if (json_object_object_get_ex(lambda, "body", &body))
+            {
+                json_object *inserts = json_object_new_array();
+                flatten_expr(body, inserts);
+                if (json_object_array_length(inserts))
+                    json_object_object_add(lambda, "c_chain_prelude", inserts);
+                else
+                    json_object_put(inserts);
+            }
+        }
+    }
 
     /* Process function bodies */
     json_object *functions = NULL;
@@ -955,4 +1052,6 @@ void gen_model_flatten_chains(json_object *model)
         flatten_stmt_list(top_level);
 
     g_model_structs = NULL;
+    json_object_put(g_chain_names);
+    g_chain_names = NULL;
 }

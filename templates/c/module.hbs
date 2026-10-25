@@ -162,7 +162,8 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{/if}}{{/each}}{{#each captures}}
     {{c_type type}} {{#if is_ref}}*{{else}}{{#if c_borrowed_ref_capture}}*{{/if}}{{/if}}__sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
 {{/each}}
-{{#if body_stmts}}
+{{#each c_chain_prelude}}{{> stmt this}}
+{{/each}}{{#if body_stmts}}
 {{#each body_stmts}}
     {{> stmt this}}
 {{/each}}
