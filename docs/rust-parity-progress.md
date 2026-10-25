@@ -1,3 +1,19 @@
+## Value record stores composed with corrected main: locally verified, 2026-10-25
+
+The record-value changes now include byte-array correction `43a6d633`.
+All 45 record pairs, 81 byte-encoding pairs, 45 array-search pairs and 72 native
+thread cases pass normally and with strict C address/undefined/leak checks.
+Complete C/Rust suites pass 3,243/1,099, SDK19 smoke84, CI helpers27 and formatting
+pass. All 197 corrected-main gate definitions and all original 1,365 programs,
+1,158 oracles and 281 SDK inputs remain byte-identical. Two additive record
+gates require 461 platform executions in 41 groups.
+
+The earlier composition omitted the separately gated byte-encoding check; this
+checkpoint explicitly verifies it against the corrected native loan template.
+Feature publication remains frozen until correction CI 40150376704 completes
+successfully. This feature then requires its own complete hosted acceptance.
+Evidence: [value-record-stores-corrected-main-local-validation.json](rust-parity-evidence/value-record-stores-corrected-main-local-validation.json).
+
 ## Value record parameter stores: complete local validation, 2026-10-25
 
 Rust permits local field and whole-slot stores on heap-free value record
