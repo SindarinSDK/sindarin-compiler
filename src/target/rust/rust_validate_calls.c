@@ -567,7 +567,8 @@ static bool rust_validate_struct_methods(json_object *model)
                          strcmp(mem_qual, "as_val") == 0 &&
                          rust_heap_free_named_struct_type(param_type)) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
-                         (json_string_property_equals(param_type, "kind", "array") ||
+                         (rust_by_value_assign_parameter_type_supported(param_type) ||
+                          json_string_property_equals(param_type, "kind", "array") ||
                           json_boolean_property(param_type, "rust_native_reference_handle"))) ||
                         (!is_static &&
                          !json_boolean_property(method, "rust_mutating") &&

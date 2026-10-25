@@ -1,0 +1,7 @@
+{
+  "source_sha256": "e0569b867c05d01b17cf939ea87c65f6cf34b891bb4274556b03b42151c99479",
+  "legacy_oracle_sha256": "bd52b625beee1c0eb6f5454911ef876a84f372ee8e195d4eea48c3aca46e6e6d",
+  "stdout_hex": "",
+  "exit": 0,
+  "reason": "Explicit scalar as-val parameters use the same mutable local value storage as C while preserving the caller value"
+}

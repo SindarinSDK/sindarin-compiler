@@ -144,7 +144,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         parameters = function['params']
         if (len(parameters)!=len(signature['params']) or
             kind(function['return_type'])!=kind(signature['return_type']) or
-            any(kind(p['type'])!=kind(q['type']) or p.get('mem_qual','default')!='default' or
+            any(kind(p['type'])!=kind(q['type']) or p.get('mem_qual','default')!=q.get('mem_qual','default') or
                 p.get('sync_mod','none')!='none' for p,q in zip(parameters,signature['params']))):
             raise ValueError('Sindarin implementation type/ownership differs from its public declaration: '+name)
         if any(kind(p['type']) in ('string_array','byte_array') for p in parameters):

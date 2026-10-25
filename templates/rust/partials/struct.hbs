@@ -47,7 +47,7 @@ impl PartialEq for {{rust_ident name}} {
 impl Clone for {{rust_ident name}} {
     fn clone(&self) -> Self { self.{{rust_ident @root.rust_thread_share_method}}() }
 }
-{{/if}}{{else}}{{#if rust_native_record_storage}}#[repr(C)]{{nl}}{{/if}}#[derive({{#unless rust_interface_owned_metadata}}Clone{{#unless has_heap_fields}}, Copy{{/unless}}, {{/unless}}Debug{{#unless rust_interface_owned_metadata}}, PartialEq{{/unless}})]
+{{/if}}{{else}}{{#if rust_native_record_storage}}#[repr(C)]{{nl}}{{/if}}#[derive({{#unless rust_interface_owned_metadata}}Clone{{#unless has_heap_fields}}{{#unless rust_value_copy_needs_clone}}, Copy{{/unless}}{{/unless}}, {{/unless}}Debug{{#unless rust_interface_owned_metadata}}, PartialEq{{/unless}})]
 struct {{rust_ident name}} {
 {{#if rust_interface_owned_metadata}}    {{rust_ident @root.rust_interface_owner_field}}: std::sync::Arc<{{rust_ident @root.rust_interface_owner_type}}>,
 {{/if}}{{#if rust_interface_borrow_origin}}    {{rust_ident @root.rust_interface_origin_field}}: Option<{{rust_ident @root.rust_interface_key_type}}>,

@@ -99,6 +99,7 @@ static bool json_string_property_equals(json_object *object, const char *key,
 
 static bool rust_integer_type(const char *kind);
 static bool rust_float_type(const char *kind);
+static bool rust_heap_free_value_record_parameter_type(json_object *model, json_object *type);
 
 /* C's compound arithmetic converts only at the final storage boundary. */
 static bool rust_float_arithmetic_pair(json_object *left, json_object *right)
@@ -172,6 +173,17 @@ static bool rust_scalar_ref_parameter_type_supported(json_object *type)
 static bool rust_by_value_assign_parameter_type_supported(json_object *type)
 {
     return rust_scalar_ref_parameter_type_supported(type);
+}
+
+/* Explicit scalar values use the same callee-local storage as defaults.
+ * Managed value parameters retain their separate copy/owner lowering. */
+static bool rust_default_or_scalar_value_parameter(json_object *parameter)
+{
+    json_object *type = NULL;
+    json_object_object_get_ex(parameter, "type", &type);
+    return json_string_property_equals(parameter, "mem_qual", "default") ||
+        (json_string_property_equals(parameter, "mem_qual", "as_val") &&
+         rust_by_value_assign_parameter_type_supported(type));
 }
 
 static bool rust_direct_variable_named(json_object *node, const char *name)
@@ -274,7 +286,7 @@ static json_object *rust_assignment_place_root(json_object *place)
     return NULL;
 }
 
-static bool rust_prepare_parameter_mutations_in_node(json_object *node,
+static bool rust_prepare_parameter_mutations_in_node(json_object *model, json_object *node,
                                                      json_object *params,
                                                      RustLocalBindingScope *scope)
 {
@@ -289,7 +301,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         for (size_t i = 0; i < count; i++)
         {
             json_object *element = json_object_array_get_idx(node, i);
-            if (!rust_prepare_parameter_mutations_in_node(
+            if (!rust_prepare_parameter_mutations_in_node(model,
                     element, params, current))
             {
                 free(bindings);
@@ -319,7 +331,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             ? NULL : rust_find_parameter(params, binding_name);
         json_object *type = NULL, *initializer = NULL;
         if (param &&
-            json_string_property_equals(param, "mem_qual", "default") &&
+            rust_default_or_scalar_value_parameter(param) &&
             json_object_object_get_ex(param, "type", &type) &&
             rust_by_value_assign_parameter_type_supported(type) &&
             json_object_object_get_ex(node, "initializer", &initializer) &&
@@ -352,14 +364,25 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         root_name = json_string_property(root, "name");
         json_object *param = rust_name_is_shadowed(scope, root_name)
             ? NULL : rust_find_parameter(params, root_name);
-        if (param && json_string_property_equals(param, "mem_qual", "default") &&
+        if (param && rust_default_or_scalar_value_parameter(param) &&
             !json_boolean_property(param, "rust_default_array_ref") &&
             !json_boolean_property(param, "rust_thread_aggregate_param"))
         {
-            fprintf(stderr,
-                    "Error: Rust target does not support direct assignment through %s targets rooted in by-value parameter '%s'\n",
-                    member ? "field" : "index", root_name);
-            return false;
+            json_object *param_type = NULL;
+            json_object_object_get_ex(param, "type", &param_type);
+            if (rust_heap_free_value_record_parameter_type(model, param_type))
+            {
+                json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
+                if (member)
+                    json_object_object_add(node, "rust_by_value_record_field_store", json_object_new_boolean(true));
+            }
+            else
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support direct assignment through %s targets rooted in by-value parameter '%s'\n",
+                        member ? "field" : "index", root_name);
+                return false;
+            }
         }
     }
 
@@ -368,7 +391,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
         const char *target = json_string_property(node, "target");
         json_object *param = rust_name_is_shadowed(scope, target)
             ? NULL : rust_find_parameter(params, target);
-        if (param && json_string_property_equals(param, "mem_qual", "default"))
+        if (param && rust_default_or_scalar_value_parameter(param))
         {
             json_object *type = NULL, *value = NULL, *value_type = NULL;
             const char *type_kind = NULL, *value_kind = NULL;
@@ -392,6 +415,11 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                 json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
                 json_object_object_add(node, "rust_record_value_parameter_rebind", json_object_new_boolean(true));
             }
+            else if (rust_heap_free_value_record_parameter_type(model, type))
+            {
+                json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
+                json_object_object_add(node, "rust_by_value_record_parameter_assign", json_object_new_boolean(true));
+            }
             else
             {
                 if (!json_object_object_get_ex(param, "type", &type) ||
@@ -408,6 +436,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                 if (!json_object_object_get_ex(value, "type", &value_type) ||
                     !(value_kind = json_string_property(value_type, "kind")) ||
                     (strcmp(type_kind, value_kind) != 0 &&
+                     !(rust_integer_type(type_kind) && rust_integer_type(value_kind)) &&
                      !rust_float_conversion_pair(type, value_type)))
                 {
                     fprintf(stderr,
@@ -441,7 +470,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             (target_name = json_string_property(target, "name")) &&
             !rust_name_is_shadowed(scope, target_name) &&
             (param = rust_find_parameter(params, target_name)) &&
-            json_string_property_equals(param, "mem_qual", "default"))
+            rust_default_or_scalar_value_parameter(param))
         {
             json_object *param_type = NULL, *value_type = NULL;
             const char *param_kind = NULL, *value_kind = NULL;
@@ -487,6 +516,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
                     !json_object_object_get_ex(value, "type", &value_type) ||
                     !(value_kind = json_string_property(value_type, "kind")) ||
                     (strcmp(param_kind, value_kind) != 0 &&
+                     !(rust_integer_type(param_kind) && rust_integer_type(value_kind)) &&
                      !rust_float_arithmetic_pair(param_type, value_type)))
                 {
                     fprintf(stderr, "%s",
@@ -530,7 +560,7 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
             (operand_name = json_string_property(operand, "name")) &&
             !rust_name_is_shadowed(scope, operand_name) &&
             (param = rust_find_parameter(params, operand_name)) &&
-            json_string_property_equals(param, "mem_qual", "default") &&
+            rust_default_or_scalar_value_parameter(param) &&
             json_object_object_get_ex(param, "type", &param_type) &&
             (param_kind = json_string_property(param_type, "kind")) &&
             (strcmp(param_kind, "float") == 0 ||
@@ -565,49 +595,49 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *node,
     {
         json_object *iterable = NULL, *body = NULL;
         if (json_object_object_get_ex(node, "iterable", &iterable) &&
-            !rust_prepare_parameter_mutations_in_node(iterable, params, scope))
+            !rust_prepare_parameter_mutations_in_node(model, iterable, params, scope))
             return false;
         const char *binding_name = json_string_property(node, "iterator_name");
         RustLocalBindingScope binding = {binding_name, scope};
         return !json_object_object_get_ex(node, "body", &body) ||
-            rust_prepare_parameter_mutations_in_node(
+            rust_prepare_parameter_mutations_in_node(model,
                 body, params, binding_name ? &binding : scope);
     }
     if (json_string_property_equals(node, "kind", "for"))
     {
         json_object *init = NULL, *condition = NULL, *increment = NULL, *body = NULL;
         if (!json_object_object_get_ex(node, "init", &init) ||
-            !rust_prepare_parameter_mutations_in_node(init, params, scope))
+            !rust_prepare_parameter_mutations_in_node(model, init, params, scope))
             return false;
         const char *binding_name = json_string_property(init, "name");
         RustLocalBindingScope binding = {binding_name, scope};
         RustLocalBindingScope *loop_scope = binding_name ? &binding : scope;
         if (json_object_object_get_ex(node, "condition", &condition) &&
-            !rust_prepare_parameter_mutations_in_node(
+            !rust_prepare_parameter_mutations_in_node(model,
                 condition, params, loop_scope)) return false;
         if (json_object_object_get_ex(node, "body", &body) &&
-            !rust_prepare_parameter_mutations_in_node(
+            !rust_prepare_parameter_mutations_in_node(model,
                 body, params, loop_scope)) return false;
         return !json_object_object_get_ex(node, "increment", &increment) ||
-            rust_prepare_parameter_mutations_in_node(
+            rust_prepare_parameter_mutations_in_node(model,
                 increment, params, loop_scope);
     }
 
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        if (!rust_prepare_parameter_mutations_in_node(value, params, scope))
+        if (!rust_prepare_parameter_mutations_in_node(model, value, params, scope))
             return false;
     }
     return true;
 }
 
-static bool rust_prepare_callable_parameter_mutations(json_object *callable)
+static bool rust_prepare_callable_parameter_mutations(json_object *model, json_object *callable)
 {
     json_object *params = NULL, *body = NULL;
     if (!json_object_object_get_ex(callable, "params", &params) ||
         !json_object_object_get_ex(callable, "body", &body)) return true;
-    return rust_prepare_parameter_mutations_in_node(body, params, NULL);
+    return rust_prepare_parameter_mutations_in_node(model, body, params, NULL);
 }
 
 #include "rust_record_parameter_guards.h"
@@ -619,7 +649,7 @@ static bool rust_prepare_by_value_scalar_parameter_mutations(json_object *model)
     {
         size_t count = json_object_array_length(functions);
         for (size_t i = 0; i < count; i++)
-            if (!rust_prepare_callable_parameter_mutations(
+            if (!rust_prepare_callable_parameter_mutations(model,
                     json_object_array_get_idx(functions, i))) return false;
     }
 
@@ -633,7 +663,7 @@ static bool rust_prepare_by_value_scalar_parameter_mutations(json_object *model)
         if (!json_object_object_get_ex(structure, "methods", &methods)) continue;
         size_t method_count = json_object_array_length(methods);
         for (size_t m = 0; m < method_count; m++)
-            if (!rust_prepare_callable_parameter_mutations(
+            if (!rust_prepare_callable_parameter_mutations(model,
                     json_object_array_get_idx(methods, m))) return false;
     }
     rust_mark_record_parameter_guards(model);
@@ -1042,6 +1072,20 @@ static bool rust_heap_free_named_struct_type(json_object *type)
     json_object *structure = rust_find_struct(
         rust_validation_model, json_string_property(type, "name"));
     return structure && !json_boolean_property(structure, "has_heap_fields");
+}
+
+/* These heap-free parameters are local C value copies. Stores must preserve
+ * their assignment result without borrowing or replacing the caller's slot. */
+static bool rust_heap_free_value_record_parameter_type(json_object *model, json_object *type)
+{
+    if (!json_string_property_equals(type, "kind", "struct")) return false;
+    json_object *structure = rust_find_struct(model,
+        json_string_property(type, "name"));
+    return structure && !json_boolean_property(structure, "has_heap_fields") &&
+        json_string_property_equals(structure, "mem_mode", "val") &&
+        !json_boolean_property(structure, "is_native") &&
+        !json_boolean_property(structure, "is_packed") &&
+        !json_boolean_property(structure, "is_serializable");
 }
 
 static bool rust_array_copy_type_supported(json_object *type)
@@ -3280,7 +3324,8 @@ static bool rust_validate_model_impl(json_object *model,
                           (native && json_string_property_equals(
                               param_type, "kind", "char")))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
-                         (rust_heap_free_named_struct_type(param_type) ||
+                         (rust_by_value_assign_parameter_type_supported(param_type) ||
+                          rust_heap_free_named_struct_type(param_type) ||
                           (!native && (json_string_property_equals(param_type, "kind", "array") ||
                                        json_boolean_property(param_type, "rust_native_reference_handle"))) ||
                           (native && json_string_property(param_type, "rust_native_record_wire"))));

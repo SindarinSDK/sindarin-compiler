@@ -102,6 +102,10 @@ def validate(signature):
     if ownership['result'] not in expected_result:
         raise ValueError('package result ownership requires an implemented owned-string or plain-value contract')
     for p in params:
+        qualifier = p.get('mem_qual', 'default')
+        if qualifier != 'default' and not (qualifier == 'as_val' and kind(p['type']) in
+                ('int','long','int32','uint','uint32','byte','char','bool','float','double')):
+            raise ValueError('package parameter qualifier requires an implemented scalar value contract')
         if kind(p['type']) == 'string_array' and signature.get('abi') not in ('1.1', '1.5', '1.6', '1.7', '1.8'):
             raise ValueError('managed string-array inputs require native ABI 1.1, 1.5 or 1.6')
         if kind(p['type']) == 'byte_array' and signature.get('abi') not in ('1.6','1.7','1.8'):
