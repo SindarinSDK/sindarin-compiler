@@ -114,7 +114,17 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 41)
-        self.assertEqual(report['gates'], 453)
+        self.assertEqual(report['gates'], 457)
+        for sanitized in (False, True):
+            identity = 'package-native-threads' + ('-sanitizers' if sanitized else '')
+            matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]
+            self.assertEqual(len(matches), 1, identity)
+            gate = matches[0]
+            self.assertEqual(gate['command'], ['{python}', 'tests/package/native_threads.py'])
+            self.assertEqual(gate['group'], 'sanitizers' if sanitized else 'providers')
+            self.assertEqual(gate['linux_only'], sanitized)
+            if sanitized:
+                self.assertIn('-fsanitize=address,undefined', gate['env']['SN_CFLAGS'])
         for name in ('artifacts', 'native'):
             for sanitized in (False, True):
                 identity = 'sdk-random-' + name + ('-sanitizers' if sanitized else '')

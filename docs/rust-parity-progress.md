@@ -1,3 +1,41 @@
+## Math and record-loan correction: complete hosted acceptance, 2026-10-25
+
+Corrected compiler main `169c68e1` passes all 49 required jobs in
+[CI 40144127442](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40144127442).
+Coverage verifies 449 gate executions in 41 platform groups and one compiler
+binary per Linux/macOS/Windows platform. The failed Math run 40139366314 remains
+retained. Its missing emitter declaration and record-credit/provider-dispatch
+failures are repaired without changing existing Sindarin programs or oracles.
+The correction freeze is lifted; subsequent features require their own CI runs.
+
+This accepts nineteen reusable SDK modules/38 C-Sindarin units, including all
+145 unchanged Math exports and the verified internal provider/record-wire
+contracts. The SDK pin remains accepted `db7dfe94`. Full SDK packaging, wider
+qualifier/callback/value/interface/generic/lifecycle contracts and final frozen
+1,365-source mode/platform/oracle proof remain required. Evidence:
+[sdk-math-correction-ci-green.json](rust-parity-evidence/sdk-math-correction-ci-green.json).
+
+## Package native thread dispatch: complete local validation, 2026-10-25
+
+Native free-function threads inside C/RS package bodies now select providers by
+logical declaration identity. A C alias naming another callable, or two logical
+functions sharing an original alias, cannot select the wrong provider. The
+single-module C template now dispatches native threads like the split template.
+Existing Sindarin programs and behavioral/diagnostic oracles are unchanged.
+
+All 72 source/sealed C/Rust consumer cases pass normally and with strict C
+address/undefined/leak checks, across C/RS bodies and all nine modes. Controls
+check distinct providers, native function references, argument-free/value threads,
+and an explicit void join with a once-only mutation. Complete C/Rust suites pass
+3,243/1,099; existing method/header regressions, all 27 CI helpers and formatting
+pass. All 193 corrected-main gates remain intact; two new definitions require
+453 platform executions in 41 groups.
+
+This is local validation only. Corrected main169 now has complete CI40144127442
+acceptance; this feature still requires its own hosted validation.
+Whole Rust/C parity remains open. Evidence:
+[package-native-threads-local-validation.json](rust-parity-evidence/package-native-threads-local-validation.json).
+
 ## Math platform and record-loan correction: local validation, 2026-10-25
 
 Math main `8f30280d` failed CI 40139366314 and is not hosted acceptance. Clang
