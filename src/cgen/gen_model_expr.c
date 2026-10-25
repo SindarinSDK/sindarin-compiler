@@ -2526,12 +2526,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         /* Handled below via the refcounted-struct branch. */
                     }
                 }
-                /* Composite struct arrays: function call elements need a temp variable
-                 * to avoid invalid compound literal wrapping of the return value */
+                /* Composite call results and plain record variables need a
+                 * value temporary, not a struct nested as its first field. */
                 if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
                     !ae->expr_type->as.struct_type.pass_self_by_ref &&
-                    gen_model_type_category(ae->expr_type) == TYPE_CAT_COMPOSITE &&
-                    (ae->type == EXPR_CALL || ae->type == EXPR_STATIC_CALL))
+                    ((gen_model_type_category(ae->expr_type) == TYPE_CAT_COMPOSITE &&
+                      (ae->type == EXPR_CALL || ae->type == EXPR_STATIC_CALL)) ||
+                     (gen_model_type_category(ae->expr_type) == TYPE_CAT_INERT &&
+                      ae->type == EXPR_VARIABLE)))
                 {
                     json_object_object_add(elem, "needs_struct_tmp", json_object_new_boolean(true));
                     json_object_object_add(elem, "tmp_struct_type",

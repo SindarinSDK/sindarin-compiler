@@ -662,6 +662,35 @@ static void rust_lower_resolved_receiver_prefixes(json_object *model,
     }
 
     bool is_static_call = json_string_property_equals(node, "kind", "static_call");
+    /* A plain record method can borrow an indexed record argument. Resolve
+     * its bounds before taking the mutable element reference, retaining the
+     * index's original argument position rather than lifting its effects. */
+    if (json_string_property_equals(node, "kind", "call"))
+    {
+        json_object *callee = NULL, *receiver = NULL, *receiver_type = NULL, *arguments = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            json_string_property_equals(callee, "kind", "member") &&
+            json_object_object_get_ex(callee, "object", &receiver) &&
+            json_object_object_get_ex(receiver, "type", &receiver_type) &&
+            json_string_property_equals(receiver_type, "kind", "struct") &&
+            !json_boolean_property(receiver_type, "rust_native_reference_handle") &&
+            json_object_object_get_ex(node, "args", &arguments))
+        {
+            for (size_t i = 0; i < json_object_array_length(arguments); i++)
+            {
+                json_object *arg = json_object_array_get_idx(arguments, i), *type = NULL;
+                if (!json_boolean_property(arg, "is_ref_arg") ||
+                    !json_string_property_equals(arg, "kind", "array_access") ||
+                    !json_object_object_get_ex(arg, "type", &type) ||
+                    !json_string_property_equals(type, "kind", "struct") ||
+                    json_boolean_property(type, "pass_self_by_ref")) continue;
+                char name[80];
+                do { snprintf(name, sizeof(name), "__sn_method_ref_index_%zu", (*next_id)++); }
+                while (rust_call_model_contains_string(model, name));
+                json_object_object_add(arg, "rust_ref_index_name", json_object_new_string(name));
+            }
+        }
+    }
     if (!is_static_call &&
         !json_string_property_equals(node, "kind", "method_call")) return;
 

@@ -522,6 +522,7 @@ static bool rust_validate_struct_methods(json_object *model)
             const char *method_name = json_string_property(method, "name");
             json_object *return_type = NULL, *params = NULL, *body = NULL;
             bool is_static = json_boolean_property(method, "is_static");
+            bool qualified_record_parameters = false;
             if (json_boolean_property(method, "is_native"))
             {
                 fprintf(stderr,
@@ -549,6 +550,22 @@ static bool rust_validate_struct_methods(json_object *model)
                     const char *sync_mod = json_string_property(param, "sync_mod");
                     bool has_param_type =
                         json_object_object_get_ex(param, "type", &param_type);
+                    if (!is_static && !json_boolean_property(method, "is_operator") &&
+                        !json_boolean_property(param, "rust_thread_aggregate_param") &&
+                        has_param_type && mem_qual &&
+                        rust_heap_free_value_record_parameter_type(rust_validation_model, param_type))
+                    {
+                        if (strcmp(mem_qual, "as_ref") == 0)
+                        {
+                            json_object_object_add(param, "rust_plain_record_reference_param", json_object_new_boolean(true));
+                            qualified_record_parameters = true;
+                        }
+                        else if (strcmp(mem_qual, "as_val") == 0 && json_boolean_property(method, "rust_mutating"))
+                        {
+                            json_object_object_add(param, "rust_plain_record_value_param", json_object_new_boolean(true));
+                            qualified_record_parameters = true;
+                        }
+                    }
                     bool mem_qual_supported =
                         json_boolean_property(param, "rust_thread_aggregate_param") ||
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
@@ -566,6 +583,10 @@ static bool rust_validate_struct_methods(json_object *model)
                         (is_static && has_param_type &&
                          strcmp(mem_qual, "as_val") == 0 &&
                          rust_heap_free_named_struct_type(param_type)) ||
+                        (!is_static && has_param_type &&
+                         (strcmp(mem_qual, "as_ref") == 0 ||
+                          strcmp(mem_qual, "as_val") == 0) &&
+                         rust_heap_free_value_record_parameter_type(rust_validation_model, param_type)) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
                          (rust_by_value_assign_parameter_type_supported(param_type) ||
                           json_string_property_equals(param_type, "kind", "array") ||
@@ -588,6 +609,8 @@ static bool rust_validate_struct_methods(json_object *model)
                     }
                 }
             }
+            if (qualified_record_parameters &&
+                !rust_prepare_callable_parameter_mutations(model, method)) return false;
             json_object_object_get_ex(method, "body", &body);
             if (!rust_validate_statements(body) ||
                 (!is_static && !rust_instance_method_node_supported(

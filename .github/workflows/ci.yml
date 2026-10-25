@@ -186,6 +186,8 @@ jobs:
           .sn/rust-integer-match-patterns*.json
           .sn/package-integer-match-patterns*.json
           .sn/rust-string-match-effects*.json
+          .sn/rust-method-struct-parameters*.json
+          .sn/package-method-struct-parameters*.json
           .sn/rust-string-call-arguments*.json
           .sn/package-string-match-effects*.json
           .sn/*-lifetimes.json

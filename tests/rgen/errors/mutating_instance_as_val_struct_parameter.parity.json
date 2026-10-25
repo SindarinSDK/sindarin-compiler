@@ -1,0 +1,7 @@
+{
+  "source_sha256": "2d6cb36524eab77b1aec2a71347810625426a16b94c01606ed9ae93bc09ace18",
+  "legacy_oracle_sha256": "5197e05befc5bbf61c3753004223fc3ff61ebfd8523db565f197a5972e9b89f8",
+  "stdout_hex": "330a",
+  "exit": 0,
+  "reason": "Support explicit qualified heap-free plain value-record arguments of ordinary instance methods while preserving caller mutation and local value copies"
+}

@@ -2689,6 +2689,58 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "method-struct-parameters",
+      "name": "Qualified plain record method arguments: mutation, copies, record/indexed places, numeric fields and C array values",
+      "command": [
+        "{python}",
+        "scripts/check_rust_method_struct_parameters.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "method-struct-parameters-sanitizers",
+      "name": "Qualified plain record method arguments: mutation, copies, record/indexed places, numeric fields and C array values with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_method_struct_parameters.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "package-method-struct-parameters",
+      "name": "Qualified plain record methods in independent RS/RS/C source and sealed artifacts",
+      "command": [
+        "{python}",
+        "tests/package/method_struct_parameters.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "package-method-struct-parameters-sanitizers",
+      "name": "Qualified plain record methods in independent RS/RS/C source and sealed artifacts with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/method_struct_parameters.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

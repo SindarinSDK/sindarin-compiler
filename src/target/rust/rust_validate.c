@@ -286,6 +286,27 @@ static json_object *rust_assignment_place_root(json_object *place)
     return NULL;
 }
 
+static bool rust_record_parameter_numeric_rhs_stable(json_object *node)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (!rust_record_parameter_numeric_rhs_stable(json_object_array_get_idx(node, i))) return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+    const char *kind = json_string_property(node, "kind");
+    if (kind && (!strcmp(kind, "call") || !strcmp(kind, "method_call") ||
+        !strcmp(kind, "static_call") || !strcmp(kind, "assign") ||
+        !strcmp(kind, "member_assign") || !strcmp(kind, "index_assign") ||
+        !strcmp(kind, "compound_assign") || !strcmp(kind, "increment") ||
+        !strcmp(kind, "decrement") || !strcmp(kind, "thread_spawn"))) return false;
+    json_object_object_foreach(node, key, child)
+        if (strncmp(key, "rust_", 5) && !rust_record_parameter_numeric_rhs_stable(child)) return false;
+    return true;
+}
+
 static bool rust_prepare_parameter_mutations_in_node(json_object *model, json_object *node,
                                                      json_object *params,
                                                      RustLocalBindingScope *scope)
@@ -386,11 +407,36 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *model, json_ob
         }
     }
 
+    if (json_string_property_equals(node, "kind", "compound_assign") ||
+        json_string_property_equals(node, "kind", "increment") ||
+        json_string_property_equals(node, "kind", "decrement"))
+    {
+        json_object *place = NULL, *value = NULL;
+        bool compound = json_string_property_equals(node, "kind", "compound_assign");
+        json_object_object_get_ex(node, compound ? "target" : "operand", &place);
+        json_object_object_get_ex(node, "value", &value);
+        json_object *root = rust_assignment_place_root(place);
+        const char *name = json_string_property(root, "name");
+        json_object *param = rust_name_is_shadowed(scope, name) ? NULL : rust_find_parameter(params, name);
+        if (json_string_property_equals(place, "kind", "member") && param &&
+            (json_boolean_property(param, "rust_plain_record_reference_param") ||
+             json_boolean_property(param, "rust_plain_record_value_param")) &&
+            rust_record_parameter_numeric_rhs_stable(value))
+            json_object_object_add(node, "rust_plain_record_parameter_numeric", json_object_new_boolean(true));
+    }
+
     if (json_string_property_equals(node, "kind", "assign"))
     {
         const char *target = json_string_property(node, "target");
         json_object *param = rust_name_is_shadowed(scope, target)
             ? NULL : rust_find_parameter(params, target);
+        if (param && json_boolean_property(param, "rust_plain_record_reference_param"))
+            json_object_object_add(node, "rust_value_record_reference_assign", json_object_new_boolean(true));
+        if (param && json_boolean_property(param, "rust_plain_record_value_param"))
+        {
+            json_object_object_add(param, "rust_by_value_mutated", json_object_new_boolean(true));
+            json_object_object_add(node, "rust_by_value_record_parameter_assign", json_object_new_boolean(true));
+        }
         if (param && rust_default_or_scalar_value_parameter(param))
         {
             json_object *type = NULL, *value = NULL, *value_type = NULL;
@@ -1423,6 +1469,7 @@ static bool rust_numeric_computed_place(json_object *place)
 static bool rust_numeric_computed_mutation(json_object *node)
 {
     if (!json_string_property_equals(node, "mutation_place", "computed") &&
+        !json_boolean_property(node, "rust_plain_record_parameter_numeric") &&
         !json_boolean_property(node, "rust_native_c_char_mutation")) return false;
     bool compound = json_string_property_equals(node, "kind", "compound_assign");
     bool postfix = json_string_property_equals(node, "kind", "increment") ||
