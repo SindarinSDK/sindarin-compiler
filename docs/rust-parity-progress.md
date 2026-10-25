@@ -56,6 +56,53 @@ Rust; it receives no parity credit. Complete computed target stores, public SDK
 field contracts and the full Rust/C parity goal remain open.
 [Retained evidence](rust-parity-evidence/native-array-fields-local-validation.json).
 
+## Integer literal match patterns: local validation, 2026-10-25
+
+Six original wide, negative and unsigned integer-pattern rejections now execute
+without changing their Sindarin source or original diagnostics. Patterns compare
+at the actual C expression width instead of narrowing into the saved subject.
+Subjects are evaluated once and patterns retain their lazy source order.
+
+The decimal `-9223372036854775808LL` boundary needs a small generated C comparison:
+this worker's AArch64 GCC uses an extended signed integer expression, while other
+C compilers may use unsigned width. The application's selected C compiler builds
+that adapter. It accompanies independent RS library bodies and sealed artifacts;
+its helper names reserve both Rust-visible names and C-only private functions.
+Bare Rust source emission continues to diagnose required native C support.
+
+All 63 language mode pairs and 36 source/sealed package cases pass normally and
+with strict C address/undefined/leak checks. Two independent RS implementations
+and a C reference agree through C and Rust consumers. The full C/Rust suites pass
+3,243/1,099 with established snapshots preserved; imports52, artifacts22, SDK19
+smoke84, CI helpers27 and formatting also pass. Every original 1,365 program,
+1,158 oracle and 281 pinned SDK input was rehashed unchanged. The 203 numeric-main
+gate definitions remain intact; four additions require 477 platform executions
+in 41 groups. [Local proof](rust-parity-evidence/integer-match-patterns-local-validation.json).
+Own complete hosted acceptance remains required after publication.
+
+Numeric main `9bd0d0d1` has separately passed all49 required hosted jobs and
+469 executions/41 groups. The older record revision's own Windows packages job
+remains independently pending; integrated numeric acceptance does not replace it.
+[Numeric hosted proof](rust-parity-evidence/numeric-match-ci-green.json).
+
+SDK native UDP revision `6e796dd3` passed all seven required jobs, including20
+native/original caller cases per platform and Linux actual-runtime sanitizers.
+All87 tracked SDK Sindarin/oracle files are unchanged. This accepts the native
+foundation; compiler SDK20 artifact integration remains local, and the compiler
+workflow retains its db7 SDK pin for this independent integer batch.
+[SDK hosted proof](rust-parity-evidence/sdk-udp-native-ci-green.json).
+
+A fresh executable audit of the same historical60 programs now finds32 agreeing
+C-sanitizer/Rust cases,27 Rust rejections after clean C sanitizer execution, and
+one C sanitizer failure. All60 sources and diagnostic oracles are unchanged.
+This audit is Linux/O0/default only; clean sanitizers alone do not prove defined
+C behavior. Six additional agreements correspond to the promoted integer cases.
+
+These are bounded increments. SDK/native ownership, interfaces, generics,
+callbacks, copy hooks, resource lifecycles and final original-corpus mode/platform
+acceptance remain open. The historical60 audit is a subset, not an overall
+completion percentage or count of all remaining C-defined obligations.
+
 ## Historical candidate audit refreshed on numeric main, 2026-10-25
 
 The same 60 historical programs were compiled and executed against numeric

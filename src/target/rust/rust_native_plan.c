@@ -32,6 +32,7 @@ struct RustNativePlan {
     json_object *callback_support;
     json_object *interface_support;
     json_object *declaration_support;
+    json_object *integer_match_support;
 };
 
 /* Shared privately by the Rust-native rendering/build translation units. */
@@ -74,6 +75,18 @@ bool rust_native_plan_set_interface_support(RustNativePlan *plan, json_object *s
 {
     if (!plan || plan->interface_support || !support) return false;
     plan->interface_support = json_object_get(support);
+    return true;
+}
+
+json_object *rust_native_plan_integer_match_support(RustNativePlan *plan)
+{
+    return plan ? plan->integer_match_support : NULL;
+}
+
+bool rust_native_plan_set_integer_match_support(RustNativePlan *plan, json_object *support)
+{
+    if (!plan || plan->integer_match_support || !support) return false;
+    plan->integer_match_support = json_object_get(support);
     return true;
 }
 
@@ -1894,7 +1907,7 @@ bool rust_native_validate_declaration(const RustNativePlan *plan,
 bool rust_native_plan_has_work(const RustNativePlan *plan)
 {
     if (!plan) return false;
-    if (plan->interface_support || plan->array_support || plan->declaration_count > 0 ||
+    if (plan->integer_match_support || plan->interface_support || plan->array_support || plan->declaration_count > 0 ||
         (plan->handles && json_object_array_length(plan->handles) > 0) ||
         (plan->split && (plan->split->source_file_count > 0 ||
                          plan->split->link_lib_count > 0))) return true;
@@ -1916,6 +1929,7 @@ void rust_native_plan_free(void *opaque)
     if (plan->callback_support) json_object_put(plan->callback_support);
     if (plan->interface_support) json_object_put(plan->interface_support);
     if (plan->declaration_support) json_object_put(plan->declaration_support);
+    if (plan->integer_match_support) json_object_put(plan->integer_match_support);
     for (size_t i = 0; i < plan->declaration_count; i++)
     {
         free(plan->declarations[i].rust_callable_name);

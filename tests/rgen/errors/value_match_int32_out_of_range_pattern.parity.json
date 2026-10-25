@@ -1,0 +1,7 @@
+{
+  "source_sha256": "54907fd549e7498a1fe5efbb10358aac53cafdf478685b194f85d431ebbab82c",
+  "legacy_oracle_sha256": "5de14f69f5a2070379af7575eb0adc11e6abe459bd6d40adea815729ca62e430",
+  "stdout_hex": "300a",
+  "exit": 0,
+  "reason": "Rust preserves actual C integer literal expression widths and comparison promotions; the compiler-dependent decimal LL boundary uses generated C support"
+}

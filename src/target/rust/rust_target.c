@@ -215,6 +215,12 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_put(model);
         return false;
     }
+    if (!rust_lower_integer_match_bridges(model, native_plan))
+    {
+        fprintf(stderr, "Error: Rust target could not preserve C integer match boundary comparisons\n");
+        json_object_put(model);
+        return false;
+    }
     json_object_object_add(model, "rust_sizeof_layouts", json_object_new_array());
     if (!rust_lower_sizeof_layouts(model, model))
     {

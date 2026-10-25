@@ -1,0 +1,6 @@
+#include <stdint.h>
+{{#each helpers}}
+int32_t {{name}}({{c_type type}} value) {
+    return value == -9223372036854775808LL;
+}
+{{/each}}

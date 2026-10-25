@@ -2535,6 +2535,58 @@
       }
     },
     {
+      "id": "integer-match-patterns",
+      "name": "Integer literal match C widths, wide/negative unsigned patterns, native inputs and decimal-boundary adapters",
+      "command": [
+        "{python}",
+        "scripts/check_rust_integer_match_patterns.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "integer-match-patterns-sanitizers",
+      "name": "Integer literal match C widths, wide/negative unsigned patterns, native inputs and decimal-boundary adapters with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_integer_match_patterns.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "package-integer-match-patterns",
+      "name": "Compiler-dependent integer match C support in independently built RS/RS/C package bodies and sealed C/Rust consumers",
+      "command": [
+        "{python}",
+        "tests/package/integer_match_patterns.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "package-integer-match-patterns-sanitizers",
+      "name": "Compiler-dependent integer match C support in independently built RS/RS/C package bodies and sealed C/Rust consumers with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/integer_match_patterns.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
       "id": "native-array-fields",
       "name": "Canonical native array fields: eleven scalar leaves, ranks2-32, record layouts, header loans, stores and receiver lifetimes",
       "command": [

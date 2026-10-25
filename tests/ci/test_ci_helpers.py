@@ -114,7 +114,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 41)
-        self.assertEqual(report['gates'], 473)
+        self.assertEqual(report['gates'], 481)
         for sanitized in (False, True):
             identity = 'numeric-match-conversions' + ('-sanitizers' if sanitized else '')
             entries = [g for g in self.catalog['gates'] if g['id'] == identity]
