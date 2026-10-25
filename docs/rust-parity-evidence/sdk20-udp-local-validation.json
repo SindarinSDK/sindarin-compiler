@@ -1,0 +1,162 @@
+{
+  "status": "All local SDK20 integration checks passed; dependent String main own CI and then SDK20 own hosted acceptance remain required.",
+  "compiler_base": "f3b2f0cf73ce51090153266aa4ef03cebd34aa5f",
+  "SDK_revision": "6e796dd36fdaea7d99a7407b19949456fb7e37d4",
+  "full_matrix_compiler_sha256": "7b3264f3e5c436f450dfd424917b334f5615c01206d24952b04dbe969e2ad94a",
+  "composed_compiler_sha256": "098c3e6ad2c4300e2a354714a4db88112c6c71d4675ced5deb9a2fdb5dd4a73b",
+  "compiler_implementation_identical_to_String_main": true,
+  "implementation_and_script_sha256": {
+    ".github/workflows/ci.yml": "449d69c046a19c8b73f60409f73a7eaa89e53be36d31518f41acbed1da5262c9",
+    "scripts/build_sdk_package.py": "71b0afd7a7fdf5ee16ebd026da2a23ab6c72571e161b88b2e2f27a4e4846d118",
+    "scripts/check_sdk_artifact.py": "75929d6367175db02acac6dca1ba209f27db8c7fda4a8d9b06b15ced5d070010",
+    "scripts/check_sdk_native.py": "9b6ca21811987cba24035bd9d3450b465b0652886eede1693beb01462d2bb1ba",
+    "scripts/check_sdk_udp_artifact.py": "55c4f17d41ed484313a12f4f7d5eabebe74401a893431c95ff733fedb81de932",
+    "scripts/ci/gates.json": "b539875230c0c70abd76580c1e4e913bb93772abea41f87022bc5dab3573ca03",
+    "tests/ci/test_ci_helpers.py": "652ac76555ed4cb53d012f0e8f422d7d413d389aa56bb03de6724d61d1d49785"
+  },
+  "modules": 20,
+  "full_source_sealed_cases_each_environment": 792,
+  "UDP_source_sealed_cases_each_environment": 108,
+  "native_UDP_cases": 20,
+  "actual_C_runtime_SAN_cases": 1,
+  "final_composition_checks": 8,
+  "final_composition_C": 3243,
+  "final_composition_Rust": 1099,
+  "imports": 52,
+  "artifacts": 22,
+  "CI_helpers": 27,
+  "final_composition_SDK_quick_each_environment": 88,
+  "final_composition_UDP_quick_each_environment": 12,
+  "gate_definitions": 219,
+  "platform_gate_executions": 501,
+  "platform_groups": 41,
+  "all215_String_main_gates_preserved": true,
+  "source_preservation": {
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "all_compiler_hashes_unchanged": true,
+    "SDK_SN_and_oracle_files_unchanged": 87,
+    "copied_public_modules_unchanged": 28
+  },
+  "initial_failure": "Before String caller cleanup, original Directory C/SAN leaked348B/14. Accepted72 and corrected field maina5 both reproduce it; Rust clean. String mainf3 fixes the root without caller/oracle rewrites. The failed SDK SAN attempt is retained, not counted as a pass.",
+  "template_provenance": "During exploratory full SAN792, C expression partial EOF whitespace was restored to original no-newline; compiler executable remained7b. All SAN792 passed. Final full normal792 and fresh composed quick checks use the final template. Retained String provenance documents this.",
+  "scope": "Canonical C UDP socket/result records, original callers, independent/sealed sources removed, aliases, nil/default resources, binary data, owned getter results, field/header effects and disposal; no Rust SDK port. Other8 SDK modules, wider language/ownership/generic/callback contracts and final original-corpus mode/platform goal remain open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-full-normal.json.gz",
+      "sha256": "b9ea356f486b5576d774c26e9878fa47edb6116377f859f3728cebd998c04b39"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-full-normal.log.gz",
+      "sha256": "8d58731a8eda1164542266874809fea0efd5376afa520ecf2ede0a4f2284bd25"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-full-sanitized.json.gz",
+      "sha256": "b9ea356f486b5576d774c26e9878fa47edb6116377f859f3728cebd998c04b39"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-full-sanitized.log.gz",
+      "sha256": "8d58731a8eda1164542266874809fea0efd5376afa520ecf2ede0a4f2284bd25"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-udp-normal.json.gz",
+      "sha256": "afc5ec4b80d5bcbb1fe515d8a068c76c9202d8ac5223504623bb42c1f7e6c55a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-udp-normal.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-udp-sanitized.json.gz",
+      "sha256": "aca1b9fb89d42dc40563fb9bf366942b5cf7aecb281a5fa4898de4597ddc7f76"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-udp-sanitized.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-native-normal.json.gz",
+      "sha256": "3cdb4f9abbbd49b20cd056261d0d19f81ad5e282a61f9a100112903766ea69d6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-native-normal.log.gz",
+      "sha256": "edc11e0e294a46892f46fd1bb697bbbea429adf9893925ad71484b025360a211"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-native-sanitized.json.gz",
+      "sha256": "9068df819e6b004d61495bd4e45c7ccb5bb5a7e2d0e33fb80933e8263c7d693b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-string-fix-native-sanitized.log.gz",
+      "sha256": "674ba32d28e33772523cc360330252822d383be147dadd0ba07c9139b46074c5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-SDK20-quick-normal.json.gz",
+      "sha256": "2ba1624315f6621331f102b2b412c64964ac21d29d82a235b792269cfc16b658"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-SDK20-quick-sanitized.json.gz",
+      "sha256": "2ba1624315f6621331f102b2b412c64964ac21d29d82a235b792269cfc16b658"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-UDP-quick-normal.json.gz",
+      "sha256": "0ec142b02490e767e64fba0a6a4794423eced0c8e2ed8e219a83a831b54a6cac"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-UDP-quick-sanitized.json.gz",
+      "sha256": "45336ceb90225735439f2741567a0be85cae1e37a8bc54c94a5a014be7f71e61"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-validation.json.gz",
+      "sha256": "c14c312455927430c8720d17765fb29cfcda5d60a5be32ac3646cfdfe7a5042c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-String-composed-CI-helpers.log.gz",
+      "sha256": "304246aeb739e3e6517b20a54e62db0ef4c397993d8fdbee6de6ecba54357f89"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-full-C.log.gz",
+      "sha256": "b68302c09a5ee49207924ebcac6b1e340a493204892e3e01a3cb78aab1cfb8c4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-full-Rust.log.gz",
+      "sha256": "137cfaa0fd331bfafc20f06b2672dd6e4c7b9823f278239afad163651cc61f9a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-imports.log.gz",
+      "sha256": "0cfd5b770ecb876ac96fc331daeb75ebcbb999f624f3fd6e1ca14d9c69ab49da"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-artifacts.log.gz",
+      "sha256": "9fee486b6d539fb85b41ccfc2d237803232aefef033ff69653dd95a0593131e8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-SDK20-quick-normal.log.gz",
+      "sha256": "017ec71169cd69f8805e6fdc167fd16d35a36602cc1162c412b09ba9421040e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-SDK20-quick-sanitized.log.gz",
+      "sha256": "017ec71169cd69f8805e6fdc167fd16d35a36602cc1162c412b09ba9421040e5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-UDP-quick-normal.log.gz",
+      "sha256": "02d73b32d3061b10617ad183fe7ca9aa07c4f89113d9963d650d5d80b03fa7a2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-final-composition-UDP-quick-sanitized.log.gz",
+      "sha256": "02d73b32d3061b10617ad183fe7ca9aa07c4f89113d9963d650d5d80b03fa7a2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-SDK20-correction-full-sanitized.log.gz",
+      "sha256": "a2d5dd675b7d4cbdf24ecb0855555a1fca83652f93c869c028f1ce680b8686cf"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-baseline-and-current.json.gz",
+      "sha256": "7be3e8047a847fcd5d8cccfd9d445c72176ae3b681d84e7b7a1ff528611cca85"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk20-udp-string-effects-loans-template-EOF-normalization.json.gz",
+      "sha256": "8f71701e4c8d72b718a547483a82bb107870a75d30c89ce84590ba55e5c45fb0"
+    }
+  ]
+}

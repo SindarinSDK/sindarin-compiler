@@ -1,3 +1,29 @@
+## SDK20 UDP artifacts: local composition validated, 2026-10-25
+
+The canonical C SDK now stages UDP socket and receive-result records alongside
+its nineteen existing artifact modules. The package builder supports multiple
+records from one module and links WinSock on Windows. Public Sindarin modules,
+original callers and behavioral oracles retain their bytes. Source and sealed
+artifacts use the same C backing; sealed tests remove implementation sources.
+
+All local checks pass with String main `f3b2f0cf`:792 original-caller/stdin cases
+and108 UDP lifetime/field cases per normal and sanitized environment,20 native
+UDP cases and one actual C/runtime sanitizer case. The final composed tree also
+passes full C3,243/Rust1,099, imports52, artifacts22, helpers27, SDK20 quick88 and
+UDP quick12 per environment. All1,365 goal-start programs,1,158 oracles,87 SDK
+Sindarin/oracle files and28 copied public modules retain their hashes. The
+compiler implementation is identical to String main; all215 existing gate
+commands remain intact. Four additions require501 platform executions in41
+groups. [Retained local proof](rust-parity-evidence/sdk20-udp-local-validation.json).
+
+The earlier SDK sanitizer failure was the original Directory C caller's348-byte
+concatenation leak, fixed in String main without changing its caller or oracle.
+That failed run and the full-matrix template whitespace provenance remain in the
+proof. String's own required hosted CI must pass before this dependent batch is
+published. SDK20 then needs its own hosted acceptance. Eight other SDK modules,
+wider language/ownership/callback contracts and final corpus/platform acceptance
+remain open; this is not complete SDK or Rust backend parity.
+
 ## String effects and caller/callee loans: local validation, 2026-10-25
 
 Eight original String programs now execute through Rust without source changes:
