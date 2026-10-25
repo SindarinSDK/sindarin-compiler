@@ -1,3 +1,40 @@
+## String effects and caller/callee loans: local validation, 2026-10-25
+
+Eight original String programs now execute through Rust without source changes:
+computed indexed/assignment patterns, selected mutation/copy results, and local
+rebinding/appending of default String parameters. Patterns remain lazy, results
+own independent values and caller strings retain their values. Assignment-only
+local storage survives optimization. Rust-private C function, method and lambda
+projection shares the canonical borrowed-parameter context and return-copy rules.
+
+The unchanged SDK Directory caller exposed a separate C caller leak:348 bytes
+from14 concatenated arguments, reproduced on accepted72 and maina5 while Rust
+was clean. Borrowed calls now bind these strings at their original argument
+sites into cleanup slots and release them after the call. C argument order and
+native-name collisions have independent controls. No original source, output,
+diagnostic or generation snapshot was edited.
+
+All32 composed local checks pass: full C3,243/Rust1,099;90 String language pairs
+and36 source/sealed package cases per environment;18 caller-loan/order cases per
+environment;72 field pairs,153+9 computed numeric cases and all prior overlap
+families. The two String controls have29/30 outputs; the caller control has10.
+Imports52, artifacts22, SDK19 smoke84, helpers27 and formatting pass. All1,365
+original programs,1,158 oracles,281 accepted SDK fixture inputs and87 SDK
+Sindarin/oracle files retain their hashes. All209 accepted-main gate commands
+remain intact; six additions require493 platform executions in41 groups.
+[Local proof](rust-parity-evidence/string-effects-loans-local-validation.json).
+
+The composed field correction on maina5 separately passed all49 required jobs,
+481 platform executions and41 groups on Linux/macOS/Windows.
+[Verified accepted-main proof](rust-parity-evidence/native-array-fields-correction-ci-green.json).
+The String batch still needs its own hosted acceptance. SDK20 staging and the
+array-parameter prototype remain separate dependent work. A refreshed historical
+inventory has44 agreements,24 Rust rejections after clean C sanitizers,50 C
+failures and61 unavailable/changed historical paths. That Linux/O0 subset does
+not prove C-defined semantics or final original-corpus parity. Broader SDK,
+interface/generic/callback/ownership/lifecycle and complete mode/platform
+acceptance remain open.
+
 ## Native array fields: combined correction locally validated, 2026-10-25
 
 Field main d3ce failed the computed numeric mutation gate on all three hosted

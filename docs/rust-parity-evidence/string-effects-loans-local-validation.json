@@ -1,0 +1,315 @@
+{
+  "status": "Complete local String effects/parameter/caller-loan validation composed with hosted-accepted field maina5; own hosted acceptance pending. SDK20 staging remains separate.",
+  "base": "a5bfd070b1c3d25a34445b412dcb95a1345f4a92",
+  "base_CI": 40177983344,
+  "compiler_sha256": "7b3264f3e5c436f450dfd424917b334f5615c01206d24952b04dbe969e2ad94a",
+  "implementation_and_script_sha256": {
+    ".github/workflows/ci.yml": "a6db547ddd5e14e531d6b6abe62b141b865e688c8323fa578f3380cd03d53b6f",
+    "scripts/check_rust_string_call_arguments.py": "a017e109c15f4caea07078f6878bc1bafed559f813eb54f4377860d93ccfafe0",
+    "scripts/check_rust_string_match_effects.py": "a77cc57c055db88ad071009bf6d519d41ed36b0b3f84e81bd54c144fbeb6a5c2",
+    "scripts/ci/gates.json": "8c636ae7c52f3ae460a54e59e94cb516416f37ff9def2d8075f373076be1049b",
+    "scripts/string_call_argument_controls.py": "2836ebfad57a2e22c7ac8a97dff9270bb9e7c9dba736836a20e95506edc7ac6b",
+    "scripts/string_match_controls.py": "77ca36f9ea303496f85b7c63fb6520fd17f368feadfa356113e322b1d4d6d4f9",
+    "src/cgen/gen_model.h": "b99bd5720e32d30638f0371dc4b4a9cfe6dadb81c171948239d57770ec4112d6",
+    "src/cgen/gen_model_borrowed_parameters.h": "ae514de6390fae185fa77fc685cc1dcff4af5144b3f0e18bef8818c498f7e745",
+    "src/cgen/gen_model_chain_flatten.c": "6ad2fab988cb65652c72410c14fc7906f2b58f830e97959f02271036e0f6a2c8",
+    "src/cgen/gen_model_expr.c": "4f4459a0032508a73a6ec9a648e07f639342fd238278f7b92351cfe607024fe3",
+    "src/optimizer/optimizer_util_vars.c": "14ddb259f019e6163c08751a3b346bcd9f4e6a61e2d636c0c0353e03b111fe03",
+    "src/target/rust/projection/rust_model_expr.c": "a12a7807a0e1467db063a7a9686c703855a4b27a1d77090fa63c6474b451e7b6",
+    "src/target/rust/projection/rust_model_func.c": "795372df85eed886bc81dc41d4b55429cc85306e532bc90368e9f230bb6552d7",
+    "src/target/rust/projection/rust_model_stmt.c": "782c6b45b89c6b074a309d538970cf7d12ea3ac6966bcddab139c38af9b8d380",
+    "src/target/rust/projection/rust_model_struct.c": "1a8aa9fa062f359811265a065738711a61d5a2e1b99f0b0eec7a7c0683ba985d",
+    "src/target/rust/rust_lower_calls.c": "0c6b89e2aab0c18fb88110ce91bcef29bfb98f11957c33a336a213d979e269ed",
+    "src/target/rust/rust_validate.c": "9328e9ff59ff10c72f6e1897ba1b5ac3147cf2ab00361398142d998b3e360a63",
+    "templates/c/partials/expr.hbs": "c8672f2ab2003c39dcabb2d547498595e5d9312d41e4320148a3cf8fa6928130",
+    "templates/rust/partials/expr/direct_assign.hbs": "5792a99b2f4830673c553500ae7ef0dd1331c4d15982c3b167cff34270fb2dda",
+    "templates/rust/partials/expr/match.hbs": "8d9fe7b445ab551e60aa0f05e09350f78fa3169b6dbb65ca1089a52b11e833ae",
+    "tests/ci/test_ci_helpers.py": "dd4284942035e9dae5b96a01edd5454b75702b9a9b3564ac148c7342149942bc",
+    "tests/package/string_match_effects.py": "ca6cc490f04d49164e7728968ebde28961e77a8417ca544120889e668d5d19a2",
+    "tests/rgen/errors/by_value_parameter_direct_assignment_string.parity.json": "687005100450ef00fdd32099e12215aa6d18b8c1b33cef063d5aa4193cebb1de",
+    "tests/rgen/errors/by_value_parameter_string_compound_mutation.parity.json": "3bfa1c4a073844368ad77ff810f2fac05c3a92687879cdedc02c23a8407f7b94",
+    "tests/rgen/errors/statement_match_string_indexed_pattern.parity.json": "88dce0f0e901afa6eff6f221a2519d65e1c9e757e86c983eb717dcc348130bac",
+    "tests/rgen/errors/value_match_string_copy_of_result.parity.json": "d76f8f8e26e21e70decd64509979e20186848c90df56206eb6e9b3ba4b255bc7",
+    "tests/rgen/errors/value_match_string_mutating_array_call.parity.json": "fcb83de6bea6e6d0e3928ed95137c0487b3d263cb05131e06ce705448873dca3",
+    "tests/rgen/errors/value_match_string_mutating_assignment.parity.json": "4636f9e32617e04716ae1b91c7aa217ef3eb5e17f77ccc92172605884ec4191c",
+    "tests/rgen/errors/value_match_string_mutating_member_call.parity.json": "4b2f4520b9f4c7f97fcad6c33bb9d1988fd0c5e454cc5012d7741a1afa21dfc3",
+    "tests/rgen/errors/value_match_string_mutation_pattern.parity.json": "bea6461a08f91b2824851c620615630b7b7e5cbdb8d13e0758b2d02ce0c3f7b7"
+  },
+  "original_sources_promoted": 8,
+  "String_language_pairs_each_environment": 90,
+  "String_package_cases_each_environment": 36,
+  "independent_String_outputs": [
+    29,
+    30
+  ],
+  "string_argument_cases_each_environment": 18,
+  "string_argument_case_scope": "9 C/Rust mode pairs with10 independent caller/callee/callback/native/naming outputs plus9 C-only order comparisons against selected-CC reference. C-only checks do not claim Rust argument-order parity.",
+  "native_field_pairs_each_environment": 72,
+  "numeric_original_pairs": 153,
+  "numeric_native_closure_pairs": 9,
+  "composed_regressions_each_environment": {
+    "numeric_match": 81,
+    "value_records": 45,
+    "scalar_language": 45,
+    "scalar_packages": 216,
+    "byte_encoding": 81,
+    "nested_arrays": 45,
+    "native_threads": 72,
+    "integer_patterns": 63,
+    "integer_packages": 36
+  },
+  "full_C": 3243,
+  "full_Rust": 1099,
+  "imports": 52,
+  "artifacts": 22,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "gate_definitions": 215,
+  "platform_executions": 493,
+  "platform_groups": 41,
+  "all209_accepted_main_gates_preserved": true,
+  "source_preservation": {
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "all_compiler_hashes_unchanged": true,
+    "SDK_db7_fixture_files_unchanged": 281,
+    "SDK6e_SN_and_oracle_files_unchanged": 87,
+    "all_old_C_and_Rust_generation_snapshots_pass": true
+  },
+  "repairs": [
+    "Lazy computed String match patterns and selected owned assignment/mutation/copyOf results",
+    "Callee-local default String assignment and append, preserving caller values",
+    "Canonical C borrowed-parameter contexts shared by Rust-private C function/method/lambda projection; copy borrowed assignment returns before owner cleanup",
+    "Preserve assignment-only local storage in shared optimizer",
+    "Release concatenated default String arguments after calls with nil cleanup slots acquired inline, preserving C argument effects and avoiding native name collisions"
+  ],
+  "before_findings": "Accepted72 prints correct native String booleans but Rust/SAN double-frees borrowed input; C is clean. Original SDK Directory caller preserves output but C/SAN leaks348B/14 concatenated arguments on accepted72 and currenta5, while Rust is clean. Both are fixed without original SN/oracle changes. Initial new native constructor probe was rejected by both frontends and corrected only in new temporary test. Added C partial EOF newline initially changed107 C snapshots; removing only that newline restored all original snapshots without expected-file edits.",
+  "remaining": "Own full Linux/macOS/Windows acceptance, separate SDK20 integration, default array rebinding and remaining interface/generic/callback/ownership/lifecycle/full original corpus mode/platform goal.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-validation.json.gz",
+      "sha256": "4d7fdd79d19f86689340c73000b2eef3f4cfda333a211fe4263ab9a96a8c4216"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-full-C.log.gz",
+      "sha256": "d82137b42e8ad89ddecfe88b917f4ef9abcce39e1ae79a375d58055f545f9562"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-full-Rust.log.gz",
+      "sha256": "4c04d97d81020d25cbed0578359a0c17658637b99ef761df481db27104bb0452"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-CI-helpers.log.gz",
+      "sha256": "76ee8c535499eca66d8119d488f1d22e79239bf26bb20108c2965cc861c9f4b3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-string-arguments-normal.log.gz",
+      "sha256": "57bc87ff14413f4bda4e8c6db2514a036b9f9a5a63e3e3b7adb44c6d140e2a82"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-string-arguments-sanitized.log.gz",
+      "sha256": "57bc87ff14413f4bda4e8c6db2514a036b9f9a5a63e3e3b7adb44c6d140e2a82"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-string-language-normal.log.gz",
+      "sha256": "edd67b536cf06e6a2c2934da079d36da3ca74eccc27ec24088d8ba9e627582f5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-string-language-sanitized.log.gz",
+      "sha256": "edd67b536cf06e6a2c2934da079d36da3ca74eccc27ec24088d8ba9e627582f5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-string-packages-normal.log.gz",
+      "sha256": "e3644a3a746d2a739ffbef2027b7b4cebaf169ae7758e0b8759205a839ba9f67"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-string-packages-sanitized.log.gz",
+      "sha256": "e3644a3a746d2a739ffbef2027b7b4cebaf169ae7758e0b8759205a839ba9f67"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-computed-numeric-owners.log.gz",
+      "sha256": "b441e74a3e6e310a445c0ba31960599490a3d23534f3b019fb9ae83e44e4f412"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-native-fields-normal.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-native-fields-sanitized.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-numeric-normal.log.gz",
+      "sha256": "933983f129afaf85869bbe389c8c39348ea1d2603afcd7c0218b9a5fe65b7514"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-numeric-sanitized.log.gz",
+      "sha256": "eccbfda0893ead3492d92f62c212b56b8af57cbfafd09220798b2aff6e7aff6a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-record-normal.log.gz",
+      "sha256": "81cef2e772e75cdda16d1e70716f5a452163537dfc8fdc496b665593e12063c1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-record-sanitized.log.gz",
+      "sha256": "2d1f93f892779696c9ca26827e2822d8381ed7f8c73ada623197d3e083b6c71d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-scalar-normal.log.gz",
+      "sha256": "69116fb27f4c6eb10a35d0204978d80aab9c21ba39e02891b4ad085aca7ea4f2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-scalar-sanitized.log.gz",
+      "sha256": "9b24a19d6bb78e01025f84726c017d5b1f898aee26b7d6788afdf7b7d97e23b8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-thread-normal.log.gz",
+      "sha256": "54fed5f64e0838016f5ba0aa5dc37e4455791076aaccbf1d0ca8514771450393"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-thread-sanitized.log.gz",
+      "sha256": "e6fcaa189b46d0ee50ac66be8970c12ed8c49ed0aa03162b21103a66cc393407"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-integer-normal.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-integer-sanitized.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-integer-packages-normal.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-integer-packages-sanitized.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-imports.log.gz",
+      "sha256": "b78a056668ebae742d11203ecec718ac1d935a1cfd7d70cc4bbd86eb7e02114c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-artifacts.log.gz",
+      "sha256": "002fdb073a0c3ef0e81d08e8d32daaa01ca422b0bc3ec67e1460da789ac790eb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-combined-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-rust-string-match-effects.json.gz",
+      "sha256": "ad5395e6dbf886dd3f0049005fd78d98b996736ec0474bb6bb899d18b95a9e04"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-rust-string-match-effects-sanitized.json.gz",
+      "sha256": "1df3a801685379ad6405796a0fe9ca9d11dd47710984d44a845d2583d7ebcd54"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-package-string-match-effects.json.gz",
+      "sha256": "5682645f7534e7b59633f61796e6d7d747a22791371cc305ec716e47709a87a3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-package-string-match-effects-sanitized.json.gz",
+      "sha256": "2d0fe41def68299c2b3e3adc5fe1060e1b3b80d5dfaa708c1d4fff3cd1b95c6f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-rust-string-call-arguments.json.gz",
+      "sha256": "e7e9b55e934bb36b044891d47b0896fbc0506820a718ca7bb60edc769febc27f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-rust-string-call-arguments-sanitized.json.gz",
+      "sha256": "46c2aa7547cb4e25f81596fba6e9c2d2e7aa1617e9c7e8cc6391bb9c295c636c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-rust-native-array-fields.json.gz",
+      "sha256": "30cff6d26c5be947481ad0c5bd3bfc009797627eba37e9b83e97209a9feec592"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "60c8ea1032c760c01a9b2e89d4725976d21f0aaeaf702c66db0bb9f8b4f6ca43"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-rust-parity-numeric-places.json.gz",
+      "sha256": "650acee6d94570a63096b1450c1418faa5135d5c5b025115516e3519f1926249"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-rust-parity-numeric-native-owners.json.gz",
+      "sha256": "99daf8d3b19e3867f45e4521dd8e5a711645d50acd1739723a4fc140e9011f19"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-SDK19-smoke-report.json.gz",
+      "sha256": "9d9a70df2601d753a82608f02bfe5489189632881bee1e307181e13ceaeebb7a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-CI-helpers-final-inventory.log.gz",
+      "sha256": "1b35efb61d8bd5edff677261d67eefb24c79bbeebc9b711daa5eabf12dbd1d65"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-template-EOF-normalization.json.gz",
+      "sha256": "8f71701e4c8d72b718a547483a82bb107870a75d30c89ce84590ba55e5c45fb0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-native-parameter-bodies-accepted-main-failure.json.gz",
+      "sha256": "549dbf50d0f2ecf8f53b95349e0c629e520bc12186b7131756ab805b12b5c3bd"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-native-parameter-bodies-shared-guard-pass.json.gz",
+      "sha256": "c79fc76840fee3388c26c12d3a7373314459104757e4e6c3582e916d483a9442"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-native-guard-focused-validation.json.gz",
+      "sha256": "ab07dda4a375bcfb297bddbbe8b561d037da64827d57ddeecab69682e3f9dcf2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-corrected-field-composed-validation.json.gz",
+      "sha256": "3c2bfc599c32e0abdd977838c4b553db4875ba3f6c835153e792da095a9261b9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-SDK20-correction-full-sanitized.log.gz",
+      "sha256": "a2d5dd675b7d4cbdf24ecb0855555a1fca83652f93c869c028f1ce680b8686cf"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-baseline-and-current.json.gz",
+      "sha256": "7be3e8047a847fcd5d8cccfd9d445c72176ae3b681d84e7b7a1ff528611cca85"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-fixed-c.out.gz",
+      "sha256": "b97f951e5147b3846abc7ee4bfd3f66bc5789fc4fd83cb36c2d19a252edfbb14"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-fixed-c.err.gz",
+      "sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-isolated-string-fix-quick-normal.json.gz",
+      "sha256": "ec8b58fbac74fa049609a911e00a353559a93a949b9bb3189ab4b6903bef1d88"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-current-main-admission.json.gz",
+      "sha256": "2d8ce137688eadfa4f68e61169150f925f475cf8efe731dbdf29ccc0effe294d"
+    }
+  ]
+}
