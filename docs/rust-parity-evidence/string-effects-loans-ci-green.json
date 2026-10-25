@@ -1,0 +1,30 @@
+{
+  "status": "Complete own-revision Linux/macOS/Windows hosted acceptance verified. String caller/callee ownership batch accepted.",
+  "revision": "f3b2f0cf73ce51090153266aa4ef03cebd34aa5f",
+  "CI": 40187156440,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40187156440",
+  "required_jobs": 49,
+  "all_jobs_successful": true,
+  "platform_gate_executions": 493,
+  "platform_groups": 41,
+  "compilers": {
+    "Linux": "0e9ac9da682cf07b5a15edc20bbcdc42b910709f62fd55078c2bd16b9a75c42d",
+    "Darwin": "9026a52521da93d331d2f7d604433ef0d9b6f73d64342d3aa621d93f8bfa5a74",
+    "Windows": "1ca4c7e69cf4f7df2f5d3915a4e694ac63e2d8c0b43367cdbc666add43d92477"
+  },
+  "scope": "Accepts String match effects, defaultStringparameterlocalstorage, sharednativeCloans andCconcatcaller cleanup on integrated main. SDK20 and array/method prototypes remain separate work; full goal remains open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-ci-final.json.gz",
+      "sha256": "af53b324d03991cff91268575c0255c13a6708ebf576897695d4437e8b57a425"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-ci-coverage.json.gz",
+      "sha256": "e5c1887358a14f2646db8619dc64a7d1ab5a518425e6ae94ed9624c86b2a4bae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/string-effects-loans-ci-artifacts.json.gz",
+      "sha256": "ba6936c0c71a2acd083d861c48d2016d85e16dc0de174714d9286014bcf944a1"
+    }
+  ]
+}

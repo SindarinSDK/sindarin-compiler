@@ -1,5 +1,5 @@
 {
-  "status": "All local SDK20 integration checks passed; dependent String main own CI and then SDK20 own hosted acceptance remain required.",
+  "status": "All local SDK20 integration checks passed. String dependency independently accepted in own49-job CI40187156440; SDK20 own hosted acceptance remains required.",
   "compiler_base": "f3b2f0cf73ce51090153266aa4ef03cebd34aa5f",
   "SDK_revision": "6e796dd36fdaea7d99a7407b19949456fb7e37d4",
   "full_matrix_compiler_sha256": "7b3264f3e5c436f450dfd424917b334f5615c01206d24952b04dbe969e2ad94a",
@@ -158,5 +158,6 @@
       "path": "docs/rust-parity-evidence/sdk20-udp-string-effects-loans-template-EOF-normalization.json.gz",
       "sha256": "8f71701e4c8d72b718a547483a82bb107870a75d30c89ce84590ba55e5c45fb0"
     }
-  ]
+  ],
+  "accepted_dependency_CI": 40187156440
 }

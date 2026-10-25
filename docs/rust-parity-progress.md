@@ -44,8 +44,9 @@ groups. [Retained local proof](rust-parity-evidence/sdk20-udp-local-validation.j
 The earlier SDK sanitizer failure was the original Directory C caller's348-byte
 concatenation leak, fixed in String main without changing its caller or oracle.
 That failed run and the full-matrix template whitespace provenance remain in the
-proof. String's own required hosted CI must pass before this dependent batch is
-published. SDK20 then needs its own hosted acceptance. Eight other SDK modules,
+proof. String main has now passed its own49 required jobs and493 platform executions
+in41 groups. This dependent batch is ready for publication and needs its own
+hosted acceptance. [Accepted String dependency](rust-parity-evidence/string-effects-loans-ci-green.json). Eight other SDK modules,
 wider language/ownership/callback contracts and final corpus/platform acceptance
 remain open; this is not complete SDK or Rust backend parity.
 
@@ -78,8 +79,9 @@ remain intact; six additions require493 platform executions in41 groups.
 The composed field correction on maina5 separately passed all49 required jobs,
 481 platform executions and41 groups on Linux/macOS/Windows.
 [Verified accepted-main proof](rust-parity-evidence/native-array-fields-correction-ci-green.json).
-The String batch still needs its own hosted acceptance. SDK20 staging and the
-array-parameter prototype remain separate dependent work. A refreshed historical
+The String batch has passed its own49-job Linux/macOS/Windows run,493 platform
+executions and41 groups. [Own hosted proof](rust-parity-evidence/string-effects-loans-ci-green.json).
+SDK20 staging and the array-parameter prototype remain separate dependent work. A refreshed historical
 inventory has44 agreements,24 Rust rejections after clean C sanitizers,50 C
 failures and61 unavailable/changed historical paths. That Linux/O0 subset does
 not prove C-defined semantics or final original-corpus parity. Broader SDK,
