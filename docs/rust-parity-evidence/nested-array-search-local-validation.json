@@ -1,0 +1,160 @@
+{
+  "status": "complete local validation on corrected main169; composition with newer thread main follows",
+  "revision": "f45fe9ca1cba80dfc6a2e0a4e395c0a708a83a86",
+  "base": "169c68e1822d438d5b83400abe6d637e505f8092",
+  "fixes": [
+    "Use canonical C header identity for nested contains/indexOf instead of Rust structural equality.",
+    "Preserve borrowed outer/inner array identity, including closure loans and named view lifetimes.",
+    "Evaluate receiver/argument effects once and use fresh helper names."
+  ],
+  "original_rejections_promoted": [
+    "tests/rgen/errors/array_search_nested_array_elements.sn",
+    "tests/rgen/errors/value_match_prefix_lexical_order.sn"
+  ],
+  "focused_normal_C_Rust_mode_pairs": 45,
+  "focused_C_address_undefined_leak_mode_pairs": 45,
+  "coverage": [
+    "Eleven scalar/string leaf kinds",
+    "Ranks2 through32",
+    "Copied inner header isolation and stored-slot identity",
+    "Nil inner slots, owned temporaries, default/closure loans and explicit value copies",
+    "Receiver and argument effects with C-defined order",
+    "User identifiers matching previous helper names"
+  ],
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "native_search_pairs_normal": 9,
+  "native_search_pairs_C_sanitizers": 9,
+  "package_import_tests": 52,
+  "artifact_tests": 22,
+  "SDK19_smoke_cases": 84,
+  "ABI_clients": 17,
+  "record_array_mode_cases_normal": 432,
+  "record_array_mode_cases_C_sanitizers": 432,
+  "record_array_wire_clients_each": 6,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz",
+    "goal_start": "835a1ca0",
+    "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+    "all_193_corrected_main_gates_unchanged": true,
+    "gate_count": 195,
+    "platform_gate_executions": 453
+  },
+  "required_platform_gates": 453,
+  "platform_groups": 41,
+  "candidate_review": "docs/rust-parity-evidence/nested-array-search-candidate-refresh.json",
+  "known_diagnostics": [
+    "Initial package run lacked pinned SDK fixture; five failures explicitly name missing SDK inputs. Restored all281 exact accepted db7 files; complete52 tests and broader suite then passed.",
+    "Earlier native alias5 compilation failure emitted byte-identical accepted Rust and passed isolated; final full1099 run passes all393 native extras. Earlier unexplained failure retained.",
+    "Independent C argument/index order probe is nonportable; kept separately without portable-order credit."
+  ],
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-corrected-composed-status.json.gz",
+      "sha256": "3f67f6a9b178e2fc367b2d3920412b6518481dbf9d4cb200e1fdc44fc7f14749"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-status.json.gz",
+      "sha256": "ca42ccfd2cacdacb93054418c79458bb18d7e51a210e4145e898798c5edf806a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-source-preservation.json.gz",
+      "sha256": "9a5c13632a66c52b6f633a5332123e74a748d6a536c0b7c45f2ef8dee6ac0b3d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-corrected-composed-focused-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-corrected-composed-focused-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-corrected-composed-full-C.log.gz",
+      "sha256": "dc6bbeae05dba27dadceef89743b714514fe6f169916cad24cb3fb5aa254378b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-corrected-composed-full-Rust.log.gz",
+      "sha256": "28a0b3edb3b95627ca27582582cc767840ac35e1d97b10d316547bb92f47c580"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-corrected-composed-native-search.log.gz",
+      "sha256": "60a2c218789746d7d29012ceb0c809cec2d74e4f7f951c9257536a27bb77876c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-corrected-composed-native-search-sanitized.log.gz",
+      "sha256": "60a2c218789746d7d29012ceb0c809cec2d74e4f7f951c9257536a27bb77876c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-corrected-composed-imports.log.gz",
+      "sha256": "e825d8dcd2305ad5143fdfea324fb723b88afb92e163f70538e0c8dcfb14a265"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-imports.log.gz",
+      "sha256": "c1665d99291efd0b6c188aea2ca76369db579c80875d21efabd08419e391ba47"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-artifacts.log.gz",
+      "sha256": "8fc5d7de1543fa42c7a069fa99acdc3280882cb27c2b1776966e5f64702b9f93"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-ABI.log.gz",
+      "sha256": "f2f01ff731d1080cd3fc93753498b0c7b689221819e460fb614d6bd4d01437ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-record-arrays.log.gz",
+      "sha256": "fb9f3344f5705c0fd20312f4b221bb1afe28d71115dbe1f28abe5d92f76f210c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-record-arrays-sanitized.log.gz",
+      "sha256": "c05434e8c2a62324b07c4f37a7c0e0d9fad9c5b3f510cc0d76844a5dd3f2c83f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-CI-helpers.log.gz",
+      "sha256": "534bf29687b4160a5e64c93f8e15738ded396b01a9a330bb56200026f2dbd1a8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-prepared-remaining-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-nonportable-index-order.json.gz",
+      "sha256": "7710dff619c3122d4c0f6325cb9f1aa637f4e4eb1763eb7879319d8ec88a6d58"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-alias5-source-comparison.json.gz",
+      "sha256": "8877da641bffd886331efc2f9a1dbf7cb658972c2b39529b99e1717e085167cf"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-alias5-focused.log.gz",
+      "sha256": "eef2281452c79720f47a09f7be2e0bb32a899593445c9fd0945bcb871ab21f77"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-rust-nested-array-search.json.gz",
+      "sha256": "9afe6aea1ff2e7de1c423ec26b73731b43f12cf31e287530b99b53f3ab86db3b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-rust-nested-array-search-sanitized.json.gz",
+      "sha256": "e35411b18eb5e5a2a467790210af156630170a425767292e56b8efd2f5d4583a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-runtime-abi.json.gz",
+      "sha256": "f46d7a4d6b152108550c1cbb0ed2740012089c54bcc566b41ed32acbba66db89"
+    },
+    {
+      "path": "docs/rust-parity-evidence/nested-array-search-sdk-artifact-validation.json.gz",
+      "sha256": "6bea21510e44a2e246ce629bd1a101be4dc8a3cbef6582d69eb4e9caa53be049"
+    }
+  ],
+  "scope": "Two unchanged source admissions and the verified nested-array identity/loan contract. SDK/native qualifiers, ownership/interfaces/generics/lifecycle and final original1365 all-mode/platform proof remain required."
+}
