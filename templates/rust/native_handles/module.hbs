@@ -105,6 +105,16 @@ int {{rust_native_handle_refs}}(void *pointer) {
 }
 {{#if rust_native_handle_set}}
 {{#if rust_native_handle_array_field}}SnArray *{{rust_native_handle_set}}(void *pointer, SnArray *value, int copy) {
+    /* C field stores copy RHS, clear the first receiver, store through the
+     * second, and read their borrowed result through a third evaluation. */
+    if (copy == 2) {
+        sn_cleanup_array(&((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
+        return NULL;
+    }
+    if (copy == 3) {
+        ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = value;
+        return value;
+    }
     SnArray *next = copy && value ? sn_array_copy(value) : value;
     sn_cleanup_array(&((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
     ((__sn__{{../name}} *)pointer)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}} = next;

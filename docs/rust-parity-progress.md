@@ -1,3 +1,27 @@
+## Native array field effects: complete numeric-main validation, 2026-10-25
+
+The compiler-only field slice now follows C's copy, clear, put and result
+receiver evaluations for indexed stores. Native array loans dereference field
+guards at native calls. Temporary receiver cleanup slots retain the C lexical
+lifetime, while acquisition remains inline in lazy branches and repeated loop
+conditions. Private C native bodies receive the same owned-receiver annotation.
+
+All23 combined local checks pass, including72 field mode pairs and108 UDP
+source/sealed C/Rust cases normally and under C sanitizers; numeric81, record45,
+scalar45+216, byte81, array45 and threads72 pass in both environments. Full C/Rust
+suites pass3,243/1,099, imports52, artifacts22, SDK19 smoke84, helpers27 and format.
+All original1,365 programs and1,158 oracles remain unchanged, as do281 inputs in
+the accepted db7 SDK fixture and87 SDK Sindarin/oracle files in accepted6e.
+The numeric-main203 gate definitions are preserved; two field additions require
+473 platform executions in41 groups. [Final local proof](rust-parity-evidence/native-array-fields-effects-composed-local-validation.json).
+
+This remains a local checkpoint: newly published integer main72 must be composed
+and validated before publication, and the field revision needs its own full
+hosted acceptance. SDK20 staging remains separate and uncommitted. Computed
+call-receiver stores, the remaining native/SDK contracts and final whole-goal
+corpus/mode/platform acceptance remain open; C-failing exploratory cases receive
+no parity credit.
+
 ## Native array fields and receiver cleanup: locally verified slice, 2026-10-25
 
 Native reference records expose canonical C array fields through generated

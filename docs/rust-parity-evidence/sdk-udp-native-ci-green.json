@@ -1,0 +1,59 @@
+{
+  "revision": "6e796dd36fdaea7d99a7407b19949456fb7e37d4",
+  "CI": 40162723232,
+  "url": "https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/40162723232",
+  "successful_required_jobs": 7,
+  "compiler_revision": "43a6d633c7d72c1ec8cf144ee720ef885f831490",
+  "platform_reports": {
+    "Darwin": {
+      "udp-native": {
+        "cases": 20,
+        "compiler_sha256": "2663433b55cd12e057c1a186520c143ba97f4d68b937cb4cd50d7430c0572fe6"
+      }
+    },
+    "Linux": {
+      "udp-native": {
+        "cases": 20,
+        "compiler_sha256": "604ce16b6a4aec0ec34ff87816582e8d1d24fd6565b9dd3f9ba0a14aa8f4a2c9"
+      },
+      "udp-sanitizers": {
+        "cases": 1,
+        "compiler_sha256": "604ce16b6a4aec0ec34ff87816582e8d1d24fd6565b9dd3f9ba0a14aa8f4a2c9"
+      }
+    },
+    "Windows": {
+      "udp-native": {
+        "cases": 20,
+        "compiler_sha256": "7cdf669d1266bfba76e4023082b900ee0adb64b9a97be31d9da75aaa17d1497a"
+      }
+    }
+  },
+  "original_Sindarin_and_oracle_files_unchanged": 87,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/sdk-udp-native-ci-final.json.gz",
+      "sha256": "fe56e8b94b06aec583b2978949c9bcfd4c1392233521a5adf2c15f09c9611198"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk-udp-native-ci-artifacts.json.gz",
+      "sha256": "bb1b8c5045220433902febb8235024e506839a940d997541f87a241932876438"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk-udp-darwin-udp-native.json.gz",
+      "sha256": "be5620d5569ae1fb55ec1c3f6e529df4b3d6339308ae4965d625a6d96f8c1c3a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk-udp-linux-udp-native.json.gz",
+      "sha256": "c3b7f0c16781e0c5b20548e932a107a2c83ccb6bccdecbbefb43de7fe0a3e2f4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk-udp-linux-udp-sanitizers.json.gz",
+      "sha256": "97ac29be858239ac2856c7d6f79dc352f98c9351f368f615d7263054ef42245b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/sdk-udp-windows-udp-native.json.gz",
+      "sha256": "ebba9d102d80041b332685fb95abc48bf72236b28d328220d9987576bb93ff3b"
+    }
+  ],
+  "scope": "Accepted native C UDP foundation only; compiler SDK20 artifacts and broader SDK/language parity remain open."
+}
