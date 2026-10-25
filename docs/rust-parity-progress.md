@@ -1,3 +1,19 @@
+## Array native loan correction: complete hosted acceptance, 2026-10-25
+
+Correction main `43a6d633` passes all 49 required jobs in
+[CI 40150376704](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40150376704).
+Coverage verifies 457 gate executions in 41 groups and one compiler binary per
+Linux/macOS/Windows platform. The unchanged byte object-view regression passes
+all nine modes on every platform. This accepts the nested-array feature and
+its native array loan correction; the preceding failed run and its three
+platform reports remain retained. Feature publication is unfrozen.
+
+The record-value feature has complete local validation against this accepted
+base and requires its own hosted acceptance. Whole SDK, wider native, ownership,
+interface/generic/callback/lifecycle contracts and final preserved original
+corpus mode/platform verification remain required. Evidence:
+[array-byte-view-correction-ci-green.json](rust-parity-evidence/array-byte-view-correction-ci-green.json).
+
 ## Value record stores composed with corrected main: locally verified, 2026-10-25
 
 The record-value changes now include byte-array correction `43a6d633`.
