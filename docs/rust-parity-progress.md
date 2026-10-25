@@ -1,3 +1,51 @@
+## Required Windows CI correction: complete local validation, 2026-10-25
+
+Zlib main `4a0ebda6` failed its own hosted run
+[40206567956](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40206567956).
+Of the 44 initial build/test jobs, 42 passed and two Windows jobs failed.
+Coverage and the final requirement job failed downstream; validated artifact
+publication was skipped. This revision is not hosted-accepted. Feature pushes
+are frozen until one combined correction passes complete platform CI.
+
+The SDK artifact failure occurs in legacy zlib imports: Sindarin `uint as ref`
+is a uint64 slot, while Windows zlib expects a 32-bit `uLongf *`. Generated C
+adapters now use the actual header type and copy the complete result back. If
+the C types are compatible, the original address is passed through, preserving
+pointer identity. This applies to C applications, Rust native islands and
+C-compiled package bodies. Public Sindarin declarations and callers stay intact.
+
+The native job produced the correct C and Rust output but lost generated C
+support evidence after Windows reused compiler PID 8036. Each evidence compile
+now has a separate directory. A deterministic regression forces repeated build
+IDs and verifies that the current helper remains captured.
+
+Full C 3,243 and Rust 1,099 suites pass. The strict-header check passes 108
+legacy/source/sealed C/Rust cases in each normal and sanitized environment,
+with forced 32-bit and 64-bit foreign types. It checks full scalar copyback,
+high-bit clearing, error returns, compatible-pointer identity and helper-name
+hygiene with incompatible-pointer diagnostics treated as errors. Windows flag
+construction uses native quoting and forward-slash include paths. Mock headers
+test adapters; real zlib behavior passes 108 separate cases per environment.
+
+The fresh original-corpus scan passes all 24,570 C/Rust compilations across
+1,365 programs and nine modes. Outside 13 known C-undefined cases, 10,418
+output/exit and 1,854 exit-only contracts agree. All 2,523 compiler source/oracle
+and 87 SDK source/oracle hashes remain unchanged. All 828 SDK21 cases pass
+normally and under sanitizers, including source and sealed consumers. All 19
+composed commands and two supplemental portable-header reruns pass: integer
+matches 63, independent integer packages 36, borrowed memory 72, slice ownership
+and order 18 per environment; imports 52, artifacts 22, helpers 27 and formatting.
+The compiler binary remained unchanged throughout validation.
+[Complete local proof and 47 retained reports](rust-parity-evidence/zlib-Windows-correction-local-validation.json).
+[Retained required failures and before reproductions](rust-parity-evidence/zlib-Windows-correction-required-failure.json).
+
+All 233 published gate definitions remain intact. The deterministic evidence
+regression adds three platform executions, for 234 definitions, 532 executions
+and 41 groups. The strict header check runs within the existing zlib gates.
+The combined correction now requires its own complete Linux/macOS/Windows CI.
+Feature publication remains frozen until that acceptance is green. SDK21 and
+full Rust/C parity are not yet hosted-accepted.
+
 ## Zlib and borrowed scalar memory: complete local composition, 2026-10-25
 
 The unchanged zlib API now builds as an independent C-backed package. ABI 1.9

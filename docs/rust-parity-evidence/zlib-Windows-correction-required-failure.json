@@ -1,0 +1,81 @@
+{
+  "status": "Required own-CI failure retained; combined correction pending full validation",
+  "revision": "4a0ebda6ca43940bba0502cf5ef05971844c9ce9",
+  "run": 40206567956,
+  "initial_jobs": 44,
+  "initial_passed": 42,
+  "primary_failures": [
+    121209049278,
+    121209049583
+  ],
+  "retained_reports": {
+    "ci-final": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-ci-final.gz",
+      "raw_sha256": "439697dcc29e31b261d4520d48527d72dccf498579ea4f09d12cca879251d122",
+      "raw_bytes": 68181
+    },
+    "windows-sdk-failure": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-windows-sdk-failure.gz",
+      "raw_sha256": "6907511abfd73c67a3ed7a2afb307e37283546f83bbfb9d9dc4d853933d8ef8e",
+      "raw_bytes": 92549
+    },
+    "windows-native-failure": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-windows-native-failure.gz",
+      "raw_sha256": "d3a3f45d1b6eac8fce276ab395b9742bf85886e501f2a22492fcf7c6a36a6004",
+      "raw_bytes": 167409
+    },
+    "windows-native-integer-report": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-windows-native-integer-report.gz",
+      "raw_sha256": "83302a4cfa9f69055de8a3a9fc34f870c6caeaf9df50f09c1ff00ea6ef7c0a70",
+      "raw_bytes": 184874
+    },
+    "strict-header-before": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-strict-header-before.gz",
+      "raw_sha256": "29e7e957e0fe4d622923726fe3cfb801b3b5776a72f4bd0bc41ea7ac4d083199",
+      "raw_bytes": 9243
+    },
+    "PID-capture-before": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-PID-capture-before.gz",
+      "raw_sha256": "bc9c2419b42c25f058d48d6762995ed849a9b4958d68ca0df67c7e1fd35a0d4b",
+      "raw_bytes": 973
+    },
+    "windows-sdk-gate-report": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-windows-sdk-gate-report.gz",
+      "raw_sha256": "ad6c2bf7cad6f8a15a138479929492567beeddd12db2e396bb97186c4c7c725e",
+      "raw_bytes": 4985
+    },
+    "windows-native-gate-report": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-windows-native-gate-report.gz",
+      "raw_sha256": "f15ceb95edcd9275641bf9f5956cf113588f908fc7eade5712176e8eed70d8dd",
+      "raw_bytes": 11920
+    },
+    "PID-capture-before-source": {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-PID-capture-before-source.gz",
+      "raw_sha256": "9e7d006e161a52c690fc81c1d92e3ab8c9c551407222c32ce4b519764bcf9a6d",
+      "raw_bytes": 4379
+    }
+  },
+  "before_compiler_sha256": "7214d9f4fc6ff3dbe995ebed53f7eaeeb4efef9b6a88ac4449e3ff7d000286ff",
+  "before_capture_source_sha256": "9e7d006e161a52c690fc81c1d92e3ab8c9c551407222c32ce4b519764bcf9a6d",
+  "integer_match_PID_8036_reuse": [
+    {
+      "case": "tests/rgen/errors/value_match_uint_model_boundary_pattern.sn",
+      "optimization": "-O1",
+      "mode": "unchecked",
+      "compile_status": 0,
+      "run_status": 0,
+      "output_matches": true,
+      "current_helper_count": 1
+    },
+    {
+      "case": "independent-native-boundaries",
+      "optimization": "-O0",
+      "mode": "unchecked",
+      "compile_status": 0,
+      "run_status": 0,
+      "output_matches": true,
+      "current_helper_count": 0
+    }
+  ],
+  "zlib_root": "Legacy uint64 reference is incompatible with32-bit header uLongf pointer; source/sealed canonical adapters passed on the same Windows runner."
+}

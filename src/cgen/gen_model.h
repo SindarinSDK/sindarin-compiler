@@ -36,6 +36,7 @@ int gen_model_write(json_object *model, const char *output_path);
 
 /* Rebind package implementation callables without rewriting C headers/fields. */
 bool gen_model_bind_package_natives(json_object *model, const char *filename);
+bool gen_model_adapt_header_references(json_object *model);
 
 /* Global lambda collection - populated during model building */
 extern json_object *g_model_lambdas;

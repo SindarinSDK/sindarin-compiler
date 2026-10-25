@@ -2535,6 +2535,16 @@
       }
     },
     {
+      "id": "integer-match-evidence-capture",
+      "name": "Retain current integer match C support when compiler process IDs are reused",
+      "command": [
+        "{python}",
+        "tests/package/integer_match_capture.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
       "id": "integer-match-patterns",
       "name": "Integer literal match C widths, wide/negative unsigned patterns, native inputs and decimal-boundary adapters",
       "command": [

@@ -108,6 +108,7 @@ static int compile_to_executable(CompilerOptions *options, CCBackendConfig *cc_c
     json_object *model = gen_model_build(&options->arena, module,
                                           &options->symbol_table,
                                           options->arithmetic_mode);
+    if (!gen_model_adapt_header_references(model)) { json_object_put(model); return 1; }
     gen_model_flatten_chains(model);
 
     /* Split model into per-source-file modules */
@@ -371,7 +372,8 @@ int main(int argc, char **argv)
         json_object *model = gen_model_build(&options.arena, module,
                                               &options.symbol_table, options.arithmetic_mode);
         if (options.package_body) json_object_object_add(model, "package_body", json_object_new_boolean(true));
-        if (!gen_model_bind_package_natives(model, options.package_native_bindings)) {
+        if (!gen_model_bind_package_natives(model, options.package_native_bindings) ||
+            !gen_model_adapt_header_references(model)) {
             json_object_put(model);
             compiler_cleanup(&options);
             return 1;

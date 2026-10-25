@@ -174,7 +174,8 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         json_object_object_add(model, "package_native_namespace", json_object_new_string(options->package_native_namespace));
     if (options->package_native_arrays)
         json_object_object_add(model, "package_native_arrays", json_object_new_boolean(true));
-    if (!gen_model_bind_package_natives(model, options->package_native_bindings)) {
+    if (!gen_model_bind_package_natives(model, options->package_native_bindings) ||
+        !gen_model_adapt_header_references(model)) {
         json_object_put(model);
         return false;
     }

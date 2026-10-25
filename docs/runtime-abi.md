@@ -528,9 +528,13 @@ original addresses directly, preserving overlapping inputs and immediate writes;
 they do not create Rust `&mut` references or independent copy-in/copy-out slots.
 Raw native pointers retain the existing native-code preconditions.
 
-The canonical zlib staging bridge uses the header's `uLongf` for zlib's length
-output, then publishes it into the language's uint64 slot. This avoids treating
-a 64-bit language slot as 32-bit `unsigned long` storage on Windows. Source
-lengths and compression levels use the original header's numeric conversions.
+The generated zlib header bridge uses the header's `uLongf` for zlib's length
+output, then publishes it into the language's uint64 slot. This covers legacy
+imports and canonical source/sealed packages. Compatible C types pass the
+original address directly; incompatible types use a correctly typed temporary
+and full-width copyback. This avoids treating a 64-bit language slot as 32-bit
+`unsigned long` storage on Windows, and avoids aliasing distinct same-width C
+types on other platforms. Source lengths and compression levels use the
+original header's numeric conversions.
 Public SDK declarations and bodies are copied unchanged, including native
 Sindarin bodies, which are compiled by the C package-body pipeline.

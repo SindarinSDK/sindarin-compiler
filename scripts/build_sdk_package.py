@@ -186,7 +186,8 @@ def prepare(compiler, sdk, destination, modules=MODULES):
                 # Use the header's actual output type, then publish the full
                 # language scalar. Do not alias a uint64 slot as uLongf storage.
                 args = ['p0', '&length', 'p2', '(uLong)p3'] + (['(int)p4'] if name == 'compress2' else [])
-                source.append(result+' '+wrapper+'('+', '.join(params)+') { uLongf length = (uLongf)*p1; int code = '+callee+'('+', '.join(args)+'); *p1 = (uint64_t)length; return code; }')
+                direct = ['p0', '(uLongf *)(void *)p1', 'p2', '(uLong)p3'] + (['(int)p4'] if name == 'compress2' else [])
+                source.append(result+' '+wrapper+'('+', '.join(params)+') { if (_Generic((uint64_t *)0, uLongf *: 1, default: 0)) return '+callee+'('+', '.join(direct)+'); uLongf length = (uLongf)*p1; int code = '+callee+'('+', '.join(args)+'); *p1 = (uint64_t)length; return code; }')
             else:
                 source.append(result+' '+wrapper+'('+(', '.join(params) or 'void')+') { '+
                               ('return ' if result!='void' else '')+callee+'('+arguments+'); }')

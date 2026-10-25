@@ -37,21 +37,24 @@ def verify(quick=False):
     with tempfile.TemporaryDirectory(prefix='sn-integer-match-patterns-') as tmp:
         app = Path(tmp)
         for name, source, backing, expected in inputs:
-            (app / 'main.sn').write_bytes(source)
-            (app / 'main.sn.c').write_bytes(backing)
             if os.name == 'nt': expected = expected.replace(b'\n', b'\r\n')
             for opt, mode in modes:
                 case = {'name': name, 'source_sha256': hashlib.sha256(source).hexdigest(),
                         'backing_sha256': hashlib.sha256(backing).hexdigest(),
                         'opt': opt, 'mode': mode, 'expected_stdout_hex': expected.hex(), 'targets': {}}
                 for target in ('c', 'rust'):
-                    before = set(app.rglob('sn_integer_matches.c'))
-                    exe = app / (target + '.exe')
+                    # Process IDs can be reused while earlier generated files
+                    # remain. Each compile gets its own evidence directory.
+                    case_app = app / f'case-{len(report["cases"])}-{target}'
+                    case_app.mkdir()
+                    (case_app / 'main.sn').write_bytes(source)
+                    (case_app / 'main.sn.c').write_bytes(backing)
+                    exe = case_app / (target + '.exe')
                     command = [compiler, 'main.sn', '--no-install', '--keep-generated', '--target', target, opt, '-o', exe]
                     if mode != 'default': command.append('--' + mode)
-                    result = {'compile': run(command, app)}
-                    if result['compile']['status'] == 0: result['run'] = run([exe], app)
-                    result['C_boundary_helpers'] = [p.read_text() for p in sorted(set(app.rglob('sn_integer_matches.c')) - before)]
+                    result = {'compile': run(command, case_app)}
+                    if result['compile']['status'] == 0: result['run'] = run([exe], case_app)
+                    result['C_boundary_helpers'] = [p.read_text() for p in sorted(case_app.rglob('sn_integer_matches.c'))]
                     case['targets'][target] = result
                 report['cases'].append(case)
                 output.write_text(json.dumps(report, indent=2) + '\n')

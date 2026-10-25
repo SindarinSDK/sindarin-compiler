@@ -199,6 +199,7 @@ jobs:
           .sn/sdk-math-artifact*.json
           .sn/sdk-udp-artifact*.json
           .sn/sdk-zlib-artifact*.json
+          .sn/zlib-header-widths*.json
           .sn/package-borrowed-scalar-memory*.json
           .sn/c-array-call-arguments*.json
           .sn/sdk-native-integration/.sn/udp-*.json

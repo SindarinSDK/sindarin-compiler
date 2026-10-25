@@ -155,4 +155,6 @@ if __name__=='__main__':
     parser.add_argument('--compiler',type=Path,default=ROOT/'bin'/('sn.exe' if os.name=='nt' else 'sn'))
     parser.add_argument('--sdk',type=Path,default=ROOT/'.sn/sdk-native-integration')
     parser.add_argument('--quick',action='store_true');args=parser.parse_args()
+    from check_zlib_header_widths import verify as verify_header_widths
+    verify_header_widths(args.compiler,args.sdk,args.quick)
     verify(args.compiler,args.sdk,args.quick)

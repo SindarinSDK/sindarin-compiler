@@ -1,0 +1,292 @@
+{
+  "status": "Combined required-CI correction passes complete local validation; own Linux/macOS/Windows acceptance remains required.",
+  "base": "4a0ebda6ca43940bba0502cf5ef05971844c9ce9",
+  "required_failed_CI": 40206567956,
+  "required_failure_evidence": "docs/rust-parity-evidence/zlib-Windows-correction-required-failure.json",
+  "compiler_sha256": "d8a5e3a83c7d605ad23aec2177557098078046b9026cd41c5be4ebc94ac14329",
+  "source_and_script_sha256": {
+    ".github/workflows/ci.yml": "fa5bc3c68babe71c274e8dced17b50c8fe6e463d75b41e6f19fb2243bb75949e",
+    "scripts/build_sdk_package.py": "e1934b338bab3067f8ff3f3c658dcf7d8421cf50a94b91e9efde0e667c5e7c31",
+    "scripts/check_rust_integer_match_patterns.py": "2f8da1f5b6d386ef21b28aa26999fcf2a61efe8be9d1e280c488a7976bc3576f",
+    "scripts/check_sdk_zlib_artifact.py": "246f309d11fe09f6b1883866260aac4bd3cf05dd07ec69274374c2ad5c7c0afc",
+    "scripts/ci/gates.json": "205d04943c844f0b76820b6457c5ced4c53fe43a7d6454120683a52c0228588e",
+    "src/cgen/gen_model.h": "5a2d40381430a1f7feedc5ce62cfce0596c6a4e0e8de6f7eb6723283ca7ace34",
+    "src/cgen/gen_model_native_bindings.c": "302b9a56aeac4a4310664dc6c8332998aa70ca33fcb269e856986411c3889e73",
+    "src/main.c": "072be4f2326ca1ffe67a6b4edfd73e821f230422436aea5f6c0eb47244f95a7e",
+    "src/target/rust/rust_target.c": "80e29d85048d114d557493c525e6925621cbea932775fe9be1ff58dbd64be675",
+    "tests/ci/test_ci_helpers.py": "f09a7df753449167f27a6e8e520dd54b5687ec9734df50a9ebc16ef6adafc555",
+    "scripts/check_zlib_header_widths.py": "ec61b9ef3ab6a9ab8cdeab083a026be488303c5265e65f42592033d1415511ad",
+    "tests/package/integer_match_capture.py": "31fc128b7cce20d2472d55946a283fc4998dbf5a6c8452848bac10d21bfc6acf"
+  },
+  "composed_commands": 19,
+  "supplemental_portable_header_commands": 2,
+  "full_C": 3243,
+  "full_Rust": 1099,
+  "strict_32_64_bit_header_cases_each_environment": 108,
+  "real_zlib_cases_each_environment": 108,
+  "integer_match_pairs_each_environment": 63,
+  "independent_integer_package_cases_each_environment": 36,
+  "borrowed_memory_cases_each_environment": 72,
+  "slice_loan_and_order_cases_each_environment": 18,
+  "SDK21_cases_each_environment": 828,
+  "imports": 52,
+  "artifacts": 22,
+  "CI_helpers": 27,
+  "fresh_original_sources": 1365,
+  "fresh_original_mode_cases": 12285,
+  "fresh_successful_C_Rust_compilations": 24570,
+  "mode_classifications": {
+    "Raw C/Rust agreement and original exit contract; no original output oracle": 1854,
+    "Raw C/Rust agreement and frozen original output/exit contracts": 10418,
+    "C undefined unsynchronized concurrent mutation; no parity credit": 9,
+    "C undefined unchecked integer division by zero; no parity credit": 4
+  },
+  "known_C_undefined_modes_not_credited": 13,
+  "source_preservation": {
+    "compiler_sources_and_oracles_unchanged": 2523,
+    "SDK_sources_and_oracles_unchanged": 87,
+    "public_SDK_modules_unchanged": 28
+  },
+  "gate_definitions": 234,
+  "platform_executions": 532,
+  "groups": 41,
+  "all233_published_gate_definitions_unchanged": true,
+  "scope": "Typed legacy zlib header reference bridges, compatible-address preservation in canonical bridges, and isolated integer-match evidence directories. Mock headers test adapters only; actual zlib behavior is verified separately. Fresh original-corpus Linux agreement does not establish all C-defined semantics or final platform parity. Full parity goal remains open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-package-borrowed-scalar-memory.json.gz",
+      "sha256": "6ed16c3546f13f347640ae075b5534c2ae72e6b48c14a1cf8bf70b3b33bf0cee",
+      "raw_sha256": "a1f712b9a0e996f027e9f708da7780965d084ba3f0467eceb89ba29b6ec00529"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-package-borrowed-scalar-memory-sanitized.json.gz",
+      "sha256": "a7e6b5e6d523a4d9eaab12c67ea1ffce30575e1a59f7cb8ec8ea58d1a684c64f",
+      "raw_sha256": "9cb9713c48949656f85d5ba30331cb2c40840fd81bb84d06df12e39baf911924"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-sdk-zlib-artifact.json.gz",
+      "sha256": "e2558821ec3fcbcdf2e07b7ada74ed10ed10ec5fc7f031cb59bffe6a0915144d",
+      "raw_sha256": "da29c19fd25d1619dc3a245afb3a4e9e9fadd964b23f8bf2131d8e8ff4f218ee"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-sdk-zlib-artifact-sanitized.json.gz",
+      "sha256": "2af3f0c5c8c1ae442e2d8c76812bfc72c3087121cdf465a1bf7d2d27ae6b98c6",
+      "raw_sha256": "263be91873c064563d59db8efe47e15e782442e3f37175672f6e7c859d3a7481"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-zlib-header-widths.json.gz",
+      "sha256": "02d3143226b23e07af25dfab44dc921e2fd3097d62c3ac24f248bff99c6702bf",
+      "raw_sha256": "5b049b52b4f0c6dad1056fbb0379364ae80304a6ab76952725ff2f6da86ad778"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-zlib-header-widths-sanitized.json.gz",
+      "sha256": "c7b11f54f83bf71782beab41976887fe846b304549b8b08a5ab00b3f2585fb11",
+      "raw_sha256": "928de97c3e70723c99e27074794a706ddbdd41f2aaff1710fbbcd7c2054731eb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-rust-integer-match-patterns.json.gz",
+      "sha256": "6e4fbf8613babcd942049dff6e996d7abb0c63a6e84494200229a0548c6756f7",
+      "raw_sha256": "45f0b65462f731ae755b2da25722bcf7851bb668d78a0eff5013714f5b727c99"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-rust-integer-match-patterns-sanitized.json.gz",
+      "sha256": "1b160caea890be431273fa50c6fe48c2cef417cca82d24a31307c200828b6b74",
+      "raw_sha256": "efea575b8ba0d40cc2e2f3e2c74157d247e2f0d76a305c499c293d34b5db47f9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-package-integer-match-patterns.json.gz",
+      "sha256": "eca238e0a423a6f75c8b819d02a621622d59cf335f7e6e26fd52ffff08b08b85",
+      "raw_sha256": "a9f9d37d8342c4f16b39540489b76a3ebd1dff27ab4e3bff7d6dae8f0fbc254d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-package-integer-match-patterns-sanitized.json.gz",
+      "sha256": "0694ce4daec237a857597f05775eabf11e0b2d434c726ebbb257c3083e33043d",
+      "raw_sha256": "6478e4ff903ca7b3615ea9426a4c02dde467d9bbe5b77dc9b4cbe52173ba3d17"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-c-array-call-arguments.json.gz",
+      "sha256": "ebf91969a79b3028f6031105d28f4b1964648cdb5b4e09657ba086a2a7aab4da",
+      "raw_sha256": "a4434b6e11e6e2f5da0609bb319a4cf530577f3dc2ddc715e6ad464d21895397"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-report-c-array-call-arguments-sanitized.json.gz",
+      "sha256": "ee861a00ba7c340667d7b9ec42d39f0a08f3b7c057b76ab17da084156cded974",
+      "raw_sha256": "6f848325be2182d6ef7fb0c494b29525c71d883fea44404ec29641489fac68b9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-SDK21-normal.gz",
+      "sha256": "38a77907ae0e21d83eebccfd8e8c7e8f63710652e844bbc2f305e5df21b98ac3",
+      "raw_sha256": "7ae9cb0a8f35683d4ab3d7418fbe2b254a2bfa5c55f132b49f71ef6d37500096"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-SDK21-sanitized.gz",
+      "sha256": "38a77907ae0e21d83eebccfd8e8c7e8f63710652e844bbc2f305e5df21b98ac3",
+      "raw_sha256": "7ae9cb0a8f35683d4ab3d7418fbe2b254a2bfa5c55f132b49f71ef6d37500096"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-SDK21-normal-execution.json.gz",
+      "sha256": "4400b4ecc38c6e79551f8b5445b58f0065ce7c4c5a413f393eb917142fbdf889",
+      "raw_sha256": "3560f1cff535210b02e4fafbb0dbddd9d81e3e9a0d2fb8b8471b256a1f25c351"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-SDK21-sanitized-execution.json.gz",
+      "sha256": "2603a0f04251d978d5ea30b17dba1b880e9566247ba38ec86a498f39397b7db7",
+      "raw_sha256": "0221972cb8eabf81fd9127a4548302f3738d78d1942c667e20c53009976fd52b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-validation.json.gz",
+      "sha256": "f8ad85f105257be349b33e88a5cda641071970d64125eff8c7537a3d472de46b",
+      "raw_sha256": "31251bbcca504dc310907eabdaccacad9e3e79c8e826b14f307089ffdcb6bc1c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-validate-correction.py.gz",
+      "sha256": "3eead82d765604e26899ca9f59fe9d9849ff4f0e740696f1ebe05f3c727c4ad9",
+      "raw_sha256": "25d0bda8aafaad96c4ff58e3242001efddb5fa313d2d0cd40aa51962c3cc7c08"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-validation-driver.log.gz",
+      "sha256": "4ec74a66b690fc295d1c93091e7e2304a8a97790e638fbe1bed63cc7d7172a25",
+      "raw_sha256": "3b7dabcc40797674df912ba0b40f64f48c968392c76a07bcc53cc778bddeb5a6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-audit-original-modes.py.gz",
+      "sha256": "5a801e091d1621a00c8656bcbe79db5f2c64b1991d8294928c079700c8317348",
+      "raw_sha256": "f9c46c55fc27b7bd80ed86cf12c857c258a7257776c468690f4071638b692a00"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-original-modes.log.gz",
+      "sha256": "7acc2b921996214b186fbec8394110ba61a5d8d470f0b5206c41a8c26c160340",
+      "raw_sha256": "908e69f07aa52d5b695c2c1d9956bcf2954d97f367fd609918f4c251e670e41f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-original-corpus-all-mode-discovery.json.gz",
+      "sha256": "0fcd2dad46bb14a303ec294ec07278b4f60d2eafef44e6765c385f6e0aa434d5",
+      "raw_sha256": "6f4a78478d3866504dcdbba6220b7561298103374c3d690d5a38ddf6b660d712"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-integer-capture-after.log.gz",
+      "sha256": "210a888b1c3c70f8153a119687603ffada7a74bcb4caac5d86c4f7962660d459",
+      "raw_sha256": "99f08f938245dfd822901515bb8fd10d6d1b6493b2a9f6b2840bb1c6371f3b3b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-header-widths-after-quick-3.log.gz",
+      "sha256": "ce8a6178cc1920e1fbeb63aba0dc308bbc6d6e7e83f412cfafe735eeb73534d9",
+      "raw_sha256": "5d7312113b2a80657536d7977aaed0c66989e937345bd1dbafcb09426509792d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-header-widths-portable-normal.log.gz",
+      "sha256": "61df554c17ba603d632ff59af305da409d6f67c037852791326dba0047c0a995",
+      "raw_sha256": "84f890c1acc2e4db4af7e47a559a60091a0515f2e60c5e01e8892e366973be95"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-header-widths-portable-sanitized.log.gz",
+      "sha256": "61df554c17ba603d632ff59af305da409d6f67c037852791326dba0047c0a995",
+      "raw_sha256": "84f890c1acc2e4db4af7e47a559a60091a0515f2e60c5e01e8892e366973be95"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-full-C.log.gz",
+      "sha256": "b6b04773b3ad9ee9b64cf00820211ac45986a635f1d8fee9aed3dbd1f1b838c6",
+      "raw_sha256": "f9000164863600688cbd78ddc777c1f676aa6e44b50b74e3f2e079c2d32248bd"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-full-Rust.log.gz",
+      "sha256": "5e4ebb730f27599e218f0a64346e61981f379752e884b75276617b178a153acc",
+      "raw_sha256": "e780983b246be963641f0bb1d5bb25d189e1d9613d05bd8e9abbc0835c0939b1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-integer-normal.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190",
+      "raw_sha256": "3240dcc4f66067e468c1b30cd3ba47238749d81adbbcde6cd2bd117f7940dd33"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-integer-sanitized.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190",
+      "raw_sha256": "3240dcc4f66067e468c1b30cd3ba47238749d81adbbcde6cd2bd117f7940dd33"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-integer-package-normal.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3",
+      "raw_sha256": "c122fcd32a6628f197565acec9326aa3564fd71b5b52fc7150bd84321a06a21e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-integer-package-sanitized.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3",
+      "raw_sha256": "c122fcd32a6628f197565acec9326aa3564fd71b5b52fc7150bd84321a06a21e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-memory-normal.log.gz",
+      "sha256": "2e86ac4bdd8e8a367498f692bd3b235df1fe2ce28b6872926678bfc91d7c293a",
+      "raw_sha256": "8b8711562cd070ac56ae8476448f97e2b729ed61805698556b0809533e4c37dc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-zlib-normal.log.gz",
+      "sha256": "7ca869fd8ca266989fbfba26b183dcdc10d1bb2ecfe26a97c4407fc85a58162e",
+      "raw_sha256": "4997d5ac7da2e499780c4bce7ed9cb845c70267aac2cb67737e0fc42277e85ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-array-loans-normal.log.gz",
+      "sha256": "fc09e8de456814e689e856b19f6399ebac52c6f2aeabdc4078218541e3e91676",
+      "raw_sha256": "c8a7b648695175098febc4067480d64abee608ed81e1d182081c3d4e667bf4eb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-array-loans-sanitized.log.gz",
+      "sha256": "fc09e8de456814e689e856b19f6399ebac52c6f2aeabdc4078218541e3e91676",
+      "raw_sha256": "c8a7b648695175098febc4067480d64abee608ed81e1d182081c3d4e667bf4eb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-PID-capture.log.gz",
+      "sha256": "4186692c4b299e5cba215d2a3dd1f33bf35862732f14143427e980c4f4993175",
+      "raw_sha256": "198019c835ae79c089f4221c9326995cd9b452ed64bb1c94b4402e67b398d9b6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-memory-sanitized.log.gz",
+      "sha256": "2e86ac4bdd8e8a367498f692bd3b235df1fe2ce28b6872926678bfc91d7c293a",
+      "raw_sha256": "8b8711562cd070ac56ae8476448f97e2b729ed61805698556b0809533e4c37dc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-zlib-sanitized.log.gz",
+      "sha256": "7ca869fd8ca266989fbfba26b183dcdc10d1bb2ecfe26a97c4407fc85a58162e",
+      "raw_sha256": "4997d5ac7da2e499780c4bce7ed9cb845c70267aac2cb67737e0fc42277e85ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-helpers.log.gz",
+      "sha256": "6ecf4ae65707ed9d1bb1739457ce5562b0bb8e3b88e2effaf0b1953b2ddeebe3",
+      "raw_sha256": "4c3c38f0110fd4d917fa882630bb5b2489f030cfa95c063911370e2e3ff7741f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae",
+      "raw_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-artifacts.log.gz",
+      "sha256": "a6233313630174f3ee439751b391c704970be96aeb1efaa956f2da61a66bbed1",
+      "raw_sha256": "51e22c22896a7cdcd3509efc1c417f1a5b550e0bad8b8b5786aff21a45db2606"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-imports.log.gz",
+      "sha256": "23ac487475c41a519a259068e0b528e685bd65b0bc7b0ff716b81c05a7c9dea5",
+      "raw_sha256": "b1919e56b0c4ac416a037553b7fada596f4f7512fdc745f7e51ec75fb51ee41d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-SDK21-normal.log.gz",
+      "sha256": "86337c95823b888b2a6b4ee0d9e2091d2dc1957463a9b0f7c34521db35ec4714",
+      "raw_sha256": "133ec880507ee6e2affdefc6b53872580c4616101123e96e07e8ce51be409e75"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-SDK21-sanitized.log.gz",
+      "sha256": "86337c95823b888b2a6b4ee0d9e2091d2dc1957463a9b0f7c34521db35ec4714",
+      "raw_sha256": "133ec880507ee6e2affdefc6b53872580c4616101123e96e07e8ce51be409e75"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-retain-correction.py.gz",
+      "sha256": "60905dfae2507f3aa34679fac4c0aef56e84bf5fd5a07f35c193b14e24a6b67c",
+      "raw_sha256": "593c4213ed227e1abf14f21d2095060cf3c8a9940216e6bc7faf36a74e25fa3d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/zlib-Windows-correction-observe-sdk-environments.py.gz",
+      "sha256": "488c925b93f49a9284821d635dc844f963cdbd5472ce933d3b36cd67133fe89f",
+      "raw_sha256": "5dd5a21c6f17d071f9658ea4a59e39f9ade4314b196200a0ba322f68e600d65c"
+    }
+  ]
+}
