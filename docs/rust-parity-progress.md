@@ -1,3 +1,28 @@
+## Native array fields: accepted integer-main composition, 2026-10-25
+
+The field feature is composed with hosted-accepted integer main72. All27 local
+checks pass:72 field mode pairs and108 UDP source/sealed cases normally and
+under C sanitizers; integer63+36, numeric81, record45, scalar45+216, byte81,
+array45 and threads72 pass in both environments. Both full suites pass3,243/1,099
+with established snapshots intact; imports52, artifacts22, SDK19 smoke84,
+helpers27 and formatting pass. The combined field regression also exercises a
+compiler-dependent integer comparison beside a C-only colliding function chain
+through a temporary-field native body; all17 effect/lifetime outputs agree.
+
+Every original1,365 program,1,158 oracle and281 accepted db7 fixture input remains
+unchanged, as do87 SDK Sindarin/oracle files in accepted6e. All207 integer-main
+gates remain intact; two field additions require481 platform executions in41
+groups. SDK20 staging remains separate and uncommitted. The compiler-only field
+revision still needs its own full hosted acceptance after publication.
+[Final composed proof](rust-parity-evidence/native-array-fields-integer-main-local-validation.json).
+
+Integer main72 has separately passed all49 required hosted jobs and477 platform
+executions/41groups. The older record revision's own Windows package run remains
+independently pending. [Integer hosted proof](rust-parity-evidence/integer-match-ci-green.json).
+Full native/SDK contracts and final original-corpus mode/platform acceptance
+remain open; computed call-receiver field stores with C-failing behavior receive
+no parity credit.
+
 ## Native array field effects: complete numeric-main validation, 2026-10-25
 
 The compiler-only field slice now follows C's copy, clear, put and result

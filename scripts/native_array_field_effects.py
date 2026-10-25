@@ -14,6 +14,8 @@ native fn observeRelease(values: byte[]): void
 native fn chooseIndex(): int
 native fn observedTrace(): int
 native fn observedCalls(): int
+native fn foreignMid(): uint
+native fn foreignMidExpected(): int
 fn change(values: byte[]): int =>
   values.push(9b)
   values = {8b}
@@ -21,6 +23,10 @@ fn change(values: byte[]): int =>
 native fn privateCount(): int =>
   var values: byte[] = make(0).data
   return values.length
+native fn __sn_integer_match_midpoint_uint(): int =>
+  return privateCount()
+native fn nativeCounter(): int =>
+  return __sn_integer_match_midpoint_uint()
 fn sameSlot(): void =>
   reset(0)
   var rows: Fields[] = {make(0)}
@@ -86,7 +92,12 @@ fn main(): void =>
   rotatingSlot()
   passedResult()
   copiedResult()
-  println(privateCount()==1)
+  println(nativeCounter()==1)
+  var mid: uint = foreignMid()
+  var selected: int = match mid =>
+    9223372036854775808u => 1
+    else => 0
+  println(selected==foreignMidExpected())
   localRead()
   callRead()
   lazyRead()
@@ -104,5 +115,7 @@ void observeRelease(SnArray *values) { values->elem_release=released; }
 long long chooseIndex(void) { order=order*10+2; calls++; return rotating ? calls-1 : 0; }
 long long observedTrace(void) { return order; }
 long long observedCalls(void) { return calls; }
+uint64_t foreignMid(void) { return UINT64_C(9223372036854775808); }
+long long foreignMidExpected(void) { return !(sizeof(-9223372036854775808LL)>8 && -9223372036854775808LL<0); }
 '''
-EXPECTED = b'true\n' * 16
+EXPECTED = b'true\n' * 17
