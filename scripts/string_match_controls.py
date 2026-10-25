@@ -202,4 +202,15 @@ long long trace(void) { return order; }
 '''
 EXPECTED = b'true\n' * 29
 
+
+def canonical_array_control():
+    """Exercise the same effects beside a real canonical native array field."""
+    source = CONTROL.replace('native struct NativeLabel as ref =>\n  marker: int',
+                             'native struct NativeLabel as ref =>\n  marker: int\n  data: byte[]')
+    source = source.replace('return NativeLabel {marker:1}',
+                            'return NativeLabel {marker:1,data:{7b}}')
+    source = source.replace('  var label: NativeLabel = nativeLabel()\n',
+                            '  var label: NativeLabel = nativeLabel()\n  println(label.data.length==1)\n')
+    return source
+
 ORIGINALS = [('tests/rgen/errors/by_value_parameter_string_compound_mutation.sn', '789065537f14b4319aee0bb75bc988b17663ac6b77cf476026ab62a94b2182d0', '1f318c3dece4d6f03ac54cf0a5d3c22b3d113233cd70a1bbb0c79d49e8c56967', '736f75726365210a'), ('tests/rgen/errors/by_value_parameter_direct_assignment_string.sn', 'b2478a8688cc329325c9d90b0e41b50db67ba5ea0a4398194863e5ae6e71e70f', 'f610fd1649803f97a3f8bf2984eedcbc09f65e173893980f8f4889300f746db1', '6368616e6765640a'), ('tests/rgen/errors/value_match_string_copy_of_result.sn', '2a6f23d7ae02a8f28c38ce9d11869fd9d9aca02a26fd8b4dd2adcfcf825989f3', '667fc3fd4dd188c9d94cd377618cbf9c363534c839f3c5ba8bad50656d3771bd', '6f6e650a'), ('tests/rgen/errors/statement_match_string_indexed_pattern.sn', '4a4c3d11ddb930449db339e7a9f598c386f788ff7d4ed565f4918b1cfec5941d', '4aa2fd9963db72287d66dc8c1d36da8b7a188cdc7da4130e487538bab32370a0', '6d6174636865640a'), ('tests/rgen/errors/value_match_string_mutation_pattern.sn', '46f1284748aeeff4a9e896eb7067343b6fcb6d40289fd811fcf031818052d15f', '73d2d403889379b0253325c8f586d96b5c3a99e855e229a0dcf25dd3878a53bb', ''), ('tests/rgen/errors/value_match_string_mutating_assignment.sn', 'a691ca44b4b19c8aaa08673126f92c8a6d0c835fe965910493018543e2a5050a', '667fc3fd4dd188c9d94cd377618cbf9c363534c839f3c5ba8bad50656d3771bd', '61667465720a'), ('tests/rgen/errors/value_match_string_mutating_array_call.sn', 'bc6f1030a5dd2330df578b1664b8723b98378f7f9a6fdb431dae80b7cc35719e', '682a55b99d759c724097f495ac68a334042f431a2c41be7078f7441a494fbb96', '6e6f0a'), ('tests/rgen/errors/value_match_string_mutating_member_call.sn', '8ee33a464b7eca165e14a8c6d461359a95e15df3d571c97fec2bfb485619b8ed', '682a55b99d759c724097f495ac68a334042f431a2c41be7078f7441a494fbb96', '61667465720a')]

@@ -8,7 +8,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-from string_match_controls import ORIGINALS, CONTROL, BACKING, EXPECTED
+from string_match_controls import ORIGINALS, CONTROL, BACKING, EXPECTED, canonical_array_control
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -23,6 +23,8 @@ def verify(quick=False):
         assert hashlib.sha256(path.with_suffix('.expected').read_bytes()).hexdigest() == oracle_sha, rel
         inputs.append((rel, path.read_bytes(), b'', bytes.fromhex(stdout_hex)))
     inputs.append(('independent-string-effects', CONTROL.encode(), BACKING.encode(), EXPECTED))
+    inputs.append(('canonical-array-string-effects', canonical_array_control().encode(),
+                   BACKING.encode(), EXPECTED + b'true\n'))
     report = {'passed': False, 'compiler_sha256': hashlib.sha256(compiler.read_bytes()).hexdigest(),
               'scripts_sha256': {n: hashlib.sha256((ROOT / 'scripts' / n).read_bytes()).hexdigest()
                                 for n in ('check_rust_string_match_effects.py', 'string_match_controls.py')},
@@ -34,7 +36,7 @@ def verify(quick=False):
     def run(command, cwd):
         p = subprocess.run([str(x) for x in command], cwd=cwd, capture_output=True, timeout=180)
         return {'status': p.returncode, 'stdout_hex': p.stdout.hex(), 'stderr_hex': p.stderr.hex()}
-    with tempfile.TemporaryDirectory(prefix='sn-integer-match-patterns-') as tmp:
+    with tempfile.TemporaryDirectory(prefix='sn-string-match-effects-') as tmp:
         app = Path(tmp)
         for name, source, backing, expected in inputs:
             (app / 'main.sn').write_bytes(source)
