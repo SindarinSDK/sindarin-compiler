@@ -1,0 +1,60 @@
+{
+  "status": "Attempt1 failed due to explicitly reported runner communication loss; same-revision failed-job retry requested. No acceptance credit until its own retry completes.",
+  "CI": 40153334480,
+  "revision": "9f37126eff88681c851cf2fc078d8e1aec48c6e1",
+  "failed_job": 121049627981,
+  "job_url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40153334480/job/121049627981",
+  "annotation": "The hosted runner lost communication with the server. Anything in your workflow that terminates the runner process, starves it for CPU/Memory, or blocks its network access can cause this error.",
+  "available_failure_evidence": "Runner stopped with validation step still in_progress and retention/cleanup pending. Job log download reports BlobNotFound and no Windows package artifact exists. No compiler/test diagnostic is available from this lost runner.",
+  "current_main_check": {
+    "revision": "d3cefeb465b7f1be60b39573c346cc271b25f00e",
+    "CI": 40171930628,
+    "all_four_unchanged_package_gate_commands_passed": true,
+    "compiler_sha256": "8e1d8760eaf95d82ca9c6305d8a2f05cef6ba057aac8baf4101663c352cd45f0",
+    "gates": [
+      "runtime-104",
+      "runtime-107",
+      "runtime-110",
+      "runtime-113"
+    ]
+  },
+  "disposition": "Rerun failed jobs at exact original revision without a code workaround. Retain original failed attempt and require independent complete retry results; feature publication remains frozen for the active field correction.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-run-final.json.gz",
+      "sha256": "dc221452f54fd2544812f0f7796f4e71dff5293d62dc0a83f69e1e4242a6b6f3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-windows-job.json.gz",
+      "sha256": "74cdd6cc19ccf5f6a118626d7b8e2720e2c2d72400f14be260e9336dfb4859ef"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-windows-check.json.gz",
+      "sha256": "090ef5e15044b103758ecf4b3ad575daf934789f36d9650b6ff17b3997d09b14"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-windows-annotations.json.gz",
+      "sha256": "c067e0c38dd30071557dcd30a6c99fa17fb2e0de1f7ec9fc250c9c61e2311547"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-windows-packages.log.gz",
+      "sha256": "ddebcf6354af02495dcb91c45018c198c59d9f19a8e8d56ff5d4492b440e9373"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-log-download-stderr.log.gz",
+      "sha256": "9370c2b5b6986c02f56d9643092d236d8bd4e11f72754a257c892b7cb7fda041"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-artifacts.json.gz",
+      "sha256": "00aab671448e393dc4365cd5258a61b397d610642236e2a6800f096ed270758f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-retry-requested.json.gz",
+      "sha256": "1ff0617a5688915f53fa7c365e058b2d7b71d482b7461d0f0091dc08b5f059b1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-required-run-runner-loss-current-main-windows-packages.json.gz",
+      "sha256": "0f6890987c5043fee4c8a1bad78f89fb5d4875eb99adde7700d1eec47118068d"
+    }
+  ]
+}

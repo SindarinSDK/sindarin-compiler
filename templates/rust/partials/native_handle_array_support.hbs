@@ -215,6 +215,25 @@ impl {{rust_ident type}}<SnString> {
 }
 {{/if}}
 impl<T: {{rust_ident trait}}> Default for {{rust_ident type}}<T> { fn default() -> Self { Self::nil() } }
+{{#if field_borrows}}
+// A field loan keeps an owned temporary receiver alive and never frees its C header.
+struct {{rust_ident field_borrow}}<T: {{rust_ident trait}}, P> {
+    _owner: P,
+    value: std::mem::ManuallyDrop<{{rust_ident type}}<T>>,
+}
+impl<T: {{rust_ident trait}}, P> {{rust_ident field_borrow}}<T, P> {
+    fn new(owner: P, pointer: *mut std::ffi::c_void) -> Self {
+        Self { _owner: owner, value: std::mem::ManuallyDrop::new({{rust_ident type}}::adopt(pointer)) }
+    }
+}
+impl<T: {{rust_ident trait}}, P> std::ops::Deref for {{rust_ident field_borrow}}<T, P> {
+    type Target = {{rust_ident type}}<T>;
+    fn deref(&self) -> &Self::Target { &self.value }
+}
+impl<T: {{rust_ident trait}}, P> std::ops::DerefMut for {{rust_ident field_borrow}}<T, P> {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.value }
+}
+{{/if}}
 // A default parameter borrows its initial header and owns only later bindings.
 struct {{rust_ident parameter_guard}}<T: {{rust_ident trait}}> {
     value: std::mem::ManuallyDrop<{{rust_ident type}}<T>>,

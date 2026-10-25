@@ -130,8 +130,33 @@ static void rust_prepare_native_handle_nodes(json_object *model, json_object *no
             {
                 json_object *field = json_object_array_get_idx(fields, f);
                 const char *getter = json_string_property(field, store ? "rust_native_handle_set" : "rust_native_handle_get");
-                if (getter && json_string_property_equals(field, "name", member))
+                if (getter && json_string_property_equals(field, "name", member)) {
                     json_object_object_add(node, store ? "rust_native_handle_set" : "rust_native_handle_get", json_object_new_string(getter));
+                    if (json_boolean_property(field, "rust_native_handle_array_field")) {
+                        json_object_object_add(node, "rust_native_array_field_view", json_object_new_boolean(true));
+                        if (store) {
+                            json_object_object_add(node, "rust_native_array_field_store", json_object_new_boolean(true));
+                            json_object_object_add(node, "rust_native_field_result_get", json_object_get(rust_nullable_child(field, "rust_native_handle_get")));
+                            const char *roles[] = {"owner", "clear_owner", "put_owner", "value", "raw", NULL};
+                            for (int k = 0; roles[k]; k++) {
+                                char key[96], stem[96], name[160];
+                                snprintf(key, sizeof(key), "rust_native_field_%s_name", roles[k]);
+                                if (rust_nullable_child(node, key)) continue;
+                                snprintf(stem, sizeof(stem), "__sn_native_field_%s", roles[k]);
+                                if (!rust_allocate_helper_name(model, stem, name, sizeof(name))) return;
+                                json_object_object_add(node, key, json_object_new_string(name));
+                            }
+                        }
+                        json_object *object = rust_nullable_child(node, "object");
+                        const char *kind = json_string_property(object, "kind");
+                        bool borrowed = kind && (!strcmp(kind, "variable") ||
+                            !strcmp(kind, "member") || !strcmp(kind, "array_access"));
+                        if (borrowed) {
+                            json_object_object_add(node, "rust_native_field_owner_borrow", json_object_new_boolean(true));
+                            json_object_object_add(object, "rust_native_handle_borrow_arg", json_object_new_boolean(true));
+                        }
+                    }
+                }
             }
         }
     }
@@ -298,7 +323,8 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
             json_object_object_add(node, "rust_native_default_array_loan", json_object_new_boolean(true));
     }
     const char *kind = json_string_property(node, "kind");
-    bool read = kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 || strcmp(kind, "array_access") == 0);
+    bool read = kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0 || strcmp(kind, "array_access") == 0 ||
+        json_boolean_property(node, "rust_native_array_field_store"));
     if (kind && (!strcmp(kind, "array_access") || !strcmp(kind, "index_assign")) &&
         json_boolean_property(rust_nullable_child(rust_nullable_child(node, "array"), "type"), "rust_native_array_codec"))
     {
@@ -383,12 +409,13 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
                 json_boolean_property(rust_nullable_child(array, "type"), "rust_native_array_codec") &&
                 ((json_string_property_equals(array, "kind", "variable") &&
                   (!json_boolean_property(array, "rust_cell") || json_boolean_property(array, "rust_closure_array_parameter") || json_boolean_property(array, "rust_array_snapshot_cell"))) ||
+                 json_boolean_property(array, "rust_native_array_field_view") ||
                  (json_string_property_equals(array, "kind", "member") &&
                   json_string_property_equals(rust_nullable_child(array, "object"), "kind", "variable") &&
                   !json_boolean_property(array, "rust_thread_field")) ||
                  json_string_property_equals(array, "kind", "call") || json_string_property_equals(array, "kind", "method_call") || json_string_property_equals(array, "kind", "static_call"))) {
                 json_object_object_add(value, "rust_native_array_string_live_view", json_object_new_boolean(true));
-                if (json_string_property_equals(array, "kind", "call") || json_string_property_equals(array, "kind", "method_call") || json_string_property_equals(array, "kind", "static_call"))
+                if (json_boolean_property(array, "rust_native_array_field_view") || json_string_property_equals(array, "kind", "call") || json_string_property_equals(array, "kind", "method_call") || json_string_property_equals(array, "kind", "static_call"))
                     json_object_object_add(value, "rust_native_array_string_owned_view", json_object_new_boolean(true));
                 if (json_boolean_property(array, "rust_closure_array_parameter") || json_boolean_property(array, "rust_array_snapshot_cell"))
                     json_object_object_add(value, "rust_native_array_string_cell_view", json_object_new_boolean(true));
@@ -411,12 +438,13 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
                 json_boolean_property(rust_nullable_child(array, "type"), "rust_native_array_codec") &&
                 ((json_string_property_equals(array, "kind", "variable") &&
                   (!json_boolean_property(array, "rust_cell") || json_boolean_property(array, "rust_closure_array_parameter") || json_boolean_property(array, "rust_array_snapshot_cell"))) ||
+                 json_boolean_property(array, "rust_native_array_field_view") ||
                  (json_string_property_equals(array, "kind", "member") &&
                   json_string_property_equals(rust_nullable_child(array, "object"), "kind", "variable") &&
                   !json_boolean_property(array, "rust_thread_field")) ||
                  json_string_property_equals(array, "kind", "call") || json_string_property_equals(array, "kind", "method_call") || json_string_property_equals(array, "kind", "static_call"))) {
                 json_object_object_add(value, "rust_native_array_string_live_view", json_object_new_boolean(true));
-                if (json_string_property_equals(array, "kind", "call") || json_string_property_equals(array, "kind", "method_call") || json_string_property_equals(array, "kind", "static_call"))
+                if (json_boolean_property(array, "rust_native_array_field_view") || json_string_property_equals(array, "kind", "call") || json_string_property_equals(array, "kind", "method_call") || json_string_property_equals(array, "kind", "static_call"))
                     json_object_object_add(value, "rust_native_array_string_owned_view", json_object_new_boolean(true));
                 if (json_boolean_property(array, "rust_closure_array_parameter") || json_boolean_property(array, "rust_array_snapshot_cell"))
                     json_object_object_add(value, "rust_native_array_string_cell_view", json_object_new_boolean(true));
@@ -429,6 +457,8 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
     {
         if (strncmp(key, "rust_", 5) == 0 && strcmp(key, "rust_closure_array_method_args") != 0) continue;
         bool child_borrow = false;
+        if (strcmp(key, "expr") == 0 && json_string_property_equals(node, "kind", "expr") &&
+            json_boolean_property(child, "rust_native_array_field_view")) child_borrow = true;
         if ((strcmp(key, "object") == 0 || strcmp(key, "receiver") == 0) ||
             (strcmp(key, "operand") == 0 && json_string_property_equals(node, "kind", "sizeof")))
             child_borrow = true;
@@ -459,14 +489,24 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
  * scope. Keep the same credits alive in Rust; statement-only calls still use
  * their existing statement scope. This is observable through native refcounts. */
 static void rust_native_handle_extract_expression(json_object *model, json_object *node,
-                                                   json_object *inserts, size_t *next_id, bool indexed_only)
+                                                   json_object *inserts, size_t *next_id, bool indexed_only,
+                                                   bool in_lambda)
 {
     if (!node || !json_object_is_type(node, json_type_object)) return;
     const char *kind = json_string_property(node, "kind");
     if (!kind) return;
+    /* Numeric place lowering owns its receiver/index bindings and renders
+     * private projections instead of the original operand. Extracting that
+     * unused operand again adds an observable factory call, including at
+     * closure construction. */
+    if (json_boolean_property(node, "rust_numeric_computed_mutation")) return;
+    /* C's legacy scan still lifts ordinary lambda chains at construction,
+     * but field owners belong to the separately invoked body. */
+    if (in_lambda && json_boolean_property(node, "rust_native_array_field_view")) return;
+    if (strcmp(kind, "lambda") == 0) in_lambda = true;
     if (strcmp(kind, "borrow_inferred_call") == 0)
     {
-        rust_native_handle_extract_expression(model, rust_nullable_child(node, "inner_call"), inserts, next_id, indexed_only);
+        rust_native_handle_extract_expression(model, rust_nullable_child(node, "inner_call"), inserts, next_id, indexed_only, in_lambda);
         return;
     }
     json_object_object_foreach(node, key, child)
@@ -475,9 +515,9 @@ static void rust_native_handle_extract_expression(json_object *model, json_objec
         if (json_object_is_type(child, json_type_array))
         {
             for (size_t i = 0; i < json_object_array_length(child); i++)
-                rust_native_handle_extract_expression(model, json_object_array_get_idx(child, i), inserts, next_id, indexed_only);
+                rust_native_handle_extract_expression(model, json_object_array_get_idx(child, i), inserts, next_id, indexed_only, in_lambda);
         }
-        else rust_native_handle_extract_expression(model, child, inserts, next_id, indexed_only);
+        else rust_native_handle_extract_expression(model, child, inserts, next_id, indexed_only, in_lambda);
     }
     /* A declaration's indexed temporary keeps its C header until the
      * enclosing scope ends, even when only its string element is passed on. */
@@ -542,6 +582,50 @@ static void rust_native_handle_extract_expression(json_object *model, json_objec
     }
 }
 
+/* Owned native array-field receivers follow the C scope cleanup slots.
+ * Assign at the original expression site so lazy paths and loop headers retain
+ * their evaluation order, while replacing the previous iteration's owner. */
+static void rust_native_field_scope_receivers(json_object *model, json_object *node,
+                                               json_object *inserts, size_t *next_id)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            rust_native_field_scope_receivers(model, json_object_array_get_idx(node, i), inserts, next_id);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object) ||
+        json_string_property_equals(node, "kind", "lambda")) return;
+    json_object_object_foreach(node, key, child) {
+        if (strncmp(key, "rust_", 5) != 0)
+            rust_native_field_scope_receivers(model, child, inserts, next_id);
+    }
+    /* Keep an owning indexed container in the same lexical scope as C's
+     * field projection. In a closure this scope is the invoked body. */
+    if (json_boolean_property(node, "rust_native_array_field_view"))
+        rust_native_handle_extract_expression(model, rust_nullable_child(node, "object"), inserts, next_id, false, false);
+    json_object *type = rust_nullable_child(rust_nullable_child(node, "object"), "type");
+    if (!json_boolean_property(node, "c_owned_field_receiver") ||
+        !json_boolean_property(node, "rust_native_array_field_view") ||
+        !rust_native_handle_type(type)) return;
+    char name[160];
+    if (!rust_allocate_helper_name(model, "__sn_native_field_scope_owner", name, sizeof(name))) return;
+    json_object *decl = json_object_new_object();
+    json_object_object_add(decl, "kind", json_object_new_string("var_decl"));
+    json_object_object_add(decl, "name", json_object_new_string(name));
+    json_object_object_add(decl, "type", json_object_get(type));
+    json_object_object_add(decl, "mem_qual", json_object_new_string("default"));
+    json_object_object_add(decl, "sync_mod", json_object_new_string("none"));
+    json_object *nil = json_object_new_object();
+    json_object_object_add(nil, "kind", json_object_new_string("literal"));
+    json_object_object_add(nil, "value_kind", json_object_new_string("nil"));
+    json_object_object_add(nil, "type", json_object_get(type));
+    json_object_object_add(decl, "initializer", nil);
+    json_object_array_add(inserts, decl);
+    json_object_object_add(node, "rust_native_field_scope_owner", json_object_new_string(name));
+    json_object_object_del(node, "c_owned_field_receiver");
+}
+
 static void rust_lower_native_handle_temporaries(json_object *model, json_object *node, size_t *next_id)
 {
     if (!rust_nullable_child(model, "rust_native_handles") &&
@@ -555,10 +639,21 @@ static void rust_lower_native_handle_temporaries(json_object *model, json_object
             json_object *statement = json_object_array_get_idx(node, i);
             rust_lower_native_handle_temporaries(model, statement, next_id);
             json_object *inserts = json_object_new_array();
+            /* Other model arrays hold arguments, patterns, and types. Only
+             * statement lists can receive lexical cleanup declarations. */
+            const char *statement_kind = json_string_property(statement, "kind");
+            const char *scope_statements[] = {"var_decl", "expr", "return", "if", "while", "for",
+                "for_each", "for_each_iter", "using", "lock", NULL};
+            for (size_t k = 0; statement_kind && scope_statements[k]; k++) {
+                if (strcmp(statement_kind, scope_statements[k]) == 0) {
+                    rust_native_field_scope_receivers(model, statement, inserts, next_id);
+                    break;
+                }
+            }
             if (json_string_property_equals(statement, "kind", "var_decl"))
-                rust_native_handle_extract_expression(model, rust_nullable_child(statement, "initializer"), inserts, next_id, false);
+                rust_native_handle_extract_expression(model, rust_nullable_child(statement, "initializer"), inserts, next_id, false, false);
             if (json_string_property_equals(statement, "kind", "expr"))
-                rust_native_handle_extract_expression(model, rust_nullable_child(statement, "expr"), inserts, next_id, true);
+                rust_native_handle_extract_expression(model, rust_nullable_child(statement, "expr"), inserts, next_id, true, false);
             for (size_t t = 0; t < json_object_array_length(inserts); t++)
                 json_object_array_add(ordered, json_object_get(json_object_array_get_idx(inserts, t)));
             json_object_array_add(ordered, json_object_get(statement));
@@ -574,4 +669,10 @@ static void rust_lower_native_handle_temporaries(json_object *model, json_object
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0 && strcmp(key, "borrow_check_args") != 0)
             rust_lower_native_handle_temporaries(model, child, next_id);
+    if (json_string_property_equals(node, "kind", "lambda") && rust_nullable_child(node, "body"))
+    {
+        json_object *inserts = json_object_new_array();
+        rust_native_field_scope_receivers(model, rust_nullable_child(node, "body"), inserts, next_id);
+        json_object_object_add(node, "rust_native_field_body_prelude", inserts);
+    }
 }

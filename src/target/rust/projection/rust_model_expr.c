@@ -2987,6 +2987,15 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 json_object_object_add(obj, "member_name",
                     json_object_new_string(mname));
 
+                /* Native bodies are emitted through the private C projection.
+                 * Keep owned field receivers alive and attach the same scope
+                 * cleanup slot that the shared C chain pass uses. */
+                if (obj_type && obj_type->kind == TYPE_STRUCT &&
+                    obj_type->as.struct_type.pass_self_by_ref &&
+                    rust_ownership_kind(expr->as.member.object) == RUST_OWNERSHIP_OWNED)
+                    json_object_object_add(obj, "c_owned_field_receiver",
+                        json_object_new_boolean(true));
+
                 /* Issue #49: Member access on a value-struct rvalue with
                  * non-trivial cleanup (e.g. `build().probs`).  Without
                  * intervention, the rvalue's other refcounted/heap fields

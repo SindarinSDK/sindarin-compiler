@@ -12,6 +12,14 @@ static bool native_primitive_array_element(json_object *type)
         strcmp(kind, "bool") == 0 || strcmp(kind, "float") == 0 || strcmp(kind, "double") == 0);
 }
 
+static bool native_field_array_element(json_object *type)
+{
+    if (native_string(type, "kind") && !strcmp(native_string(type, "kind"), "array"))
+        return native_field_array_element(native_record_child(type, "element_type"));
+    return (native_handle_type(type) && !native_bool(type, "rust_native_serial_handle")) ||
+        native_primitive_array_element(type);
+}
+
 static bool native_primitive_array_callable_type(json_object *type)
 {
     const char *kind = native_string(type, "kind");
@@ -103,7 +111,7 @@ static void native_handle_array_mark(json_object *node, json_object *support)
         ((native_handle_type(native_record_child(node, "element_type")) &&
           !native_bool(native_record_child(node, "element_type"), "rust_native_serial_handle")) ||
          (native_bool(support, "primitive_scalars") &&
-          native_primitive_array_element(native_record_child(node, "element_type"))))) {
+          native_field_array_element(native_record_child(node, "element_type"))))) {
         json_object_object_add(node, "rust_native_handle_array", json_object_new_boolean(true));
         const char *element_kind = native_string(native_record_child(node, "element_type"), "kind");
         if (element_kind && (!strcmp(element_kind, "char") || !strcmp(element_kind, "string") || !strcmp(element_kind, "array"))) {
@@ -122,17 +130,20 @@ static void native_handle_array_mark(json_object *node, json_object *support)
 
 static bool native_prepare_handle_arrays(json_object *model, json_object *handles)
 {
-    bool primitive_scalars = native_bool(model, "package_native_arrays") || native_primitive_array_boundary(model);
+    bool primitive_scalars = native_bool(model, "package_native_arrays") ||
+        native_bool(model, "rust_native_handle_array_fields") || native_primitive_array_boundary(model);
     if (!native_handle_array_collect(model) && !primitive_scalars) return true;
     json_object *support = json_object_new_object();
     if (primitive_scalars) json_object_object_add(support, "primitive_scalars", json_object_new_boolean(true));
-    const char *roles[] = {"type", "trait", "parameter_guard", "untyped_new", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", "set", "string_dup", "string_free", "string_copy", "string_view", "string_argument", "nested_new", "nested_free", "nested_copy", NULL};
+    const char *roles[] = {"type", "trait", "parameter_guard", "untyped_new", "free", "copy", "length", "data", "width", "push", "pop", "insert", "remove", "clear", "reverse", "slice", "concat", "set", "string_dup", "string_free", "string_copy", "string_view", "string_argument", "nested_new", "nested_free", "nested_copy", "field_borrow", NULL};
     for (int i = 0; roles[i]; i++) {
         char stem[160]; snprintf(stem, sizeof(stem), "__sn_native_handle_array_%s", roles[i]);
         char *name = unique_private_name(native_string(model, "package_native_namespace"), native_record_child(model, "functions"), native_record_child(model, "structs"), native_record_child(model, "globals"), stem);
         if (!name) { json_object_put(support); return false; }
         json_object_object_add(support, roles[i], json_object_new_string(name)); free(name);
     }
+    if (native_bool(model, "rust_native_handle_array_fields"))
+        json_object_object_add(support, "field_borrows", json_object_new_boolean(true));
     if (primitive_scalars) {
         const char *extra[] = {"primitive_new", "primitive_width", "primitive_align", NULL};
         for (int i = 0; extra[i]; i++) {

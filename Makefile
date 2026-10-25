@@ -543,6 +543,7 @@ test-rust-parity-numeric-places: build
 		tests/rust-numeric-places/numeric_place_thread_parameters.sn \
 		--require-count 17 --arithmetic-mode default --arithmetic-mode checked \
 		--arithmetic-mode unchecked --output .sn/rust-parity-numeric-places.json
+	@$(PYTHON) scripts/check_rust_numeric_native_owners.py
 
 .PHONY: test-rust-parity-capture-index
 test-rust-parity-capture-index: build

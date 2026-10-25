@@ -1,0 +1,210 @@
+{
+  "status": "Complete final local effects/lifetime validation on numeric main; compose with newly published integer main before publication. No hosted field acceptance yet.",
+  "base": "9bd0d0d13b6a6144ce7f9e9a0996e44f7ca1cbe2",
+  "checkpoint_parent": "ef534eac",
+  "compiler_sha256": "04192355395d67ad9d6836eb52d9350b882e841214c28d7b9c54f06fdfcbf913",
+  "implementation_and_script_sha256": {
+    "src/target/rust/projection/rust_model_expr.c": "62f66ef51fae73ec4bba540c256411c9eb5ad542b9af249b1412c37ac4a2b002",
+    "src/target/rust/rust_native_handle_nodes.c": "51ccd98a50174171c4fd8558b90a07c170a420bffaadc669cd7170b6c0b81e9a",
+    "templates/rust/native_handles/module.hbs": "4d88e274180a6baf32c02e2bdf8769dc2c04211d1a43cac08918cfdf010077b9",
+    "templates/rust/partials/expr/member.hbs": "8bf2a5c984bb718412287a77d5ccbadedd70b331704b4c81206fc9085ea46f3a",
+    "templates/rust/partials/expr/native_array_field_assign.hbs": "ca434f16fe8368091f80c6ec58478092e0a9a0427b051bad2b546a685c84a3af",
+    "templates/rust/partials/expr/closure_call.hbs": "c2110367bac84b498a53dca088649f3274d7a6833fe5f53b65750aab06c2317b",
+    "templates/rust/partials/expr/direct_call_body.hbs": "363ab406bfc67c2f6d1d1bb83cab4c1623ba25bf9be5b8250295e49f52f963eb",
+    "templates/rust/partials/expr/resolved_call_arg.hbs": "5604e6e40d397b0043b6b43eb263cdccc297ac850aa8cd18eaa9caad0b66f1ec",
+    "templates/rust/partials/expr/scalar_reference_call_prefix.hbs": "25313a04ef3e8962a0b07d1a6d2568c50e930cd2d28533ded4386e51dfd9245b",
+    "templates/rust/partials/expr/static_call_body.hbs": "26363b278b06cfd10807064dd4ebb130bca90988f2969ce7bb10c6757613bdee",
+    "scripts/check_rust_native_array_fields.py": "9a5f6744011f690887f2690683b5d6004db859693e42fa50c68595debf68377c",
+    "scripts/native_array_field_effects.py": "f5d88512b26da499e29e75aed0f6c82b732295bc8f4151d6115afbed9afad467"
+  },
+  "native_field_pairs_each_environment": 72,
+  "UDP_source_sealed_C_Rust_cases_each_environment": 108,
+  "language_families": 8,
+  "independent_effect_and_lifetime_outputs": 16,
+  "contract": "Borrow actual C field headers, copy owned reads, retain temporary receiver lifetimes through lexical cleanup slots assigned at original expression sites. Native field assignment copies RHS first, then evaluates receiver separately for clear, put and borrowed result, matching defined indexed effects and C callback order. Default/native borrowed-array calls explicitly dereference field guards. Private C native bodies share C owned-receiver cleanup annotations.",
+  "composed_regressions_each_environment": {
+    "numeric": 81,
+    "record": 45,
+    "scalar_language": 45,
+    "scalar_packages": 216,
+    "byte_encoding": 81,
+    "nested_array_search": 45,
+    "native_threads": 72
+  },
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "imports": 52,
+  "artifacts": 22,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "gate_definitions": 205,
+  "platform_gate_executions": 473,
+  "platform_groups": 41,
+  "all_203_numeric_main_gates_preserved": true,
+  "source_preservation": {
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "all_compiler_hashes_unchanged": true,
+    "accepted_db7_fixture_files_unchanged": 281,
+    "SDK6e_original_SN_and_oracle_files_unchanged": 87,
+    "SDK6e_native_C_changes_are_accepted_foundation": true
+  },
+  "initial_findings": "C-clean indexed callback trace1222 versus initialRust21 exposed copy/clear/put/result order. New native field arguments exposed guard coercion errors. Private C native function field access leaked76bytes while C target was clean. New release observers require scope-long receivers and repeated-loop replacement. A rotating fixture that clears a nonnil unrelated field leaves a stale C slot, and nil.length dereferencesNULL; these C failures are retained and excluded, replaced in new Python fixtures by defined nil-clear and nil-comparison controls. No original SN or oracle edited.",
+  "separate_open_gap": "Computed call receiver field stores are still rejected by Rust; exploratory C implementation evaluates owned receiver three times and leaks aliases. No parity credit for that C-failing probe. Broader native/SDK/interface/generic/callback/lifecycle and final corpus/mode/platform goal remains open.",
+  "SDK20_staging": "UDP staging scripts remain uncommitted and separate from compiler-only field feature; UDP native SDK foundation6e is hosted accepted.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-validation.json.gz",
+      "sha256": "ba8a6be8feb538c0d01ae836a9ffcd2772a22da9e5fcb5a7b16646d69db5ffe0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-native-fields-normal.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-native-fields-sanitized.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-numeric-normal.log.gz",
+      "sha256": "75eebd11352ec6304f2950e10a87438cba0e27c9a6472d4f87be3b2f0e050639"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-numeric-sanitized.log.gz",
+      "sha256": "58fc63a7ae36d6e22dd4e76a734f6885f062b5b1fc37ee0ad74cc908559aae3f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-record-normal.log.gz",
+      "sha256": "bbb86567fd5fbaa193bd047128de6b9e516d8302d2c8ab29060acf885433f578"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-record-sanitized.log.gz",
+      "sha256": "1de14615c081a41120ad67c260fbe9809b7eb992cc40d8d3d6d21872190d234f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-scalar-normal.log.gz",
+      "sha256": "6074fd432a6a6184e867182716a22a01d62265ce5a5759aeb60e6dc456d49a8a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-scalar-sanitized.log.gz",
+      "sha256": "984461865facc39cfb97b297fcaabf8f856b1954bd61abd372a81585152b3a3d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-thread-normal.log.gz",
+      "sha256": "a1db71ecd151dc51cafb90fd5110e6d76a610b22379101d4e1f367eddd43684f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-thread-sanitized.log.gz",
+      "sha256": "df1683c575f75516d44fd468854e6e6b67a438c69bc71bba19c063deaa59cb25"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-full-C.log.gz",
+      "sha256": "19cfcc7fad559df6224c1057005bbf3d9663d97ef6a36997715248fb5b023ceb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-full-Rust.log.gz",
+      "sha256": "04d1dbc0b4743a3415661c7cb81efea4248054647bf2f0beabcbe471d4c4f80a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-imports.log.gz",
+      "sha256": "6ac5bcc1d2f79dc44970eab08a4c6bde87eeb0ad822a9cbdb1a21f2ea3578db3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-artifacts.log.gz",
+      "sha256": "892154a3893eefb45d9d955171651e171a71c11026eb156901250d5ac90cc951"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-UDP-source-sealed-normal.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-UDP-source-sealed-sanitized.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-CI-helpers.log.gz",
+      "sha256": "3de633cd935124ffad4948e21efc54deb1a353e5b77927577bdcde4a25fff555"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-final-composed-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-rust-native-array-fields.json.gz",
+      "sha256": "710ce60e8bff5813c5e60129515ddee87a661db867fac94f582f9c567b9de0d9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "2752f6ba4ee6289bc2318f35a61e7a54e3f817da2787eda238bcacb89f9efc0c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-sdk-udp-artifact.json.gz",
+      "sha256": "022f95976f814eecb7d5622a3ce39b854d23a92571ae3b187b7ee3541b5e668a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-sdk-udp-artifact-sanitized.json.gz",
+      "sha256": "2ab7a57b20151b461b08c4d186bd63b045e17c0744f57a25d63f9dfc7a16d6a7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-sdk-artifact-validation.json.gz",
+      "sha256": "14024639426c8c78ea632b72dee83b0025a3a442c69a99ec4a8373d084cdd4a6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-index-copy-effects-before.json.gz",
+      "sha256": "a861eef97dd5db4d3e0e6b9c3280eda23a6d44be678d044f40fa578dcd0a7c5a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-index-copy-effects-after.log.gz",
+      "sha256": "072d170b16d08aedd077e4f1425640698b25cdc5021a249cdd1e58b2a135fadc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-native-call-field-borrow-before.json.gz",
+      "sha256": "492780c2822717ab16bfdcf58fab65828aab5172a5727421abc1a866ca5763c6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-private-C-field-owner-before.json.gz",
+      "sha256": "4d0e07d58118437d1ce372b539011bc0c899ea325fb2268d93a725076a6aeb12"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-drop-timing-latest.json.gz",
+      "sha256": "e0cb9b8e5ddc8e0cc257421372157b423310d79144afe11d23faa97dff00fd74"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-scope-initial-argument-array-failure.json.gz",
+      "sha256": "f0589346ade8731dd7920184973b35cad65f9f45ea6d26c455b67c6dabb43bb4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-unwatched-rotating-C-UAF.json.gz",
+      "sha256": "904b3a7cc2a3938a95e027d893bb8e66c674b69c01352e1c510a48ce02e2ad10"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-nil-length-C-failure.json.gz",
+      "sha256": "ada6806ffc518700c0852d76e412787626841f680791e4e410600b8c3fc26529"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-effects-field-effects-initial-required-field-failure.json.gz",
+      "sha256": "81fcc40d219bdd811e9b2196e54c35c6c4d075526d2f9e49e2f2039b48503c40"
+    }
+  ]
+}

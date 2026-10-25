@@ -1,0 +1,35 @@
+{
+  "revision": "72a893cd2c1ff1abd09a8475bd683456e1ba16fd",
+  "CI": 40165775135,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40165775135",
+  "successful_required_jobs": 49,
+  "coverage": {
+    "revision": "72a893cd2c1ff1abd09a8475bd683456e1ba16fd",
+    "groups": 41,
+    "gates": 477,
+    "compilers": {
+      "Linux": "f801e515c7aafe849404c38a9afaa2f500425cc0df4888e03376408d6a627f52",
+      "Darwin": "85981a4e131441760d1f462a9c6edd606866e27e2d4b849ccf26de95a1527fcf",
+      "Windows": "009b5cf7135106d66210fc83501c1a636648085bd279fa276640e7f7f9209ce7"
+    },
+    "passed": true
+  },
+  "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+  "preceding_record_own_CI": 40153334480,
+  "preceding_record_own_CI_status": "Still independently pending; current integrated acceptance does not replace its required run.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/integer-match-ci-final.json.gz",
+      "sha256": "b07880975e9851e7941d6a6ef8b768dd62860483586052ec19a74cf433d4472b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-ci-coverage.json.gz",
+      "sha256": "7a070ec7d5edc629b47bd4ffd093c5928faa4c7d972d9441ff1e5090fd1283d1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-ci-artifacts.json.gz",
+      "sha256": "8d8146953193081a0c051e4ed7859a603d431a8cdb6f4a38f2e53c26486fbea0"
+    }
+  ],
+  "scope": "Hosted acceptance of six unchanged original integer literal pattern gaps, actual C widths and toolchain-selected decimal-boundary comparisons in main/source/sealed RS bodies. Full ownership/native/SDK/interface/generic/callback/lifecycle and final original-corpus mode/platform parity goal remains open."
+}

@@ -1030,7 +1030,7 @@
       "group": "numeric-io"
     },
     {
-      "name": "computed numeric mutation and owner timing (153 positive pairs)",
+      "name": "computed numeric mutation and owner timing (153 original and 9 native-array closure pairs)",
       "command": [
         "make",
         "-o",
@@ -2576,6 +2576,32 @@
       "command": [
         "{python}",
         "tests/package/integer_match_patterns.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "native-array-fields",
+      "name": "Canonical native array fields: eleven scalar leaves, ranks2-32, record layouts, header loans, stores and receiver lifetimes",
+      "command": [
+        "{python}",
+        "scripts/check_rust_native_array_fields.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "native-array-fields-sanitizers",
+      "name": "Canonical native array fields: eleven scalar leaves, ranks2-32, record layouts, header loans, stores and receiver lifetimes with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_native_array_fields.py"
       ],
       "group": "sanitizers",
       "linux_only": true,

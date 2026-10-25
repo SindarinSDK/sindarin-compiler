@@ -1,0 +1,228 @@
+{
+  "status": "Complete final local effects/lifetime validation composed with hosted-accepted integer main72; own hosted field acceptance pending.",
+  "base": "72a893cd2c1ff1abd09a8475bd683456e1ba16fd",
+  "checkpoint_parent": "003b5082bde3378428356d2577f0560cf2bde965",
+  "compiler_sha256": "9bc0702e1f0445de39b2c865b72779789dfae4128ee7f7d46c1b6d8c9c44e79d",
+  "implementation_and_script_sha256": {
+    "src/target/rust/projection/rust_model_expr.c": "62f66ef51fae73ec4bba540c256411c9eb5ad542b9af249b1412c37ac4a2b002",
+    "src/target/rust/rust_native_handle_nodes.c": "51ccd98a50174171c4fd8558b90a07c170a420bffaadc669cd7170b6c0b81e9a",
+    "templates/rust/native_handles/module.hbs": "4d88e274180a6baf32c02e2bdf8769dc2c04211d1a43cac08918cfdf010077b9",
+    "templates/rust/partials/expr/member.hbs": "8bf2a5c984bb718412287a77d5ccbadedd70b331704b4c81206fc9085ea46f3a",
+    "templates/rust/partials/expr/native_array_field_assign.hbs": "ca434f16fe8368091f80c6ec58478092e0a9a0427b051bad2b546a685c84a3af",
+    "templates/rust/partials/expr/closure_call.hbs": "c2110367bac84b498a53dca088649f3274d7a6833fe5f53b65750aab06c2317b",
+    "templates/rust/partials/expr/direct_call_body.hbs": "363ab406bfc67c2f6d1d1bb83cab4c1623ba25bf9be5b8250295e49f52f963eb",
+    "templates/rust/partials/expr/resolved_call_arg.hbs": "5604e6e40d397b0043b6b43eb263cdccc297ac850aa8cd18eaa9caad0b66f1ec",
+    "templates/rust/partials/expr/scalar_reference_call_prefix.hbs": "25313a04ef3e8962a0b07d1a6d2568c50e930cd2d28533ded4386e51dfd9245b",
+    "templates/rust/partials/expr/static_call_body.hbs": "26363b278b06cfd10807064dd4ebb130bca90988f2969ce7bb10c6757613bdee",
+    "scripts/check_rust_native_array_fields.py": "9a5f6744011f690887f2690683b5d6004db859693e42fa50c68595debf68377c",
+    "scripts/native_array_field_effects.py": "d8ec9a4dd61d99f076ea0f5a6cdb985bd9f4ae69c5fc50bec458b458612986c2"
+  },
+  "native_field_pairs_each_environment": 72,
+  "UDP_source_sealed_C_Rust_cases_each_environment": 108,
+  "language_families": 8,
+  "independent_effect_and_lifetime_outputs": 17,
+  "contract": "Borrow actual C field headers, copy owned reads, retain temporary receiver lifetimes through lexical cleanup slots assigned at original expression sites. Native field assignment copies RHS first, then evaluates receiver separately for clear, put and borrowed result, matching defined indexed effects and C callback order. Default/native borrowed-array calls explicitly dereference field guards. Private C native bodies share C owned-receiver cleanup annotations.",
+  "composed_regressions_each_environment": {
+    "numeric": 81,
+    "record": 45,
+    "scalar_language": 45,
+    "scalar_packages": 216,
+    "byte_encoding": 81,
+    "nested_array_search": 45,
+    "native_threads": 72,
+    "integer_patterns": 63,
+    "integer_packages": 36
+  },
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "imports": 52,
+  "artifacts": 22,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "gate_definitions": 209,
+  "platform_gate_executions": 481,
+  "platform_groups": 41,
+  "all_207_integer_main_gates_preserved": true,
+  "source_preservation": {
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "all_compiler_hashes_unchanged": true,
+    "accepted_db7_fixture_files_unchanged": 281,
+    "SDK6e_original_SN_and_oracle_files_unchanged": 87,
+    "SDK6e_native_C_changes_are_accepted_foundation": true
+  },
+  "initial_findings": "C-clean indexed callback trace1222 versus initialRust21 exposed copy/clear/put/result order. New native field arguments exposed guard coercion errors. Private C native function field access leaked76bytes while C target was clean. New release observers require scope-long receivers and repeated-loop replacement. A rotating fixture that clears a nonnil unrelated field leaves a stale C slot, and nil.length dereferencesNULL; these C failures are retained and excluded, replaced in new Python fixtures by defined nil-clear and nil-comparison controls. No original SN or oracle edited.",
+  "separate_open_gap": "Computed call receiver field stores are still rejected by Rust; exploratory C implementation evaluates owned receiver three times and leaks aliases. No parity credit for that C-failing probe. Broader native/SDK/interface/generic/callback/lifecycle and final corpus/mode/platform goal remains open.",
+  "SDK20_staging": "UDP staging scripts remain uncommitted and separate from compiler-only field feature; UDP native SDK foundation6e is hosted accepted.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-validation.json.gz",
+      "sha256": "f973cbbf8d14f4952acfb613f1943eb486dcfa1f04f632081e657dfde3c77812"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-native-fields-normal.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-native-fields-sanitized.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-numeric-normal.log.gz",
+      "sha256": "406f99baead71476f0502c128bf0837c672fa2c3b183125989eaa2cfd0ac4fbc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-numeric-sanitized.log.gz",
+      "sha256": "76f90ed22b49171fb29fa3425d6b72da0cf09721e40fb20b6fef275f759674be"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-record-normal.log.gz",
+      "sha256": "60fadf0f284d35cf6142eb924e7fe4f62df81f9e8006ed442e30aed9af2d64fb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-record-sanitized.log.gz",
+      "sha256": "d1232ccc293eb0c617634f7885c8c7e5c122cb5868c3860ec058176b784970d9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-scalar-normal.log.gz",
+      "sha256": "779161868fab4d62e1fcc733fe3f84de4b3da8ce25a7e5eeabe165dd29fa43fc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-scalar-sanitized.log.gz",
+      "sha256": "53f79460fc8bad4823c95ba838e28ca2bc2f63ce5a0fa7891364346b7481fb1b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-thread-normal.log.gz",
+      "sha256": "9546a8527e2908a1320b61a9f0bd64c8e17967588a1d8fc957f1ceea124e0e4c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-thread-sanitized.log.gz",
+      "sha256": "19c53fef2ce0efed4905ff0bbfc648e61f186d2ba87f9e4f431c88c0e0a7a9b7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-integer-normal.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-integer-sanitized.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-integer-packages-normal.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-integer-packages-sanitized.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-full-C.log.gz",
+      "sha256": "218c4b5bee660e3925947f2e547a9921491bea5f88ca01aad55432bd0132bdfd"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-full-Rust.log.gz",
+      "sha256": "6235ab175c192c88e2d4192aba90f655ef7fdd66a066a514974eb0273bcf0718"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-imports.log.gz",
+      "sha256": "4b3c8bb21fd7d86eaf0e8b17a3c921133c09b95d9adf4016766e7d4343642bad"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-artifacts.log.gz",
+      "sha256": "0bc6f34f076f32a8b28f775013b10dc1b8c06c6ecf102551a2d8d28fd65ca20d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-UDP-source-sealed-normal.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-UDP-source-sealed-sanitized.log.gz",
+      "sha256": "821948d3b1745382ee771b55106c6ce9422b649985f8541eae69402d1f38e844"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-CI-helpers.log.gz",
+      "sha256": "91d122f0d91a071b8ad26a2b2856df0dc45dc4ccae9fa951915d9b3831c4e0f5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-integer-main-composed-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-rust-native-array-fields.json.gz",
+      "sha256": "22211c03f6050975f307bc494cb28446cd465084f486fafdb9468251fb317b56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "a3bc73cb7889945002992e05012ae499a461f9b4a32fb11cc27d635eb51a4270"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-sdk-udp-artifact.json.gz",
+      "sha256": "dc172d2baf1d74a022a8478113c5635ce04b792489f70871bc6b6c785ac7af01"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-sdk-udp-artifact-sanitized.json.gz",
+      "sha256": "8a98f137f2a34144925760c2d87b55d6e56df7069af2aba01fa838505778d3ee"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-sdk-artifact-validation.json.gz",
+      "sha256": "44529a681d1835fa41f3a3824313daff477da6f6e6345a4f6d45084bd25066b6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-field-index-copy-effects-before.json.gz",
+      "sha256": "a861eef97dd5db4d3e0e6b9c3280eda23a6d44be678d044f40fa578dcd0a7c5a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-field-index-copy-effects-after.log.gz",
+      "sha256": "072d170b16d08aedd077e4f1425640698b25cdc5021a249cdd1e58b2a135fadc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-native-call-field-borrow-before.json.gz",
+      "sha256": "492780c2822717ab16bfdcf58fab65828aab5172a5727421abc1a866ca5763c6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-private-C-field-owner-before.json.gz",
+      "sha256": "4d0e07d58118437d1ce372b539011bc0c899ea325fb2268d93a725076a6aeb12"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-field-drop-timing-latest.json.gz",
+      "sha256": "e0cb9b8e5ddc8e0cc257421372157b423310d79144afe11d23faa97dff00fd74"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-field-scope-initial-argument-array-failure.json.gz",
+      "sha256": "f0589346ade8731dd7920184973b35cad65f9f45ea6d26c455b67c6dabb43bb4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-unwatched-rotating-C-UAF.json.gz",
+      "sha256": "904b3a7cc2a3938a95e027d893bb8e66c674b69c01352e1c510a48ce02e2ad10"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-nil-length-C-failure.json.gz",
+      "sha256": "ada6806ffc518700c0852d76e412787626841f680791e4e410600b8c3fc26529"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-integer-main-field-effects-initial-required-field-failure.json.gz",
+      "sha256": "81fcc40d219bdd811e9b2196e54c35c6c4d075526d2f9e49e2f2039b48503c40"
+    }
+  ]
+}

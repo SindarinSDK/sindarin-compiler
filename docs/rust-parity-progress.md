@@ -1,3 +1,118 @@
+## Native array fields: combined correction locally validated, 2026-10-25
+
+Field main d3ce failed the computed numeric mutation gate on all three hosted
+platforms: nine modes of the unchanged temporary-owner program produced a
+changed C lambda call sequence. The correction preserves legacy chain
+extraction at closure construction while applying field cleanup in the invoked
+body. Rust also avoids extracting unused original numeric operands and keeps
+indexed field container owners inside block and expression closures.
+[Retained hosted failure and local roots](rust-parity-evidence/native-array-fields-ci-failure.json).
+
+All26 local checks pass: full C3,243/Rust1,099, the unchanged153 numeric pairs plus
+nine new native-array closure pairs,72 field pairs normally and with sanitizers,
+and all composed numeric/record/scalar/byte/array/thread/integer regressions.
+The field control now has26 independent effect/release outputs. Imports52,
+artifacts22, SDK19 smoke84, helpers27 and formatting pass. Every original1,365
+program and1,158 oracle remains unchanged, along with281 accepted SDK fixture
+inputs and87 SDK Sindarin/oracle files. All209 gate commands/IDs remain intact;
+the numeric gate now also runs the nine additive cases. Required coverage remains
+481 platform executions in41 groups.
+[Complete local proof](rust-parity-evidence/native-array-fields-correction-local-validation.json).
+
+The older record revision9f37 has separately passed all49 required jobs on its
+own same-revision retry2:461 platform executions in41 groups. Attempt1 explicitly
+reported runner communication loss; its evidence remains retained.
+[Original runner loss](rust-parity-evidence/record-required-run-runner-loss.json),
+[verified own retry](rust-parity-evidence/record-own-retry-ci-green.json).
+
+The combined correction still requires its own full hosted acceptance before
+feature publication resumes. SDK20 and String work remain separate local batches.
+Broader native/SDK/interface/generic/callback/lifecycle gaps and final original
+corpus, mode and platform acceptance remain open.
+
+## Native array fields: accepted integer-main composition, 2026-10-25
+
+The field feature is composed with hosted-accepted integer main72. All27 local
+checks pass:72 field mode pairs and108 UDP source/sealed cases normally and
+under C sanitizers; integer63+36, numeric81, record45, scalar45+216, byte81,
+array45 and threads72 pass in both environments. Both full suites pass3,243/1,099
+with established snapshots intact; imports52, artifacts22, SDK19 smoke84,
+helpers27 and formatting pass. The combined field regression also exercises a
+compiler-dependent integer comparison beside a C-only colliding function chain
+through a temporary-field native body; all17 effect/lifetime outputs agree.
+
+Every original1,365 program,1,158 oracle and281 accepted db7 fixture input remains
+unchanged, as do87 SDK Sindarin/oracle files in accepted6e. All207 integer-main
+gates remain intact; two field additions require481 platform executions in41
+groups. SDK20 staging remains separate and uncommitted. The compiler-only field
+revision still needs its own full hosted acceptance after publication.
+[Final composed proof](rust-parity-evidence/native-array-fields-integer-main-local-validation.json).
+
+Integer main72 has separately passed all49 required hosted jobs and477 platform
+executions/41groups. The older record revision's own Windows package run remains
+independently pending. [Integer hosted proof](rust-parity-evidence/integer-match-ci-green.json).
+Full native/SDK contracts and final original-corpus mode/platform acceptance
+remain open; computed call-receiver field stores with C-failing behavior receive
+no parity credit.
+
+## Native array field effects: complete numeric-main validation, 2026-10-25
+
+The compiler-only field slice now follows C's copy, clear, put and result
+receiver evaluations for indexed stores. Native array loans dereference field
+guards at native calls. Temporary receiver cleanup slots retain the C lexical
+lifetime, while acquisition remains inline in lazy branches and repeated loop
+conditions. Private C native bodies receive the same owned-receiver annotation.
+
+All23 combined local checks pass, including72 field mode pairs and108 UDP
+source/sealed C/Rust cases normally and under C sanitizers; numeric81, record45,
+scalar45+216, byte81, array45 and threads72 pass in both environments. Full C/Rust
+suites pass3,243/1,099, imports52, artifacts22, SDK19 smoke84, helpers27 and format.
+All original1,365 programs and1,158 oracles remain unchanged, as do281 inputs in
+the accepted db7 SDK fixture and87 SDK Sindarin/oracle files in accepted6e.
+The numeric-main203 gate definitions are preserved; two field additions require
+473 platform executions in41 groups. [Final local proof](rust-parity-evidence/native-array-fields-effects-composed-local-validation.json).
+
+This remains a local checkpoint: newly published integer main72 must be composed
+and validated before publication, and the field revision needs its own full
+hosted acceptance. SDK20 staging remains separate and uncommitted. Computed
+call-receiver stores, the remaining native/SDK contracts and final whole-goal
+corpus/mode/platform acceptance remain open; C-failing exploratory cases receive
+no parity credit.
+
+## Native array fields and receiver cleanup: locally verified slice, 2026-10-25
+
+Native reference records expose canonical C array fields through generated
+accessors. Field loans keep owned temporary receivers alive and preserve the
+actual array header at borrowed calls. Existing places support replacement,
+owned RHS transfer, borrowed RHS copies and assignment-result identity. String
+element views retain their field guard; value-record element layouts and forward
+native handle elements reuse the existing canonical array ownership callbacks.
+
+The C projection acquires owned field receivers at the expression site into
+scope cleanup slots, preserving skipped branches and repeated loop evaluations.
+Closure bodies receive cleanup in their own definitions. Generated C receiver
+names avoid user identifiers. The original 91-byte receiver and 182-byte closure
+leaks, a helper-name collision and initial Rust accessor/view failures are
+retained beside the fixes.
+
+All 63 C/Rust pairs pass normally and with C address/undefined/leak checks:
+eleven scalar leaves, ranks2-32, plain and managed-string value records, native
+reference elements, nested reference elements and twenty ownership/store/closure/
+control-flow/hygiene contexts. Full C/Rust suites pass 3,243/1,099, imports52,
+artifacts22, accepted SDK19 smoke84, CI helpers27 and formatting. All 1,365
+original programs, 1,158 original oracles and 281 accepted SDK inputs remain
+byte-identical. The two additive gates preserve all 197 base gates and require
+461 executions in 41 platform groups. The coverage assertion was updated for
+those four added platform executions; its initial failure is retained.
+
+This is local verification on correction base `43a6d633`; composition with
+current main and complete own hosted acceptance remain required. Canonical UDP
+SDK C and source/sealed artifact staging are separate local work. A new computed
+receiver store probe still repeats/leaks its receiver in C and is rejected by
+Rust; it receives no parity credit. Complete computed target stores, public SDK
+field contracts and the full Rust/C parity goal remain open.
+[Retained evidence](rust-parity-evidence/native-array-fields-local-validation.json).
+
 ## Integer literal match patterns: local validation, 2026-10-25
 
 Six original wide, negative and unsigned integer-pattern rejections now execute
