@@ -86,7 +86,7 @@ bool package_callable_parameter_supported(const Parameter *parameter)
 {
     if (parameter->sync_modifier != SYNC_NONE) return false;
     if (parameter->mem_qualifier == MEM_DEFAULT) return true;
-    if (parameter->mem_qualifier != MEM_AS_VAL || !parameter->type) return false;
+    if ((parameter->mem_qualifier != MEM_AS_VAL && parameter->mem_qualifier != MEM_AS_REF) || !parameter->type) return false;
     switch (parameter->type->kind) {
         case TYPE_INT: case TYPE_LONG: case TYPE_INT32: case TYPE_UINT: case TYPE_UINT32:
         case TYPE_BYTE: case TYPE_BOOL: case TYPE_CHAR: case TYPE_FLOAT: case TYPE_DOUBLE:

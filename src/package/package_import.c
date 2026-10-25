@@ -146,7 +146,13 @@ static void import_add_pragma(CompilerOptions *options, Module *module, PragmaTy
 static bool import_type(Type *type)
 {
     if (!type) return false;
-    if (type->kind == TYPE_POINTER) return type->as.pointer.base_type && type->as.pointer.base_type->kind == TYPE_VOID;
+    if (type->kind == TYPE_POINTER) {
+        Type *base = type->as.pointer.base_type;
+        return base && (base->kind == TYPE_VOID || base->kind == TYPE_INT || base->kind == TYPE_LONG ||
+            base->kind == TYPE_INT32 || base->kind == TYPE_UINT || base->kind == TYPE_UINT32 ||
+            base->kind == TYPE_BYTE || base->kind == TYPE_CHAR || base->kind == TYPE_BOOL ||
+            base->kind == TYPE_FLOAT || base->kind == TYPE_DOUBLE);
+    }
     if (type->kind == TYPE_STRUCT) return type->as.struct_type.is_native && type->as.struct_type.pass_self_by_ref;
     if (type->kind == TYPE_ARRAY && type->as.array.element_type &&
         type->as.array.element_type->kind != TYPE_VOID) return import_type(type->as.array.element_type);
@@ -285,7 +291,9 @@ bool package_prepare_native_imports(CompilerOptions *options, Module *module,
             int parameter_count = callable.function ? callable.function->param_count : callable.method->param_count;
             for (int i = 0; i < parameter_count; i++) {
                 Parameter *param = &parameters[i];
-                if (!import_type(param->type) || param->type->kind == TYPE_VOID || param->type->kind == TYPE_POINTER || !package_callable_parameter_supported(param)) {
+                if (!import_type(param->type) || param->type->kind == TYPE_VOID ||
+                    (param->type->kind == TYPE_POINTER && param->type->as.pointer.base_type->kind == TYPE_VOID) ||
+                    !package_callable_parameter_supported(param)) {
                     fprintf(stderr, "error: %s: native parameter '%s' requires an implemented ABI representation\n", manifest, param->name.start);
                     success = false; break;
                 }

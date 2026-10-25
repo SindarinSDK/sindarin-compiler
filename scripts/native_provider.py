@@ -2,7 +2,7 @@
 import json
 import hashlib
 import re
-from native_contract import TYPES, kind, validate, raw_type, record_types, native_array_shape, c_array_operation, array_record
+from native_contract import TYPES, kind, validate, raw_type, record_types, native_array_shape, c_array_operation, array_record, parameter_type, borrowed_memory
 
 RUST = {'int':'i64', 'long':'i64', 'uint':'u64', 'int32':'i32', 'uint32':'u32',
         'byte':'u8', 'char':'u8', 'bool':'bool', 'float':'f32', 'double':'f64',
@@ -25,6 +25,8 @@ def contracts(native, unit):
     lifecycle_functions = {r[field] for r in records for field in ('create','retain','release','refs','copy') if field in r}
     for s in signatures:
         validate(s)
+        if unit['language'] not in ('C', 'SN') and any(borrowed_memory(p) for p in s['params']):
+            raise ValueError('borrowed scalar memory currently requires a C provider')
         binding = s['binding']
         if binding['function'] in lifecycle_functions:
             raise ValueError('record lifecycle functions must keep their public C symbols; use a separate backing function')
@@ -45,7 +47,7 @@ def contracts(native, unit):
 def c_declaration(signature):
     b, params, result = signature['binding'], signature['params'], kind(signature['return_type'])
     status = b['failure'] == 'status'
-    raw = [raw_type(p['type']) for p in params]
+    raw = [parameter_type(p) for p in params]
     if status and result != 'void': raw.append(raw_type(signature['return_type']) + ' *')
     return f'extern {"uint32_t" if status else raw_type(signature["return_type"])} {b["function"]}({", ".join(raw) or "void"});'
 
@@ -115,7 +117,7 @@ def c_provider(signatures, namespace, root='.'):
     lines += record_includes(signatures,root)
     for index, record in enumerate(records):
         lines.append(f'static void sn_package_record_destroy_{index}(void *value, uintptr_t context) {{ (void)context; {record["release"]}(value); }}')
-    if any(s.get('abi') not in ('1.5','1.6','1.7','1.8') and kind(p['type']) == 'string_array' for s in signatures for p in s['params']):
+    if any(s.get('abi') not in ('1.5','1.6','1.7','1.8','1.9') and kind(p['type']) == 'string_array' for s in signatures for p in s['params']):
         lines += ['#include <string.h>',
                   'static void sn_package_borrowed_slot_free(void *p) { free(*(char **)p); }',
                   'static void sn_package_borrowed_slot_copy(const void *s, void *d) {',
@@ -139,7 +141,7 @@ def c_provider(signatures, namespace, root='.'):
         b, params, result = s['binding'], s['params'], kind(s['return_type'])
         status = b['failure'] == 'status'
         lines.append(c_declaration(s))
-        wire = [f'{TYPES[kind(p["type"])][1]} p{i}' for i,p in enumerate(params)]
+        wire = [f'{parameter_type(p, wire=True)} p{i}' for i,p in enumerate(params)]
         if status and result != 'void': wire.append(TYPES[result][1] + ' *out')
         lines.append(f'{"uint32_t" if status else TYPES[result][1]} {b["symbol"]}({", ".join(wire) or "void"}) {{')
         if status and result != 'void': lines.append('  if (!out) return SN_ABI_INVALID_ARGUMENT;')
@@ -155,7 +157,7 @@ def c_provider(signatures, namespace, root='.'):
             elif result in ('string_array','byte_array','native_array'): result_cleanup = 'sn_array_free(value); '
         for i in array_params: lines.append(f'  SnArray *array{i} = NULL;')
         for i in record_params: lines.append(f'  void *record{i} = NULL;')
-        guarded = managed_params if s.get('abi') in ('1.5','1.6','1.7','1.8') else sorted(record_params + string_params)
+        guarded = managed_params if s.get('abi') in ('1.5','1.6','1.7','1.8','1.9') else sorted(record_params + string_params)
         for i in guarded: lines.append(f'  SnAbiValue *argument_owner{i} = sn_abi_v1_retain(p{i});')
         if managed_params: lines.append('  uint32_t provider_status = 0;')
         def failed(code):
@@ -164,7 +166,9 @@ def c_provider(signatures, namespace, root='.'):
         arguments = []
         for i,p in enumerate(params):
             k = kind(p['type'])
-            if k == 'string':
+            if borrowed_memory(p):
+                arguments.append(f'p{i}')
+            elif k == 'string':
                 lines += [f'  SnAbiBytes bytes{i};', f'  uint32_t status{i} = sn_abi_v1_string_bytes(p{i}, &bytes{i});',
                           f'  if (status{i}) {{ ' + failed(f'status{i}') + ' }']
                 arguments.append(f'(char *)bytes{i}.data')
@@ -173,11 +177,11 @@ def c_provider(signatures, namespace, root='.'):
                           '  if (provider_status) goto cleanup_args;']
                 arguments.append(f'array{i}')
             elif k in ('string_array','byte_array'):
-                if s.get('abi') not in ('1.5','1.6','1.7','1.8'):
+                if s.get('abi') not in ('1.5','1.6','1.7','1.8','1.9'):
                     for previous in array_params:
                         if previous >= i: break
                         lines.append(f'  if (p{i} == p{previous}) array{i} = array{previous}; else')
-                operation = 'sn_abi_v1_native_byte_array_data' if k == 'byte_array' else 'sn_abi_v1_native_string_array_data' if s.get('abi') in ('1.5','1.6','1.7','1.8') else 'sn_package_borrow_array'
+                operation = 'sn_abi_v1_native_byte_array_data' if k == 'byte_array' else 'sn_abi_v1_native_string_array_data' if s.get('abi') in ('1.5','1.6','1.7','1.8','1.9') else 'sn_package_borrow_array'
                 lines += [f'  provider_status = {operation}(p{i}, &array{i});',
                           '  if (provider_status) goto cleanup_args;']
                 arguments.append(f'array{i}')
@@ -200,7 +204,7 @@ def c_provider(signatures, namespace, root='.'):
         if managed_params:
             lines.append('cleanup_args:')
             for i in reversed(guarded): lines.append(f'  sn_abi_v1_release(argument_owner{i});')
-            if s.get('abi') not in ('1.5','1.6','1.7','1.8'):
+            if s.get('abi') not in ('1.5','1.6','1.7','1.8','1.9'):
                 for position,i in reversed(list(enumerate(array_params))):
                     unique = ' && '.join(f'array{i} != array{j}' for j in array_params[:position])
                     lines.append(('  if ('+unique+') ' if unique else '  ')+f'sn_array_free(array{i});')
@@ -337,7 +341,7 @@ def rust_provider(signatures, backing_crate, array_free_symbol=None):
                           f'    let code = {operation}; if code != 0 {{ return Err(code); }}']
                 arguments.append(f'arg{i}')
             elif k in ('string_array','byte_array'):
-                if s.get('abi') in ('1.5','1.6','1.7','1.8'):
+                if s.get('abi') in ('1.5','1.6','1.7','1.8','1.9'):
                     operation='native_byte_array_data' if k=='byte_array' else 'native_string_array_data'
                     lines += [f'    let _owner{i} = OwnedV(sn_abi_v1_retain(p{i}));',
                               f'    let mut arg{i} = std::ptr::null_mut();',
@@ -474,7 +478,7 @@ def go_provider(signatures, module, main=True, root=None):
                 arguments.append(f'unsafe.Pointer(arg{i})')
             elif k in ('string_array','byte_array'):
                 error = lambda code: normal_return(code) if status else 'panic("invalid array ABI")'
-                if s.get('abi') in ('1.5','1.6','1.7','1.8'):
+                if s.get('abi') in ('1.5','1.6','1.7','1.8','1.9'):
                     operation='native_byte_array_data' if k=='byte_array' else 'native_string_array_data'
                     lines += [f'  owner{i} := C.sn_abi_v1_retain(p{i}); defer C.sn_abi_v1_release(owner{i})',
                               f'  var arg{i} *C.struct_SnArray',
@@ -570,7 +574,7 @@ def c_consumer(signature, package, *, retain_record_inputs=True):
     validate(signature)
     params = signature['params']
     result = kind(signature['return_type'])
-    wire_params = [TYPES[kind(p['type'])][1] for p in params]
+    wire_params = [parameter_type(p, wire=True) for p in params]
     status = binding['failure'] == 'status'
     if status and result != 'void': wire_params.append(TYPES[result][1] + ' *')
     return_wire = 'uint32_t' if status else TYPES[result][1]
@@ -578,15 +582,16 @@ def c_consumer(signature, package, *, retain_record_inputs=True):
     code = [f'static void {alias}_record_destroy_{index}(void *value, uintptr_t context) {{ (void)context; {record["release"]}(value); }}'
             for index,record in enumerate(records)]
     code += [f'extern {return_wire} {symbol}({", ".join(wire_params) or "void"});',
-             f'{raw_type(signature["return_type"])} {alias}(' + ', '.join(f'{raw_type(p["type"])} p{i}' for i,p in enumerate(params)) + ') {']
-    live_arrays = signature.get('abi') in ('1.5','1.6','1.7','1.8')
-    version = 'SN_ABI_V1_8_VERSION' if signature.get('abi') == '1.8' else 'SN_ABI_V1_7_VERSION' if signature.get('abi') == '1.7' else 'SN_ABI_V1_6_VERSION' if signature.get('abi') == '1.6' else 'SN_ABI_V1_5_VERSION' if live_arrays else 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
+             f'{raw_type(signature["return_type"])} {alias}(' + ', '.join(f'{parameter_type(p)} p{i}' for i,p in enumerate(params)) + ') {']
+    live_arrays = signature.get('abi') in ('1.5','1.6','1.7','1.8','1.9')
+    version = 'SN_ABI_V1_9_VERSION' if signature.get('abi') == '1.9' else 'SN_ABI_V1_8_VERSION' if signature.get('abi') == '1.8' else 'SN_ABI_V1_7_VERSION' if signature.get('abi') == '1.7' else 'SN_ABI_V1_6_VERSION' if signature.get('abi') == '1.6' else 'SN_ABI_V1_5_VERSION' if live_arrays else 'SN_ABI_V1_1_VERSION' if signature.get('abi') == '1.1' else 'SN_ABI_V1_VERSION'
     arrays = result == 'string_array' or any(kind(p['type']) == 'string_array' for p in params)
     capabilities = 'SN_ABI_CAP_VALUES | SN_ABI_CAP_VALUE_ARRAYS' if arrays else 'SN_ABI_CAP_VALUES'
     if live_arrays and any(kind(p['type']) == 'string_array' for p in params):
         capabilities += ' | SN_ABI_CAP_NATIVE_STRING_ARRAYS'
     if result == 'byte_array' or any(kind(p['type']) == 'byte_array' for p in params):
         capabilities += ' | SN_ABI_CAP_NATIVE_BYTE_ARRAYS'
+    if any(borrowed_memory(p) for p in params): capabilities += ' | SN_ABI_CAP_BORROWED_SCALARS'
     if records: capabilities += ' | SN_ABI_CAP_RESOURCES | SN_ABI_CAP_TYPED_RESOURCES'
     if result == 'native_array' or any(kind(p['type']) == 'native_array' for p in params):
         capabilities += ' | SN_ABI_CAP_NATIVE_ARRAYS'
@@ -632,7 +637,7 @@ def c_consumer(signature, package, *, retain_record_inputs=True):
                 # wire shell borrows that record without adding a visible credit.
                 code += [f'  SnAbiValue *w{i} = NULL;',
                          f'  if (p{i} && sn_abi_v1_resource_new_typed({json.dumps(record["identity"])}, p{i}, NULL, 0, &w{i}) != SN_ABI_OK) abort();']
-    arguments = [f'w{i}' if kind(p['type']) in ('string','string_array','byte_array','native_array','record') else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
+    arguments = [f'p{i}' if borrowed_memory(p) else f'w{i}' if kind(p['type']) in ('string','string_array','byte_array','native_array','record') else f'({TYPES[kind(p["type"])][1]})p{i}' for i,p in enumerate(params)]
     if result != 'void': code += [f'  {TYPES[result][1]} wire_result = {{0}};']
     if status:
         if result != 'void': arguments.append('&wire_result')

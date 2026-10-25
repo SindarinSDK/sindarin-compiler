@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 import shlex
 
-from native_contract import TYPES, kind, raw_type
+from native_contract import TYPES, kind, raw_type, parameter_type, borrowed_memory
 from native_provider import RUST, c_header, c_provider, rust_provider, rust_provider_support, c_consumer, record_includes
 
 
@@ -36,6 +36,8 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         raise ValueError('Sindarin package bodies select GO; the Sindarin Go backend is not implemented')
     if runtime not in ('C','RS'):
         raise ValueError('Sindarin implementation runtime must resolve to C or RS')
+    if runtime != 'C' and any(borrowed_memory(p) for s in signatures for p in s['params']):
+        raise ValueError('borrowed scalar memory currently requires a C Sindarin body')
     if not signatures:
         raise ValueError('Sindarin implementation exports require resolved generated function bindings')
     target = 'c' if runtime=='C' else 'rust'
@@ -131,7 +133,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
     for signature in signatures:
         name = signature['binding']['function']
         function = select_callable(functions,name,signature['binding'].get('method'))
-        if not function or (not function.get('is_method') and (function.get('is_native') or not function.get('has_body'))):
+        if not function or (not function.get('is_method') and not function.get('has_body')):
             raise ValueError('Sindarin package export requires a defined implementation function: '+name)
         if signature['binding'].get('result_type'):
             value = function['return_type']
@@ -148,7 +150,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                 p.get('sync_mod','none')!='none' for p,q in zip(parameters,signature['params']))):
             raise ValueError('Sindarin implementation type/ownership differs from its public declaration: '+name)
         if any(kind(p['type']) in ('string_array','byte_array') for p in parameters):
-            if signature.get('abi') not in ('1.5','1.6','1.7','1.8'):
+            if signature.get('abi') not in ('1.5','1.6','1.7','1.8','1.9'):
                 raise ValueError('Sindarin library array inputs require generated mutable/borrowed-body contracts in native ABI 1.5')
         selected.append(function)
     emitted = work/(stem+('.c' if runtime=='C' else '.rs'))
@@ -207,7 +209,7 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
                              **({'native_byte_wire_result':True} if runtime=='RS' and kind(signature['return_type'])=='byte_array' else {})))
     if runtime=='C':
         # Generated functions and methods are internal to this package unit.
-        names = {'__sn__'+f['name'] for f in model['functions'] if not f.get('is_native')}
+        names = {(f['name'] if f.get('is_native') else '__sn__'+f['name']) for f in model['functions'] if f.get('has_body')}
         names.update('__sn__'+g['name'] for g in model.get('globals',[]))
         names.update('__sn__'+g['name']+'_mutex' for g in model.get('globals',[]) if g.get('sync_mod')=='atomic')
         for structure in model.get('structs',[]):
@@ -226,13 +228,13 @@ def build_library(args, root, work, stem, unit, plan, signatures, tools, run):
         code += c_header(adjusted,stem,root)+'\n'
         for signature,function in zip(adjusted,selected):
             result = kind(signature['return_type']);status=signature['binding']['failure']=='status'
-            parameters=[raw_type(p['type'])+f' p{i}' for i,p in enumerate(signature['params'])]
+            parameters=[parameter_type(p)+f' p{i}' for i,p in enumerate(signature['params'])]
             if status and result!='void':parameters.append(raw_type(signature['return_type'])+' *out')
             code += ('uint32_t' if status else raw_type(signature['return_type']))+' '+signature['binding']['function']+'('+(', '.join(parameters) or 'void')+') {\n'
             if lifecycle:
                 code += '  SnAbiPackageCall *call = NULL; uint32_t initialized = __sn_package_begin(&call);\n'
                 code += '  if (initialized) { '+('return initialized;' if status else 'abort();')+' }\n'
-            callee=function['c_callee'] if function.get('is_method') else '__sn__'+function['name']
+            callee=function['c_callee'] if function.get('is_method') else function['name'] if function.get('is_native') else '__sn__'+function['name']
             call=callee+'('+', '.join('p'+str(i) for i in range(len(signature['params'])))+')'
             if lifecycle and result!='void':
                 code+='  '+raw_type(signature['return_type'])+' result = '+call+';\n'

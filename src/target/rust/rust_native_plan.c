@@ -1281,6 +1281,22 @@ static void native_rename_entry_references(json_object *node, const char *replac
 /* A native source main belongs to the C island, not to the process ABI.
  * Preserve its body/signature under a private name and let the ordinary Rust
  * entry path supply argv, initialization, flushing and exit-code conversion. */
+/* Rust borrows default array parameter slots through another reference. C
+ * helpers in the native island receive the canonical header directly. Keep
+ * actual closure captures and explicit as-ref parameters unchanged. */
+static void native_restore_c_array_parameter_headers(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            native_restore_c_array_parameter_headers(json_object_array_get_idx(node, i));
+    } else if (json_object_is_type(node, json_type_object)) {
+        if (native_bool(node, "rust_c_default_array_header")) json_object_object_del(node, "is_captured");
+        json_object_object_foreach(node, key, child)
+            if (strncmp(key, "rust_", 5) != 0) native_restore_c_array_parameter_headers(child);
+    }
+}
+
 static bool native_prepare_entry(json_object *model)
 {
     json_object *functions = NULL, *structure = NULL;
@@ -1395,6 +1411,7 @@ bool rust_native_partition_model(json_object *rust_model,
         free(plan);
         return false;
     }
+    native_restore_c_array_parameter_headers(private_model);
     resolve_private_include_origins(private_model);
     json_object *selected_function_names = NULL;
     json_object *selected_global_names = NULL;

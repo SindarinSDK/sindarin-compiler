@@ -499,3 +499,38 @@ source/sealed app coverage for record slots, identity, mutation and cleanup.
 Sealed consumers remove all backing sources. Canonical SDK staging includes
 the complete unchanged Xml API, including children/findAll arrays. Wider
 callback/error/package dependency graphs and full platform proof remain required.
+
+## ABI 1.9 synchronous borrowed scalar storage
+
+`SN_ABI_V1_9_VERSION` adds `SN_ABI_CAP_BORROWED_SCALARS` (4096), with capability
+mask 8191. Earlier versions retain their exact masks and reject this capability.
+Native package ABI 1.9 can transport scalar `as ref` parameters and pointers to
+scalar inputs through generated C providers and C-compiled Sindarin bodies.
+Rust-targeted applications consume these through the shared C adapters. Rust
+and Go backing-provider generation for these signatures remains unsupported
+and reports a diagnostic before invoking a backing compiler.
+
+The scalar families are int/long (int64), int32, uint (uint64), uint32, byte,
+char, bool, float and double. Reference and pointer wire parameters use the
+actual C scalar storage type followed by `*`: long long, int32_t, uint64_t,
+uint32_t, unsigned char, char, bool, float or double. This preserves effective
+C types as well as widths. Value scalar wire parameters retain their earlier
+fixed-width representations. Scalar pointer results, managed references,
+pointer-to-pointer and arbitrary opaque pointers require wider contracts.
+
+Ownership metadata must declare these inputs `borrowed`. The caller supplies
+live, correctly aligned storage for the entire synchronous call, including any
+reentry; the provider must neither retain the pointer nor free it. Scalar
+references are non-null; explicit pointers may be null when the backing API
+permits it. Array-derived pointers must remain valid without reallocation for
+the duration of use. The backing API specifies sizes and bounds. Adapters pass
+original addresses directly, preserving overlapping inputs and immediate writes;
+they do not create Rust `&mut` references or independent copy-in/copy-out slots.
+Raw native pointers retain the existing native-code preconditions.
+
+The canonical zlib staging bridge uses the header's `uLongf` for zlib's length
+output, then publishes it into the language's uint64 slot. This avoids treating
+a 64-bit language slot as 32-bit `unsigned long` storage on Windows. Source
+lengths and compression levels use the original header's numeric conversions.
+Public SDK declarations and bodies are copied unchanged, including native
+Sindarin bodies, which are compiled by the C package-body pipeline.

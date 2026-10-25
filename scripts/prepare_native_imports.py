@@ -9,7 +9,7 @@ import contextlib
 import io
 from build_native_package import build, build_go_graph, load_prebuilt, run
 
-from native_contract import TYPES, kind, validate, raw_type, record_types, c_array_operation, array_record
+from native_contract import TYPES, kind, validate, raw_type, record_types, c_array_operation, array_record, parameter_type
 from native_provider import record_includes, c_consumer as adapter
 
 
@@ -92,7 +92,7 @@ def main():
         adapters=[adapter(s,package['manifest']) for s in package['signatures']]
         for signature in package['signatures']:
             result=kind(signature['return_type'])
-            parameters=', '.join(f'{raw_type(p["type"])} p{i}' for i,p in enumerate(signature['params'])) or 'void'
+            parameters=', '.join(f'{parameter_type(p)} p{i}' for i,p in enumerate(signature['params'])) or 'void'
             prototypes.append(f'{raw_type(signature["return_type"])} {signature["adapter"]}({parameters});')
         build_args=SimpleNamespace(compiler=compiler,manifest=Path(package['manifest']),
                                   out_dir=args.contract.parent/'artifacts',target=request['target'],

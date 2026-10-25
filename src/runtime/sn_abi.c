@@ -39,7 +39,7 @@ SnAbiStatus sn_abi_v1_query(uint32_t version, uint64_t required_capabilities,
         version != SN_ABI_V1_2_VERSION && version != SN_ABI_V1_3_VERSION &&
         version != SN_ABI_V1_4_VERSION && version != SN_ABI_V1_5_VERSION &&
         version != SN_ABI_V1_6_VERSION && version != SN_ABI_V1_7_VERSION &&
-        version != SN_ABI_V1_8_VERSION) return SN_ABI_VERSION_MISMATCH;
+        version != SN_ABI_V1_8_VERSION && version != SN_ABI_V1_9_VERSION) return SN_ABI_VERSION_MISMATCH;
     if (version != SN_ABI_V1_VERSION) capabilities |= SN_ABI_CAP_VALUE_ARRAYS | SN_ABI_CAP_TYPED_RESOURCES;
     if (version >= SN_ABI_V1_2_VERSION)
         capabilities |= SN_ABI_CAP_PACKAGE_LIFECYCLE;
@@ -49,6 +49,7 @@ SnAbiStatus sn_abi_v1_query(uint32_t version, uint64_t required_capabilities,
     if (version >= SN_ABI_V1_6_VERSION) capabilities |= SN_ABI_CAP_NATIVE_BYTE_ARRAYS;
     if (version >= SN_ABI_V1_7_VERSION) capabilities |= SN_ABI_CAP_NATIVE_ARRAYS;
     if (version >= SN_ABI_V1_8_VERSION) capabilities |= SN_ABI_CAP_NATIVE_RECORD_ARRAYS;
+    if (version >= SN_ABI_V1_9_VERSION) capabilities |= SN_ABI_CAP_BORROWED_SCALARS;
     if (required_capabilities & ~capabilities) return SN_ABI_UNSUPPORTED;
     SnAbiInfo info = { version, sizeof(void *) * CHAR_BIT, capabilities,
                        sizeof(long long) * CHAR_BIT, CHAR_BIT,

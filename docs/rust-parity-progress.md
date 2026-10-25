@@ -1,3 +1,35 @@
+## Zlib and borrowed scalar memory: final local checks running, 2026-10-25
+
+The unchanged zlib API now builds as an independent C-backed package. ABI 1.9
+transports borrowed scalar references and pointers through C providers and
+C-compiled Sindarin bodies, preserving original addresses and aliases. Native
+Sindarin implementation bodies remain C code. The zlib bridge uses the header's
+actual output-length type on Windows, then publishes a language uint64 value.
+
+The same original caller also exposed missing namespace array-borrow metadata,
+fixed-size canonical-array construction and package-library ordering. Sanitizers
+then reproduced a 74-byte temporary-slice leak on published method main. Caller
+cleanup now binds slices at their original argument positions and releases them
+after borrowed calls. Native C helpers also read ordinary array parameters as C
+headers, while the Rust projection retains its slot-reference representation.
+
+The corrected compiler passes full C 3,243 / Rust 1,099 suites, 108 focused zlib
+cases under sanitizers, and 18 slice ownership/order cases in each environment.
+The zlib control covers all 28 exports and 40 independent outputs. Borrowed
+memory tests exercise direct Rust calls, C and Sindarin providers, source/sealed
+artifacts, ten scalar families, aliases and distinct arguments, with 62 outputs
+per case. Full SDK21 composition and the fresh nine-mode original scan are still
+running; this batch has not been published or accepted by hosted CI.
+
+Existing Sindarin sources, public SDK modules and frozen oracles are unchanged.
+The latest hosted-accepted compiler remains array/SDK20 main `72aafc65`; method
+main `5b51af8c` has two required jobs still running without a failure. Seven other
+SDK modules remain outside the artifact migration after this local zlib work:
+core/fields, core/version, net/tcp, net/tls, net/dtls, net/ssh and net/git. Wider
+aliases, heap-owning records, copy hooks, interfaces/generics/callbacks and final
+platform/corpus/ABI/lifecycle acceptance also remain open. Full parity is not
+complete.
+
 ## Qualified record method parameters: composed local validation, 2026-10-25
 
 Two unchanged original programs now run through Rust: explicit `as ref` record

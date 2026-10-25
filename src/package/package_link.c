@@ -26,3 +26,18 @@ char *package_link_token(const char *value)
     *out = 0;
     return token;
 }
+
+bool package_link_named(const char *value)
+{
+    return value && value[0] != '-' && !strchr(value, '/') && !strchr(value, '\\');
+}
+
+bool package_link_defer_named(const char *const *values, int count)
+{
+    for (int i = 0; values && i < count; i++) {
+        size_t length = strlen(values[i]);
+        if ((length > 2 && !strcmp(values[i] + length - 2, ".a")) ||
+            (length > 4 && !strcmp(values[i] + length - 4, ".lib"))) return true;
+    }
+    return false;
+}

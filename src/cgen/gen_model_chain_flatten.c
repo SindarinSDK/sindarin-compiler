@@ -1097,14 +1097,14 @@ static json_object *string_call_method_parameters(json_object *call)
     return NULL;
 }
 
-static bool string_call_borrows_argument(json_object *call, size_t index)
+static bool string_call_borrows_argument(json_object *call, size_t index, const char *value_kind)
 {
     json_object *params = string_call_method_parameters(call);
     if (params && index < json_object_array_length(params))
     {
         json_object *param = json_object_array_get_idx(params, index);
         return string_call_property(param, "mem_qual", "default") &&
-            string_call_property(string_call_child(param, "type"), "kind", "string");
+            string_call_property(string_call_child(param, "type"), "kind", value_kind);
     }
     json_object *callee = string_call_child(call, "callee");
     /* Built-in print and primitive/array methods have their own ownership
@@ -1116,7 +1116,7 @@ static bool string_call_borrows_argument(json_object *call, size_t index)
     json_object *types = string_call_child(type, "param_types");
     if (!string_call_property(type, "kind", "function") || !types ||
         index >= json_object_array_length(types) ||
-        !string_call_property(json_object_array_get_idx(types, index), "kind", "string")) return false;
+        !string_call_property(json_object_array_get_idx(types, index), "kind", value_kind)) return false;
     json_object *quals = string_call_child(type, "param_mem_quals");
     return !quals || index >= json_object_array_length(quals) ||
         strcmp(json_object_get_string(json_object_array_get_idx(quals, index)), "default") == 0;
@@ -1141,7 +1141,8 @@ static void collect_string_call_aliases(json_object *node)
     }
 }
 
-/* A default string parameter borrows its input. Bind a concatenation at its
+/* Default string and array parameters borrow their inputs. Bind a string
+ * concatenation or an array slice into a cleanup slot at its
  * original argument site and release it after the call. Nil declarations
  * preserve the C compiler's ordering of argument/receiver side effects. */
 static void own_string_call_arguments(json_object *node)
@@ -1154,7 +1155,7 @@ static void own_string_call_arguments(json_object *node)
         return;
     }
     if (!json_object_is_type(node, json_type_object) ||
-        string_call_flag(node, "c_string_call_frame")) return;
+        (string_call_flag(node, "c_string_call_frame") || string_call_flag(node, "c_array_call_frame"))) return;
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0) own_string_call_arguments(child);
     if (!string_call_property(node, "kind", "call") &&
@@ -1162,21 +1163,32 @@ static void own_string_call_arguments(json_object *node)
         !string_call_property(node, "kind", "method_call")) return;
     json_object *args = string_call_child(node, "args");
     json_object *slots = json_object_new_array();
+    json_object *array_slots = json_object_new_array();
     for (size_t i = 0; args && i < json_object_array_length(args); i++)
     {
         json_object *arg = json_object_array_get_idx(args, i);
-        if (!string_call_property(arg, "kind", "binary") ||
-            !string_call_property(arg, "op", "add") ||
-            !string_call_property(string_call_child(arg, "type"), "kind", "string") ||
-            string_call_child(arg, "borrow_tmp_var") || string_call_flag(arg, "consumes_source") ||
-            !string_call_borrows_argument(node, i)) continue;
+        bool string_loan = string_call_property(arg, "kind", "binary") &&
+            string_call_property(arg, "op", "add") &&
+            string_call_property(string_call_child(arg, "type"), "kind", "string") &&
+            string_call_borrows_argument(node, i, "string");
+        bool array_loan = string_call_property(arg, "kind", "array_slice") &&
+            string_call_property(string_call_child(arg, "type"), "kind", "array") &&
+            string_call_borrows_argument(node, i, "array");
+        if ((!string_loan && !array_loan) || string_call_child(arg, "borrow_tmp_var") ||
+            string_call_flag(arg, "consumes_source")) continue;
         char name[64];
         chain_temp_name(name, sizeof(name));
-        json_object_object_add(arg, "c_string_argument_slot", json_object_new_string(name));
+        json_object_object_add(arg, array_loan ? "c_array_argument_slot" : "c_string_argument_slot", json_object_new_string(name));
         json_object *slot = json_object_new_object();
         json_object_object_add(slot, "name", json_object_new_string(name));
-        json_object_array_add(slots, slot);
+        json_object_array_add(array_loan ? array_slots : slots, slot);
     }
+    if (json_object_array_length(array_slots))
+    {
+        json_object_object_add(node, "c_array_call_frame", json_object_new_boolean(true));
+        json_object_object_add(node, "c_array_call_slots", array_slots);
+    }
+    else json_object_put(array_slots);
     if (json_object_array_length(slots))
     {
         json_object_object_add(node, "c_string_call_frame", json_object_new_boolean(true));

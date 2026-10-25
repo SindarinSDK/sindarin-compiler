@@ -16,7 +16,7 @@ from pathlib import Path
 MODULES = ('io/bytes', 'io/textfile', 'io/binaryfile', 'io/path',
            'io/directory', 'io/stdio', 'os/os', 'os/env', 'crypto/crypto',
            'time/time', 'time/date', 'core/random', 'core/uuid',
-           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml', 'core/math', 'net/udp')
+           'encoding/text', 'os/process', 'encoding/json', 'encoding/xml', 'encoding/yaml', 'core/math', 'net/udp', 'encoding/zlib')
 SUPPORTED_MODULES = MODULES
 RESOURCE_RESULTS = {
     ('time/date', 'sn_date_to_time'): 'src/time/time.sn::Time',
@@ -64,6 +64,9 @@ def raw_type(value, module):
     kind = value['kind']
     if kind == 'pointer' and value.get('base_type', {}).get('kind') == 'void' and module == 'time/date':
         return 'void *'
+    if kind == 'pointer' and value.get('base_type', {}).get('kind') in RAW and value['base_type']['kind'] not in ('string', 'void'):
+        from native_contract import scalar_storage
+        return scalar_storage(value['base_type']) + ' *'
     if kind in RAW:
         return RAW[kind]
     if kind == 'array':
@@ -85,7 +88,7 @@ def raw_type(value, module):
 def ownership(function, receiver=False):
     parameters = ['self: borrowed'] if receiver else []
     for parameter in function['params']:
-        managed = parameter['type']['kind'] in ('string', 'array', 'struct')
+        managed = parameter['type']['kind'] in ('string', 'array', 'struct', 'pointer') or parameter.get('mem_qual') == 'as_ref'
         parameters.append(parameter['name']+(': borrowed' if managed else ': value'))
     managed = function['return_type']['kind'] in ('string', 'array', 'struct', 'pointer')
     return '{parameters: {'+', '.join(parameters)+'}, result: '+('owned' if managed else 'value')+'}'
@@ -136,7 +139,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
         checked([compiler,destination/'src'/(module+'.sn'),'--package-body','--no-install',
                  '--emit-model','-o',model_path], destination)
         models[module] = json.loads(model_path.read_text())
-    lines = [original_manifest.rstrip(), 'runtime: C', 'native:', '  abi: '+('1.8' if 'encoding/xml' in modules else '1.7'),
+    lines = [original_manifest.rstrip(), 'runtime: C', 'native:', '  abi: '+('1.9' if 'encoding/zlib' in modules else '1.8' if 'encoding/xml' in modules else '1.7'),
              '  declarations: ['+', '.join('src/'+m+'.sn' for m in modules)+']']
     records = [m for m in modules if m in RECORDS]
     if records:
@@ -163,7 +166,7 @@ def prepare(compiler, sdk, destination, modules=MODULES):
             name = function['name']
             raw_type(function['return_type'], module)
             for parameter in function['params']:raw_type(parameter['type'], module)
-            if not function.get('is_native'):
+            if not function.get('is_native') or function.get('has_body'):
                 if not function.get('has_body'):
                     raise ValueError('SDK root implementation body missing: '+name)
                 bindings += ['    - declaration: src/'+module+'.sn::'+name,
@@ -175,11 +178,18 @@ def prepare(compiler, sdk, destination, modules=MODULES):
             callee = function.get('c_alias') or name
             if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', callee):
                 raise ValueError('SDK native alias must be a C identifier: '+callee)
-            params = [raw_type(p['type'],module)+' p'+str(i) for i,p in enumerate(function['params'])]
+            params = [raw_type(p['type'],module)+(' *' if p.get('mem_qual') == 'as_ref' else '')+' p'+str(i) for i,p in enumerate(function['params'])]
             arguments = ', '.join('p'+str(i) for i in range(len(params)))
             result = raw_type(function['return_type'],module)
-            source.append(result+' '+wrapper+'('+(', '.join(params) or 'void')+') { '+
-                          ('return ' if result!='void' else '')+callee+'('+arguments+'); }')
+            if module == 'encoding/zlib' and name in ('compress', 'compress2', 'uncompress'):
+                # zlib uLongf is 32 bits on Windows, while Sindarin uint is64.
+                # Use the header's actual output type, then publish the full
+                # language scalar. Do not alias a uint64 slot as uLongf storage.
+                args = ['p0', '&length', 'p2', '(uLong)p3'] + (['(int)p4'] if name == 'compress2' else [])
+                source.append(result+' '+wrapper+'('+', '.join(params)+') { uLongf length = (uLongf)*p1; int code = '+callee+'('+', '.join(args)+'); *p1 = (uint64_t)length; return code; }')
+            else:
+                source.append(result+' '+wrapper+'('+(', '.join(params) or 'void')+') { '+
+                              ('return ' if result!='void' else '')+callee+'('+arguments+'); }')
             bindings += ['    - declaration: src/'+module+'.sn::'+name,
                          '      function: '+wrapper, '      symbol: sdk_'+stem+'_helper_'+name,
                          '      build: native_'+stem, '      convention: C', '      failure: abort',

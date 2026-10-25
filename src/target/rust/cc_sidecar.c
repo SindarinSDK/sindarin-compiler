@@ -430,9 +430,12 @@ static bool resolve_environment(const CCBackendConfig *config,
 
     if (request->link_libraries && request->link_library_count > 0)
     {
+        bool defer_named = package_link_defer_named(request->link_libraries, request->link_library_count);
+        for (int pass = 0; pass < 2; pass++)
         for (int i = 0; i < request->link_library_count; i++)
         {
             const char *lib = request->link_libraries[i];
+            if ((defer_named && package_link_named(lib)) != (pass == 1)) continue;
             char *artifact = package_link_token(lib);
             if (artifact) {
                 bool added = add_owned_string(&plan->requested_link_options,

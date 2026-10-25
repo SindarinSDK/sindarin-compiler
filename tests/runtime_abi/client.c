@@ -55,6 +55,14 @@ int main(void)
     assert(info.pointer_bits == sizeof(void *) * CHAR_BIT);
     assert(info.int_bits == 64 && info.char_bits == 8);
     assert(info.float_bits == 32 && info.double_bits == 64);
+    SnAbiInfo newest;
+    assert(sn_abi_v1_query(SN_ABI_V1_9_VERSION, SN_ABI_CAP_BORROWED_SCALARS, &newest, sizeof(newest)) == SN_ABI_OK);
+    assert(newest.abi_version == SN_ABI_V1_9_VERSION && newest.capabilities == 8191);
+    SnAbiInfo unchanged = newest;
+    for (uint32_t minor = 0; minor < 9; minor++) {
+        assert(sn_abi_v1_query(SN_ABI_V1_VERSION + minor, SN_ABI_CAP_BORROWED_SCALARS, &newest, sizeof(newest)) == SN_ABI_UNSUPPORTED);
+        assert(memcmp(&newest, &unchanged, sizeof(newest)) == 0);
+    }
     SnAbiInfo preserved = info;
     assert(sn_abi_v1_query(0, 0, &info, sizeof(info)) == SN_ABI_VERSION_MISMATCH);
     assert(memcmp(&info, &preserved, sizeof(info)) == 0);

@@ -1139,6 +1139,10 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     for (int ri = 0; ri < rust_g_as_ref_param_count; ri++) {
                         if (strcmp(rust_g_as_ref_param_names[ri], stored_name) == 0) {
                             mark_captured = true;
+                            RustVariableFacts facts = rust_variable_facts(expr);
+                            if (facts.is_parameter && facts.param_mem_qualifier == MEM_DEFAULT &&
+                                expr->expr_type && expr->expr_type->kind == TYPE_ARRAY)
+                                json_object_object_add(obj, "rust_c_default_array_header", json_object_new_boolean(true));
                             break;
                         }
                     }
@@ -1211,6 +1215,10 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     for (int ri = 0; ri < rust_g_as_ref_param_count; ri++) {
                         if (strcmp(rust_g_as_ref_param_names[ri], aname) == 0) {
                             mark_captured = true;
+                            RustVariableFacts facts = rust_variable_facts(expr);
+                            if (facts.is_parameter && facts.param_mem_qualifier == MEM_DEFAULT &&
+                                expr->expr_type && expr->expr_type->kind == TYPE_ARRAY)
+                                json_object_object_add(obj, "rust_c_default_array_header", json_object_new_boolean(true));
                             break;
                         }
                     }
@@ -2061,6 +2069,10 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                             else if (resolved_method)
                             {
                                 default_array_callee = !resolved_method->is_native;
+                            }
+                            else if (is_namespace_call)
+                            {
+                                default_array_callee = callee_is_known_fn && !callee_native;
                             }
                             bool default_array_ref = arg_type &&
                                 arg_type->kind == TYPE_ARRAY &&

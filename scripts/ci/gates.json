@@ -2848,6 +2848,84 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "package-borrowed-scalar-memory",
+      "name": "Borrowed scalar references and pointers across C/Sindarin source and sealed artifacts",
+      "command": [
+        "{python}",
+        "tests/package/borrowed_scalar_memory.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "package-borrowed-scalar-memory-sanitizers",
+      "name": "Borrowed scalar references and pointers across C/Sindarin source and sealed artifacts with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/borrowed_scalar_memory.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "sdk-zlib-artifacts",
+      "name": "Canonical zlib original caller, all28 exports, errors and lifetimes through legacy/source/sealed imports",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_zlib_artifact.py"
+      ],
+      "group": "sdk-artifacts",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-zlib-artifacts-sanitizers",
+      "name": "Canonical zlib original caller, all28 exports, errors and lifetimes through legacy/source/sealed imports with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_zlib_artifact.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "array-call-arguments",
+      "name": "Borrowed array slice caller cleanup, native helper headers and C evaluation order",
+      "command": [
+        "{python}",
+        "scripts/check_c_array_call_arguments.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "array-call-arguments-sanitizers",
+      "name": "Borrowed array slice caller cleanup, native helper headers and C evaluation order with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_c_array_call_arguments.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

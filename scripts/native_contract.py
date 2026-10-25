@@ -10,9 +10,31 @@ TYPES = {'int': ('long long', 'int64_t'), 'long': ('long long', 'int64_t'),
          'native_array': ('SnArray *', 'SnAbiValue *'),
          'record': ('void *', 'SnAbiValue *')}
 
+SCALARS = {'int', 'long', 'int32', 'uint', 'uint32', 'byte', 'char', 'bool', 'float', 'double'}
+
+
+def borrowed_memory(parameter):
+    return kind(parameter['type']) == 'scalar_pointer' or parameter.get('mem_qual') == 'as_ref'
+
+
+def scalar_storage(value):
+    # Match generated C storage exactly, including effective types on LP64.
+    return TYPES[value['kind']][0]
+
+
+def parameter_type(parameter, wire=False):
+    value = parameter['type']
+    if kind(value) == 'scalar_pointer':
+        return scalar_storage(value['base_type']) + ' *'
+    if parameter.get('mem_qual') == 'as_ref':
+        return scalar_storage(value) + ' *'
+    return TYPES[kind(value)][1] if wire else raw_type(value)
+
 
 def kind(value):
     name = value['kind']
+    if name == 'pointer' and value.get('base_type', {}).get('kind') in SCALARS:
+        return 'scalar_pointer'
     if name == 'pointer' and value.get('base_type', {}).get('kind') == 'void' and value.get('native_record') and value.get('resource_layout'):
         return 'record'
     if name == 'struct' and value.get('native_record') and value.get('is_native') and value.get('pass_self_by_ref'):
@@ -29,6 +51,8 @@ def kind(value):
 
 
 def raw_type(value):
+    if kind(value) == 'scalar_pointer':
+        return scalar_storage(value['base_type']) + ' *'
     if value['kind'] == 'pointer' and kind(value) == 'record':
         return 'void *'
     return value['native_record']['c_type'] + ' *' if kind(value) == 'record' else TYPES[kind(value)][0]
@@ -87,41 +111,44 @@ def validate(signature):
     binding = signature['binding']
     ownership, params = binding['ownership'], signature['params']
     result = kind(signature['return_type'])
-    if result == 'string_array' and signature.get('abi') not in ('1.1', '1.5', '1.6', '1.7', '1.8'):
+    if result == 'scalar_pointer':
+        raise ValueError('borrowed scalar pointers are supported only as synchronous inputs')
+    if result == 'string_array' and signature.get('abi') not in ('1.1', '1.5', '1.6', '1.7', '1.8','1.9'):
         raise ValueError('managed string-array results require native ABI 1.1, 1.5 or 1.6')
-    if result == 'byte_array' and signature.get('abi') not in ('1.6','1.7','1.8'):
+    if result == 'byte_array' and signature.get('abi') not in ('1.6','1.7','1.8','1.9'):
         raise ValueError('native byte-array transport requires ABI 1.6')
     names = {p['name'] for p in params}
     if set(ownership['parameters']) != names:
         raise ValueError('package parameter ownership does not match the resolved declaration')
-    if result == 'native_array' and signature.get('abi') not in ('1.7','1.8'):
+    if result == 'native_array' and signature.get('abi') not in ('1.7','1.8','1.9'):
         raise ValueError('typed canonical array transport requires ABI 1.7')
-    if result == 'native_array' and array_record(signature['return_type']) and signature.get('abi') != '1.8':
+    if result == 'native_array' and array_record(signature['return_type']) and signature.get('abi') not in ('1.8','1.9'):
         raise ValueError('native record-array transport requires ABI 1.8')
     expected_result = ('owned', 'borrowed') if result == 'record' else ('owned',) if result in ('string', 'string_array', 'byte_array', 'native_array') else ('value',)
     if ownership['result'] not in expected_result:
         raise ValueError('package result ownership requires an implemented owned-string or plain-value contract')
     for p in params:
         qualifier = p.get('mem_qual', 'default')
-        if qualifier != 'default' and not (qualifier == 'as_val' and kind(p['type']) in
-                ('int','long','int32','uint','uint32','byte','char','bool','float','double')):
+        if borrowed_memory(p) and signature.get('abi') != '1.9':
+            raise ValueError('borrowed scalar pointers and references require native ABI 1.9')
+        if qualifier != 'default' and not (qualifier in ('as_val', 'as_ref') and kind(p['type']) in SCALARS):
             raise ValueError('package parameter qualifier requires an implemented scalar value contract')
-        if kind(p['type']) == 'string_array' and signature.get('abi') not in ('1.1', '1.5', '1.6', '1.7', '1.8'):
+        if kind(p['type']) == 'string_array' and signature.get('abi') not in ('1.1', '1.5', '1.6', '1.7', '1.8','1.9'):
             raise ValueError('managed string-array inputs require native ABI 1.1, 1.5 or 1.6')
-        if kind(p['type']) == 'byte_array' and signature.get('abi') not in ('1.6','1.7','1.8'):
+        if kind(p['type']) == 'byte_array' and signature.get('abi') not in ('1.6','1.7','1.8','1.9'):
             raise ValueError('native byte-array transport requires ABI 1.6')
         if kind(p['type']) == 'void':
             raise ValueError('package parameter cannot have void ABI representation')
-        if kind(p['type']) == 'native_array' and signature.get('abi') not in ('1.7','1.8'):
+        if kind(p['type']) == 'native_array' and signature.get('abi') not in ('1.7','1.8','1.9'):
             raise ValueError('typed canonical array transport requires ABI 1.7')
-        if kind(p['type']) == 'native_array' and array_record(p['type']) and signature.get('abi') != '1.8':
+        if kind(p['type']) == 'native_array' and array_record(p['type']) and signature.get('abi') not in ('1.8','1.9'):
             raise ValueError('native record-array transport requires ABI 1.8')
-        if kind(p['type']) == 'record' and signature.get('abi') not in ('1.5', '1.6', '1.7', '1.8'):
+        if kind(p['type']) == 'record' and signature.get('abi') not in ('1.5', '1.6', '1.7', '1.8','1.9'):
             raise ValueError('native record transport requires ABI 1.5 or 1.6')
-        expected = 'borrowed' if kind(p['type']) in ('string', 'string_array', 'byte_array', 'native_array', 'record') else 'value'
+        expected = 'borrowed' if borrowed_memory(p) or kind(p['type']) in ('string', 'string_array', 'byte_array', 'native_array', 'record') else 'value'
         if ownership['parameters'][p['name']] != expected:
             raise ValueError('package input ownership requires an implemented borrowed-string or plain-value contract')
-    if result == 'record' and signature.get('abi') not in ('1.5', '1.6', '1.7', '1.8'):
+    if result == 'record' and signature.get('abi') not in ('1.5', '1.6', '1.7', '1.8','1.9'):
         raise ValueError('native record transport requires ABI 1.5 or 1.6')
     if result == 'record' and ownership['result'] == 'borrowed':
         source = next((p for p in params if p['name'] == ownership.get('borrowed_from')),None)

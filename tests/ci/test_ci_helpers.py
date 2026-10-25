@@ -114,7 +114,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 41)
-        self.assertEqual(report['gates'], 517)
+        self.assertEqual(report['gates'], 529)
         for sanitized in (False, True):
             identity = 'numeric-match-conversions' + ('-sanitizers' if sanitized else '')
             entries = [g for g in self.catalog['gates'] if g['id'] == identity]
@@ -127,9 +127,11 @@ class CoverageTests(unittest.TestCase):
                 ('string-match-effects', 'scripts/check_rust_string_match_effects.py'),
                 ('method-struct-parameters', 'scripts/check_rust_method_struct_parameters.py'),
                 ('package-method-struct-parameters', 'tests/package/method_struct_parameters.py'),
+                ('package-borrowed-scalar-memory', 'tests/package/borrowed_scalar_memory.py'),
                 ('default-array-parameters', 'scripts/check_rust_default_array_parameters.py'),
                 ('package-default-array-parameters', 'tests/package/default_array_parameters.py'),
                 ('package-string-match-effects', 'tests/package/string_match_effects.py'),
+                ('array-call-arguments', 'scripts/check_c_array_call_arguments.py'),
                 ('string-call-arguments', 'scripts/check_rust_string_call_arguments.py')):
             for sanitized in (False, True):
                 identity = stem + ('-sanitizers' if sanitized else '')
@@ -243,7 +245,7 @@ class CoverageTests(unittest.TestCase):
                       'canonical-record-copy', 'sdk-record-copies',
                       'sdk-stringbuilder-artifacts', 'sdk-stringbuilder-native',
                       'sdk-process-artifacts', 'sdk-process-native',
-                      'sdk-json-artifacts', 'sdk-json-native', 'native-record-array-packages', 'sdk-xml-native', 'package-internal-native-calls', 'sdk-yaml-artifacts', 'sdk-yaml-native', 'sdk-udp-artifacts', 'sdk-udp-native'):
+                      'sdk-json-artifacts', 'sdk-json-native', 'native-record-array-packages', 'sdk-xml-native', 'package-internal-native-calls', 'sdk-yaml-artifacts', 'sdk-yaml-native', 'sdk-udp-artifacts', 'sdk-udp-native', 'sdk-zlib-artifacts'):
             entry = [g for g in self.catalog['gates'] if g['id'] == ident]
             self.assertEqual(len(entry), 1)
             self.assertEqual(entry[0]['group'],

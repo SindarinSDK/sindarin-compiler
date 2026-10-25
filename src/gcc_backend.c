@@ -823,8 +823,11 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         for (int j = 0; j < obj_count; j++) free(obj_files[j]);
         return false;
     }
+    bool defer_named = package_link_defer_named((const char *const *)link_libs, link_lib_count);
+    for (int pass = 0; pass < 2; pass++)
     for (int i = 0; link_libs && i < link_lib_count; i++) {
         const char *lib = link_libs[i];
+        if ((defer_named && package_link_named(lib)) != (pass == 1)) continue;
         char *artifact = package_link_token(lib);
         const char *option = artifact ? artifact : get_ldlibs_for_lib(lib);
         const char *prefix = " ";
