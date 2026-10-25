@@ -61,11 +61,39 @@ static char *import_source_absolute(const char *path)
     return _fullpath(NULL, path, 0);
 #else
     char absolute[8192];
-    if (path[0] == '/') snprintf(absolute, sizeof(absolute), "%s", path);
+    if (path[0] == '/') {
+        if (snprintf(absolute, sizeof(absolute), "%s", path) >= (int)sizeof(absolute)) return NULL;
+    }
     else {
         char cwd[4096];
         if (!getcwd(cwd, sizeof(cwd))) return NULL;
         if (snprintf(absolute, sizeof(absolute), "%s/%s", cwd, path) >= (int)sizeof(absolute)) return NULL;
+    }
+    char *canonical = realpath(absolute, NULL);
+    if (canonical) return canonical;
+
+    /* Sealed packages may remove the implementation and its directories.
+     * Resolve the nearest existing ancestor before normalizing the missing
+     * suffix. Lexical normalization alone cannot equate /var with /private/var
+     * or another directory symlink used to spell the application filename. */
+    char ancestor[sizeof(absolute)];
+    memcpy(ancestor, absolute, strlen(absolute) + 1);
+    for (;;) {
+        char *separator = strrchr(ancestor, '/');
+        if (!separator) return NULL;
+        size_t suffix = (size_t)(separator - ancestor);
+        if (separator == ancestor) ancestor[1] = '\0';
+        else *separator = '\0';
+        canonical = realpath(ancestor, NULL);
+        if (canonical) {
+            char resolved[sizeof(absolute)];
+            int written = snprintf(resolved, sizeof(resolved), "%s%s", canonical, absolute + suffix);
+            free(canonical);
+            if (written < 0 || written >= (int)sizeof(resolved)) return NULL;
+            memcpy(absolute, resolved, (size_t)written + 1);
+            break;
+        }
+        if (separator == ancestor) return NULL;
     }
     char *parts[4096], *save = NULL;
     int count = 0;

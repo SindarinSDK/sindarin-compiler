@@ -1,3 +1,30 @@
+## Required macOS path correction: complete local validation, 2026-10-25
+
+Published TCP main `ad98351e` failed its required macOS SDK corpus and SDK
+artifact jobs in [40234115101](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40234115101).
+Both failures have the same cause: temporary callers use `/var/folders/...`,
+while package manifests resolve to `/private/var/folders/...`. The provided-source
+matcher compared lexical paths and incorrectly rejected the independently
+provided backing source. Feature publication is frozen; this revision is not
+hosted-accepted. Compiler `61633bb8` remains the accepted main.
+[Retained failure logs](rust-parity-evidence/tcp-path-required-failure.json).
+
+The local correction resolves existing source paths, or the nearest existing
+ancestor when sealed consumption removed implementation files/directories,
+before normalizing the missing suffix. A regression reproduces all four
+source/sealed C/Rust failures on Linux through a directory alias. Corrected
+real and aliased callers pass; an undeclared source with the same filename
+still triggers the backing-source guard. Actual SDK Bytes validation through
+a symlinked temporary directory also reproduces before and passes after.
+Complete C 3,244/Rust 1,099 suites, native imports 53, artifacts 22 and CI
+helpers 27 pass. TCP 144 cases pass in both normal and sanitizer environments.
+The fresh original-corpus audit completes all 24,570 compilations with unchanged
+sources and oracles; 13 known C undefined mode cases remain excluded. Whole-SDK
+normal and sanitizer validation both pass all 864 cases through the aliased
+temporary directory. [Retained correction proof](rust-parity-evidence/tcp-path-correction-local-validation.json).
+The combined correction requires its own complete hosted CI before acceptance.
+No Sindarin source or behavioral/generation oracle has changed.
+
 ## TCP/SDK22 integration: complete local validation, 2026-10-25
 
 SDK `9d2e6e79` passed all seven jobs in its own

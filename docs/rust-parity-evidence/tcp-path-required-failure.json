@@ -1,0 +1,67 @@
+{
+  "status": "Published TCP revision failed complete own CI: two primary macOS failures, downstream coverage/final failure, artifact publication skipped. Feature freeze remains active.",
+  "revision": "ad98351ec3267506ed9c7a642d33c56dfb78ad43",
+  "CI": 40234115101,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40234115101",
+  "compiler_macos_sha256": "bae7611c2a29f6f33d51444c4ebf0b1a965a195395bad5cd090e4caf222fd3f2",
+  "failed_jobs": [
+    {
+      "job": 121292332319,
+      "name": "Tests / sdk-corpus (macos-latest)"
+    },
+    {
+      "job": 121292332384,
+      "name": "Tests / sdk-artifacts (macos-latest)",
+      "gate": "sdk-tcp-artifacts"
+    }
+  ],
+  "root": "Package manifests resolve source filenames with realpath, but provided-source matching normalized paths lexically. Absolute /var/folders caller paths do not match canonical /private/var/folders package paths.",
+  "correction": "Resolve existing source paths and the nearest existing ancestor of removed source paths, then normalize the missing suffix. Keep the independent/per-application source guard.",
+  "before_regression": "The published Linux compiler rejects source and sealed C/Rust callers through a directory alias; actual SDK Bytes quick validation through a TMPDIR alias also reproduces the failure. Real-path callers work. The corrected compiler passes all positive spellings while rejecting an undeclared source with the same filename.",
+  "public_Sindarin_and_oracles_changed": false,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-required-macos-sdk-corpus.log.gz",
+      "sha256": "87300839b5c6e7403258f53dad1e909d5606a5b3da97725837b71b87f8a0b232",
+      "raw_sha256": "c0b7450bcb483899e7f490f9d78adcd0272067127f3ad024293e6c7d6fd0e8d6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-required-macos-sdk-artifacts.log.gz",
+      "sha256": "27c741c9915cba1d62cd0ee32e3a4ff03c21d8cebb1a47537bf4c5ab4c0e5341",
+      "raw_sha256": "1dd31b615e050b9289f0f76d2f6e6c42cc46caf608f5bc2295444a57aaf82075"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-required-final-run.json.gz",
+      "sha256": "b67b1f810cb64ee7fb58d4b46885f8bc54f46927b064803a8e337673aebb2cd7",
+      "raw_sha256": "d5ee7979cb7e7c8463d6f2698182e9bde18660b61f95d2987bdfe131d7171267"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-required-coverage.log.gz",
+      "sha256": "6f2f034eeea82f2c218e47f8cc717ed10b5cbfc6ce21a2c7616cf6d4e52f7e0b",
+      "raw_sha256": "95402d02e2a8cee747a542a90b353dba53ac6efdff3e72abc8c824f802ae9421"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-required-final.log.gz",
+      "sha256": "3823e6b84e79e4d1749fc8cd36721fa86571e2faa755425901a99248d90881d8",
+      "raw_sha256": "847a0f732e6756423a369bb3f28ccdc50d94ab3b21777af1f3f4a4eaad5956b8"
+    }
+  ],
+  "jobs": {
+    "total": 47,
+    "success": 42,
+    "failure": 4,
+    "skipped": 1
+  },
+  "downstream_failures": [
+    {
+      "job": 121303057946,
+      "name": "Verify complete CI coverage",
+      "cause": "Required macOS gates failed; complete gate coverage could not pass."
+    },
+    {
+      "job": 121303111087,
+      "name": "Compiler CI",
+      "cause": "Upstream required job failure."
+    }
+  ]
+}

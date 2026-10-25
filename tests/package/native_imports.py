@@ -22,6 +22,59 @@ class NativeImports(unittest.TestCase):
         file.parent.mkdir(parents=True,exist_ok=True)
         file.write_text(text)
 
+    def test_provided_sources_match_directory_aliases_and_removed_backing(self):
+        import hashlib,json
+        package=self.root/'.sn/provided-paths'
+        api='@source "../private/deleted/legacy.c"\nnative fn value(): int\n'
+        self.write('.sn/provided-paths/src/api.sn',api)
+        self.write('.sn/provided-paths/src/impl.c','#include "../private/deleted/legacy.c"\n')
+        self.write('.sn/provided-paths/private/deleted/legacy.c','long long actual_value(void) { return 41; }\n')
+        manifest=('name: provided-paths\nruntime: C\nnative:\n  abi: 1.0\n'
+            '  declarations: [src/api.sn]\n  builds:\n    - name: backing\n      language: C\n'
+            '      sources: [src/impl.c]\n      provides_sources: [private/deleted/legacy.c]\n'
+            '  bindings:\n    - declaration: src/api.sn::value\n      function: actual_value\n'
+            '      symbol: provided_value\n      build: backing\n      convention: C\n      failure: abort\n'
+            '      ownership: {parameters: {}, result: value}\n')
+        self.write('.sn/provided-paths/sn.yaml',manifest)
+        self.write('main.sn','import "provided-paths/src/api"\nfn main(): void =>\n  println(value())\n')
+        alias=self.root/'directory-alias'
+        try:
+            alias.symlink_to(self.root,target_is_directory=True)
+        except OSError:
+            if os.name!='nt':raise
+            link=subprocess.run(['cmd','/c','mklink','/J',str(alias),str(self.root)],capture_output=True)
+            self.assertEqual(link.returncode,0,link.stderr.decode(errors='replace'))
+        expected=b'41\r\n' if os.name=='nt' else b'41\n'
+        for artifact in ('source','sealed'):
+            if artifact=='sealed':
+                built=subprocess.run([str(COMPILER),'--build-native',str(package/'sn.yaml'),
+                    '-o',str(self.root/'artifacts')],cwd=self.root,capture_output=True,timeout=180)
+                self.assertEqual(built.returncode,0,built.stderr.decode(errors='replace'))
+                assembly=Path(json.loads(built.stdout)['assembly'])
+                shutil.copytree(assembly.parent,package/'dist')
+                self.write('.sn/provided-paths/sn.yaml',manifest.replace('native:\n',
+                    'native:\n  assembly: {path: dist/assembly.json, sha256: '+hashlib.sha256(assembly.read_bytes()).hexdigest()+'}\n'))
+                (package/'src/impl.c').unlink()
+                shutil.rmtree(package/'private')
+            for spelling in (self.root,alias):
+                for target in ('c','rust'):
+                    with self.subTest(artifact=artifact,spelling=spelling.name,target=target):
+                        executable=self.root/'consumer.exe'
+                        command=[str(COMPILER),str(spelling/'main.sn'),'--no-install','--target',target,'-O0','-o',str(executable)]
+                        compiled=subprocess.run(command,cwd=self.root,capture_output=True,timeout=180)
+                        self.assertEqual(compiled.returncode,0,compiled.stderr.decode(errors='replace'))
+                        run=subprocess.run([str(executable)],cwd=self.root,capture_output=True,timeout=30)
+                        self.assertEqual((run.returncode,run.stdout,run.stderr),(0,expected,b''))
+            # Matching filenames outside the declared source directory must
+            # still trigger the independent/per-application backing guard.
+            self.write('.sn/provided-paths/src/api.sn',api.replace('../private/deleted/legacy.c','../unprovided/legacy.c'))
+            for target in ('c','rust'):
+                rejected=subprocess.run([str(COMPILER),str(alias/'main.sn'),'--no-install','--target',target],
+                    cwd=self.root,capture_output=True,timeout=180)
+                self.assertNotEqual(rejected.returncode,0)
+                self.assertIn(b'cannot also compile per-application @source backing',rejected.stderr)
+            self.write('.sn/provided-paths/src/api.sn',api)
+
     def package(self,name,language,source,result='value',failure='abort',function=None):
         suffix={'C':'c','RS':'rs','GO':'go'}[language]
         self.write(f'.sn/{name}/src/api.sn', 'native fn provide(): '+('str' if result=='owned' else 'int')+'\n')

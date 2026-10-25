@@ -1,0 +1,169 @@
+{
+  "status": "Complete local path-alias correction validation. Own corrected integrated hosted CI remains required.",
+  "failing_revision": "ad98351ec3267506ed9c7a642d33c56dfb78ad43",
+  "failed_CI": 40234115101,
+  "compiler_sha256": "0584091879c8ca94aa367402d9c573ecf320625258335c85ea3118feffe3ab83",
+  "source_and_script_sha256": {
+    "src/package/package_import.c": "dba0944f55ad45c1f22ff1c7c3c53965072aca894f7b34ed67e6f913d8fc2a9a",
+    "tests/package/native_imports.py": "59399013a834377526f40d7ef6de42b01d4dbb6a85a4fff8f03c70bd5cf02def"
+  },
+  "full_C": 3244,
+  "full_Rust": 1099,
+  "native_import_tests": 53,
+  "native_artifact_tests": 22,
+  "CI_helper_tests": 27,
+  "regression": "8 real/aliased source/sealed C/Rust executions and4 undeclared-source rejections in existing native-import gate; Windows uses a directory symlink or project-local junction.",
+  "SDK22_cases_each_environment": 864,
+  "TCP_artifact_cases_each_environment": 144,
+  "TCP_separate_copy_contract_rejections_each_environment": 16,
+  "SDK_environment": "Both whole-SDK and TCP matrices execute with TMPDIR behind a directory symlink, reproducing the macOS alias condition on Linux.",
+  "fresh_original_sources": 1365,
+  "fresh_mode_cases": 12285,
+  "fresh_successful_compilations": 24570,
+  "mode_classifications": {
+    "Raw C/Rust agreement and original exit contract; no original output oracle": 1854,
+    "Raw C/Rust agreement and frozen original output/exit contracts": 10418,
+    "C undefined unsynchronized concurrent mutation; no parity credit": 9,
+    "C undefined unchecked integer division by zero; no parity credit": 4
+  },
+  "known_C_undefined_modes_not_credited": 13,
+  "compiler_source_oracle_hashes_preserved": 2523,
+  "SDK_source_oracle_hashes_preserved": 87,
+  "gate_definitions": 238,
+  "platform_executions": 540,
+  "platform_groups": 41,
+  "all_published_gates_unchanged": true,
+  "scope": "Resolve actual backing-source identity, including removed files and parent directories, without weakening the independent-artifact backing guard. SDK22 and broader language/ownership/final platform acceptance remain unachieved until their required evidence is complete.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-full-C.log.gz",
+      "sha256": "f0ea5bcbb908cfd67cdd5ccd72e59ace109505f68c0472bef899ac95d93d845a",
+      "raw_sha256": "7d0e50ce9f7d382dd6409e11fedc7ceb9fd12caebde1c29e3bca8ed449803889"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-full-Rust.log.gz",
+      "sha256": "ea16e2fb4d92f8b2dda606b27ea80bdceaf55ce480e8c66d7c7889ae4fb86434",
+      "raw_sha256": "7e0b935b06d2ec5bc25373e8cc1c82fecadd4ffd71a2db8998bd66ca2c6dc6a2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-imports.log.gz",
+      "sha256": "ed77dcc7ffea6c0426f302696ab7a97f64d5d24fd34711dd9d0f46a70d525fbb",
+      "raw_sha256": "1b7ba9d9da7c156734802a0ba302ee08ca749355bec3bb6676e8317b43d100bc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-artifacts.log.gz",
+      "sha256": "2862676ef1f4b8b70966d67effaf50109ea45fcd4f03c518da50d7668db3044b",
+      "raw_sha256": "42ecdb59eb6c7dd4f34f02ed9795d8754bfee61ff223c3ebd8d1639c7fe0545a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-helpers.log.gz",
+      "sha256": "e0793c583a10a2e34326d63ec6c93bf30b88bdd72351549d2fdc41325812aafb",
+      "raw_sha256": "21562aaacc724519ff72b25784c92cbdab1638e98b95312f523473192d64fdd9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-symlink-before-valid-fixture.log.gz",
+      "sha256": "58dfb3e0f5fd22640995ae71d94b781682ce940ec1452abc1fc7edf0f4388361",
+      "raw_sha256": "9ed5bac109502079dd0aa3380f1b14d42e6c2ea53b4f2bd3f23cf9ce21aa955f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-symlink-after.log.gz",
+      "sha256": "ef8acdb872bbafd4ea41e108d542f69c1c1a45533b35d39ce615f054eac1b81e",
+      "raw_sha256": "fff919a171c88295702590bddb7445f9f391c39579e9a3969168043da0fed10a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-full-sdk-normal.json.gz",
+      "sha256": "cbe5a1c9a02e670bb673422086d1985a640e3cae8aabb3e68f17f9e2942ba3b4",
+      "raw_sha256": "2c88f5ef277a57e1041daf27ee556c1fdb18a3acb76f155fcd76ca9b56c9c950"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-full-sdk-normal.log.gz",
+      "sha256": "b3e9b01847907a466bf6b6a46eecbe3ac76b68549a7b485b7cb78576232c375e",
+      "raw_sha256": "7347d61853e0f9ca5c4707d91b512f17554f6ca046cf1a5190d5561e4d8d5970"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-full-sdk-normal-execution.json.gz",
+      "sha256": "45ecfa9b622a1bb91732f3b870016613e5965275918258394a5f91f92ad32dbd",
+      "raw_sha256": "e19288c469826feeaf4860e6fcb548bced63cc6dd06a85b08fa91ec787cd97b2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-sdk-tcp-artifact.json.gz",
+      "sha256": "e84b9cb74e97491ff06c123374a8a7b06c316b88389f97dbeccf1d273f14ecb7",
+      "raw_sha256": "49caac2f691a6b70be3516901cd664d4709159db7e2bccfeeb9d5ca56c29e2d6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-TCP-normal.log.gz",
+      "sha256": "117481c2b0ff4182a322b70678e9b0781a5ebf7a9dbe9898f03cf457e2aa6006",
+      "raw_sha256": "c40432d79206f0e01af287ff26817ff55f2fb349bcb68e8375e1c6ef032755ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-full-sdk-sanitized.json.gz",
+      "sha256": "cbe5a1c9a02e670bb673422086d1985a640e3cae8aabb3e68f17f9e2942ba3b4",
+      "raw_sha256": "2c88f5ef277a57e1041daf27ee556c1fdb18a3acb76f155fcd76ca9b56c9c950"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-full-sdk-sanitized.log.gz",
+      "sha256": "b3e9b01847907a466bf6b6a46eecbe3ac76b68549a7b485b7cb78576232c375e",
+      "raw_sha256": "7347d61853e0f9ca5c4707d91b512f17554f6ca046cf1a5190d5561e4d8d5970"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-full-sdk-sanitized-execution.json.gz",
+      "sha256": "f0f6dbfd30e7426e50c42c03fa4bfc3b4325618748c3c15648a5b4c2cbad7de0",
+      "raw_sha256": "a75eda554093701d9a00dd0d39b0ea13ea44ac536f5234732538daaae3fab82e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-sdk-tcp-artifact-sanitized.json.gz",
+      "sha256": "12454377d5049cf8c0c8d5ed51102bf30a590e46d9fe23f14ace1aad71705e11",
+      "raw_sha256": "0377e02dddf4b9f6fe8fbdb1bbf824d6d06d5521ac70639c968e6f03d9b36fc1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-TCP-sanitized.log.gz",
+      "sha256": "117481c2b0ff4182a322b70678e9b0781a5ebf7a9dbe9898f03cf457e2aa6006",
+      "raw_sha256": "c40432d79206f0e01af287ff26817ff55f2fb349bcb68e8375e1c6ef032755ca"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-SDK-alias-before-after.json.gz",
+      "sha256": "854b0617b891eb7ad0f74f3950f1cfb74709206998a352f5c7c5b86910a3d287",
+      "raw_sha256": "0ab30b078b067d603c22db665305a72520527a8f067d71fc2ed06a45039e0272"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-SDK-alias-before.log.gz",
+      "sha256": "e5b0067edf7e5456d57139d4d31283dff679d27cafddabcc5bd0bde0de62afc0",
+      "raw_sha256": "abc782271934d34c5e444923148b7d8faa425cf6a6fefd06806776a0e4dd9efa"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-SDK-alias-after.log.gz",
+      "sha256": "3fdbcdbf6575484889ec0f8c47a55b5fc8651d9ed7b86bba2a7c800cb46f44cb",
+      "raw_sha256": "5e53224070e9a8ac21862df478c5700cafc7d62605d6c3ed095b753a9270a3d5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-source-preservation.json.gz",
+      "sha256": "be2f0ea7c9fbd9481acdc80dcb864c42cbf98b469ce42f5034848b8bbfb7a81c",
+      "raw_sha256": "500b447a49583eaa9433525a76b4eb7fd51fccee876cc11e0ca07ef44a004962"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae",
+      "raw_sha256": "4c6a090a362bd87c11ee02cfbc700375a0d72d42c9b4387a9b7b0bbf45af7e2b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-audit-original-modes.py.gz",
+      "sha256": "5f4d18a5a29a0b8d7826f1491c984b1dcf2cd7d3af4d9ffe1182800bdb9a81cc",
+      "raw_sha256": "1d829267adbdd58103727c8a7f895275dd8fed9cd70b981ff5cd8cc220ddab7b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-original-modes.log.gz",
+      "sha256": "40f6e118e9a91f109c2ed4709f07c6ce6808a59098966035ef5d373e40ea5a67",
+      "raw_sha256": "918ad72b8fbbf6c6da6097f669cf851258e5400dce8f5af48919bc4d48d4110c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-retain-correction.py.gz",
+      "sha256": "9d649993b40e3494e74eba19c2fde9459d0f794ac95033007fe6f71b3c6b615d",
+      "raw_sha256": "f23e64ffa114635600477d0f8796ed88f54680ae27e8dac79e86cd3b6d9b9834"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-correction-original-corpus-all-mode-discovery.json.gz",
+      "sha256": "a62855d3ef893f98b1f8334876a59dcbc60c9896339da2a2f934d4787e1c901b",
+      "raw_sha256": "b122a126acc6617a02697e64de9e352a0349180cd9dedf960b504780d5f922a4"
+    }
+  ]
+}
