@@ -1,0 +1,106 @@
+{
+  "status": "complete local validation; unpublished pending main correction CI and publication capacity",
+  "implementation_revision": "267ba2651aac538eb0635b22f4d4e10172f6d883",
+  "base": "169c68e1822d438d5b83400abe6d637e505f8092",
+  "fixes": [
+    "Heap-free default value record parameters permit local field and whole-slot stores with C assignment-expression results.",
+    "Member assignment lowering retains once-only RHS values using fresh private names.",
+    "Rust shared thread-field storage preserves C value copies at declaration, literal, argument, store and return boundaries, including enclosing records; place projections retain actual owners."
+  ],
+  "original_rejections_promoted": [
+    "tests/rgen/errors/by_value_parameter_direct_assignment_field.sn",
+    "tests/rgen/errors/by_value_parameter_direct_assignment_struct.sn"
+  ],
+  "baseline": "Corrected main169 compiles/runs both original programs as C with stdout2; Rust rejects both. Existing source and rejection diagnostics remain byte-identical.",
+  "focused_normal_mode_pairs": 45,
+  "focused_C_address_undefined_leak_mode_pairs": 45,
+  "controls": [
+    "Ten scalar field types",
+    "Nested fields and record-valued field assignment results",
+    "Whole-slot RHS borrowing its local parameter",
+    "Explicit value and reference parameters",
+    "Caller isolation after stores, returns and void calls",
+    "Recursion, static/instance methods, shadowing and function references",
+    "Indexed array arguments and once-only index effects",
+    "Fresh-name collisions with user identifiers",
+    "Joined thread storage composed with ordinary value copies"
+  ],
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "existing_scalar_parameter_pairs": 27,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz",
+    "all_193_corrected_main_gates_unchanged": true,
+    "required_platform_gates": 453,
+    "platform_groups": 41
+  },
+  "required_platform_gates": 453,
+  "platform_groups": 41,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-baseline.json.gz",
+      "sha256": "f4d3101610017fe09bb23434c2f63ea967e888c6f59bad93812a1e57766ec9dd"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-validation.json.gz",
+      "sha256": "09311ad9a0cb15052f7d3f153413c11ba63879785b915c361f34a02254cb8f7d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-source-preservation.json.gz",
+      "sha256": "b2084a4663af595f28dcc482e1a8c0457c491bbf35548383c98d8415934bad8a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-focused-complete-normal.log.gz",
+      "sha256": "aa0d88cc23fced7ce8c04e845ca899dc7ba8dd5e4c4d1792314ca8f7c58491f8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-focused-complete-sanitized.log.gz",
+      "sha256": "dae2086fc66f51b020c427d3b07a35ed61ebd9f4de88d39d4e5f83a01410a8f8"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-full-C.log.gz",
+      "sha256": "8448bb525fb8d21937459f7287ad5faed0283e5194e55164d4ab5a81ffb8445e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-full-Rust.log.gz",
+      "sha256": "67a5c06cccf1e4aaedae71fe3d9cbdb78f6fcd7a8b4cd6a59afe2e9ab02acbc5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-scalar-parameter-rhs.log.gz",
+      "sha256": "43373cd1d822ac84a91bbef5cb7a344024b78508f3f083cdab2f3596435ba1de"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-CI-helpers.log.gz",
+      "sha256": "c6faf4f17f5a225aab86d9a49f83b60281a686290f563f9da31de70d0c4dd881"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-composition-probe.log.gz",
+      "sha256": "5e17c86da1e0c887e7e9a264e6113c9483bc407323f37b1a378dd3307214c6f9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-composition-contexts.log.gz",
+      "sha256": "be393bf0fe54fb3f4cb0a71e659f717279fb7d187461a95ffc7f25c26a6f51c5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-rust-parity-value-record-stores.json.gz",
+      "sha256": "3c1a8d1b06da5a505866ad1ee8b219c22c7524859fd5dea375fdd20a4c3e01d4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/value-record-stores-rust-parity-value-record-stores-sanitizers.json.gz",
+      "sha256": "fc8027484d65d9d2fe127454bcb9d7b5bc3dc2c013701383595d5322a955b06a"
+    }
+  ],
+  "separate_C_failure": "The first new exploratory control used Point[]{original}; C generates an invalid compound initializer. Retained initial composition log, no C-defined parity credit. The final control uses explicit Point literals and unchanged original programs.",
+  "scope": "This verifies heap-free value record stores and their shared-field representation. Managed/native/interface/packed/serialized record qualifiers, wider package contracts and final1365 corpus modes/platforms remain required; full Rust/C parity is not claimed."
+}

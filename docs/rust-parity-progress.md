@@ -1,3 +1,29 @@
+## Value record parameter stores: complete local validation, 2026-10-25
+
+Rust permits local field and whole-slot stores on heap-free value record
+parameters, preserving the C assignment result and leaving the caller's value
+unchanged. Shared thread-field storage retains this value-copy contract through
+ordinary declarations, nested records, calls, stores and returns. Place
+projections continue to address the actual local field owners.
+
+Two original rejection programs execute unchanged, with their original
+rejection diagnostics retained through promotion metadata. All 45 independent
+mode pairs pass normally and with C address/undefined/leak checks. Controls cover
+ten scalar field types, nested assignment results, RHS reference calls, explicit
+value/reference qualifiers, caller isolation, methods, recursion, shadowing,
+function references, indexed arguments, private-name collisions and joined
+thread composition. Complete C/Rust suites pass 3,243/1,099, the existing scalar
+parameter gate passes 27 pairs, and all 27 CI helpers and formatting pass.
+
+All original 1,365 program sources, 1,158 oracles and 281 accepted SDK files remain
+byte-identical. All 193 corrected-main gates remain intact; two new definitions
+require 453 platform executions in 41 groups. A separate exploratory C array
+initializer compilation failure is retained without parity credit. This is local
+validation only, queued behind corrected-main CI and prior feature batches.
+Managed/native/interface/packed/serialized records and the wider completion goal
+remain open. Evidence:
+[value-record-stores-local-validation.json](rust-parity-evidence/value-record-stores-local-validation.json).
+
 ## Math platform and record-loan correction: local validation, 2026-10-25
 
 Math main `8f30280d` failed CI 40139366314 and is not hosted acceptance. Clang
