@@ -1,0 +1,189 @@
+{
+  "status": "Complete local correction validation; corrected integrated hosted CI acceptance remains pending. Feature freeze remains active.",
+  "failed_base": "d3cefeb465b7f1be60b39573c346cc271b25f00e",
+  "compiler_sha256": "c8a3bbc81b6e678b66e1d5541b17aaf4cb6b2495557d413e017cdca15d67a7cf",
+  "implementation_and_script_sha256": {
+    "src/cgen/gen_model_chain_flatten.c": "b843122d98aabb99f2533834d5112934d88577fd60f944627e834eb4db1181ac",
+    "src/target/rust/rust_native_handle_nodes.c": "0ed159ef5abeb58a5889187c8149ac11e1552692342724744fd2f9af6b7bc7ba",
+    "templates/rust/partials/expr/lambda.hbs": "c923f81456ec0c2a3794706ca6b88433bee3e3281861a4adbed0ea09b8cd583d",
+    "scripts/native_array_field_effects.py": "9dbb0f64c8cda738e77058b2f60f89dcbbf0140d22f2255071c8a97602710217",
+    "scripts/check_rust_numeric_native_owners.py": "b294ca365c7ba5b406995ec7a845f5e10d3a9253b2ae2952ee4b56d80418f093",
+    "Makefile": "e74d59f4f87775ee76df495e3b9aa9542b165c811adba56d089dfce91113749c",
+    "scripts/ci/gates.json": "1c3756eed9e2921f113bb8cda88a51d12bae67e0af38b86143b62c19649e9e32"
+  },
+  "fix": "Preserve legacy source-lambda chain evaluation while applying field cleanup only in invoked bodies. Do not extract unused original numeric mutation operands. Bind indexed field containers inside callable bodies, including expression-body preludes.",
+  "numeric_original_pairs": 153,
+  "numeric_native_closure_pairs": 9,
+  "native_field_pairs_each_environment": 72,
+  "independent_effect_and_lifetime_outputs": 26,
+  "composed_regressions_each_environment": {
+    "numeric_match": 81,
+    "value_record_stores": 45,
+    "scalar_language": 45,
+    "scalar_packages": 216,
+    "byte_encoding": 81,
+    "nested_array_search": 45,
+    "native_threads": 72,
+    "integer_patterns": 63,
+    "integer_packages": 36
+  },
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "imports": 52,
+  "artifacts": 22,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "gate_definitions": 209,
+  "platform_gate_executions": 481,
+  "platform_groups": 41,
+  "all_prior_gate_commands_and_ids_preserved": true,
+  "runtime_088_metadata_expanded_for_9_additional_cases": true,
+  "source_preservation": {
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "all_compiler_hashes_unchanged": true,
+    "accepted_db7_fixture_files_unchanged": 281,
+    "SDK6e_original_SN_and_oracle_files_unchanged": 87
+  },
+  "scope": "Numeric call-order regression is a normal compatibility gate; no sanitizer ownership credit for legacy temporary numeric arrays. Native field block/expression/indexed-container closures have independent release observations and pass the full C sanitizer field matrix.",
+  "open": "Own corrected hosted acceptance, old record run, SDK20 integration, separate String work, remaining native/SDK/interface/generic/callback/lifecycle and final original-corpus mode/platform goal.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-validation.json.gz",
+      "sha256": "e81d2b50fccf8056ee046b37df019f7ddde94b49858e3546260bc82e49e28dc5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-full-C.log.gz",
+      "sha256": "59cd94296f66dcdf93c757d324ff0474033779952b250b16350554e9ec95d12d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-full-Rust.log.gz",
+      "sha256": "b40a443acf4cf882b743cd1547b3200aaee23072cd42fc360d13cb9b62a988c7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-CI-helpers.log.gz",
+      "sha256": "8c7019ba43fd70ff32f1ab791846447954bc5abb5fca806458b0b3191e1d2367"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-computed-numeric-owners.log.gz",
+      "sha256": "b441e74a3e6e310a445c0ba31960599490a3d23534f3b019fb9ae83e44e4f412"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-native-fields-normal.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-native-fields-sanitized.log.gz",
+      "sha256": "1c32f31cecfded711c4b9ed825babc1283920e780a33a2e26f60e5048b3e1a56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-numeric-normal.log.gz",
+      "sha256": "3effbbf9573738f1f9e670316db56504c0dc6f3e614ff3ed86971f3aa470e2e4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-numeric-sanitized.log.gz",
+      "sha256": "a1a70299d865f84e8ee143966b1ebd6e25117ea1fe1faa02f9577d12f6f80a9b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-record-normal.log.gz",
+      "sha256": "08ef965f4238c5ced63d65bc6edd3df87d7bbc303e63517eebb0f1db68d6d842"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-record-sanitized.log.gz",
+      "sha256": "f82c30d19c001a556faca87fd22c14a7ae21e7ec92bc8383021037801b3a558b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-scalar-normal.log.gz",
+      "sha256": "7743dee35f4200acea085a7260e5743c83bcc9c881f1128443c68460a84b79d9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-scalar-sanitized.log.gz",
+      "sha256": "17832e7ddac33b04741767231fdef7e60a6137f4666c24377e6a98963e260892"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-thread-normal.log.gz",
+      "sha256": "b1c50d612ab9792b428a6f8a507c04fcfe8f21b97eb38f8bc686b7b9056b382b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-thread-sanitized.log.gz",
+      "sha256": "ab34dc26c437f8557d514769fab3b034d392d2799948abf4975027b6e1319d25"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-integer-normal.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-integer-sanitized.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-integer-packages-normal.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-integer-packages-sanitized.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-imports.log.gz",
+      "sha256": "acae4b3833c490127c5be9e5adbb5b0ac571c5e92ba4a0d2107187417c2b822d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-artifacts.log.gz",
+      "sha256": "e925ece032d4856e6f1db3844bc263061cb954a995f0c07b689347b74d7f4513"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-final-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-rust-native-array-fields.json.gz",
+      "sha256": "0864ddf2db21934bd05f1f159b9d3ece6edf6c9f2b87d782f93a1eefc3c3596d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-rust-native-array-fields-sanitized.json.gz",
+      "sha256": "342fd9a04084c1776957e2aff5f91e0e6a96de062384427a65e4eee0f42b7d99"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-rust-parity-numeric-places.json.gz",
+      "sha256": "182a4bfc0ab5777523bf2a8b890c59e35fa4c1562995410e94f174d79287b669"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-rust-parity-numeric-native-owners.json.gz",
+      "sha256": "c2d3fc735ef4ce45aadfbbcd16782d5c4c4e4c50bb1282e64c6e8fbca03636c7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-sdk-artifact-validation.json.gz",
+      "sha256": "7ca7e30a144c404ca0e0f003e3f7e67c92a55fa81c55d95a71c32784d25e3018"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-build-closure-container-correction.log.gz",
+      "sha256": "d0001719c37753db29213e5eaa5516897594c658fd70afd954f98191dbc0bffc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/native-array-field-correction-mixed-closure-owners-after.log.gz",
+      "sha256": "632d2993c823bf110ad870eb0a05dfca59d3dd6dd78708485751a329773c78f9"
+    }
+  ]
+}

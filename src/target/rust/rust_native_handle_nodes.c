@@ -489,14 +489,24 @@ static void rust_lower_native_handle_reads(json_object *model, json_object *node
  * scope. Keep the same credits alive in Rust; statement-only calls still use
  * their existing statement scope. This is observable through native refcounts. */
 static void rust_native_handle_extract_expression(json_object *model, json_object *node,
-                                                   json_object *inserts, size_t *next_id, bool indexed_only)
+                                                   json_object *inserts, size_t *next_id, bool indexed_only,
+                                                   bool in_lambda)
 {
     if (!node || !json_object_is_type(node, json_type_object)) return;
     const char *kind = json_string_property(node, "kind");
     if (!kind) return;
+    /* Numeric place lowering owns its receiver/index bindings and renders
+     * private projections instead of the original operand. Extracting that
+     * unused operand again adds an observable factory call, including at
+     * closure construction. */
+    if (json_boolean_property(node, "rust_numeric_computed_mutation")) return;
+    /* C's legacy scan still lifts ordinary lambda chains at construction,
+     * but field owners belong to the separately invoked body. */
+    if (in_lambda && json_boolean_property(node, "rust_native_array_field_view")) return;
+    if (strcmp(kind, "lambda") == 0) in_lambda = true;
     if (strcmp(kind, "borrow_inferred_call") == 0)
     {
-        rust_native_handle_extract_expression(model, rust_nullable_child(node, "inner_call"), inserts, next_id, indexed_only);
+        rust_native_handle_extract_expression(model, rust_nullable_child(node, "inner_call"), inserts, next_id, indexed_only, in_lambda);
         return;
     }
     json_object_object_foreach(node, key, child)
@@ -505,9 +515,9 @@ static void rust_native_handle_extract_expression(json_object *model, json_objec
         if (json_object_is_type(child, json_type_array))
         {
             for (size_t i = 0; i < json_object_array_length(child); i++)
-                rust_native_handle_extract_expression(model, json_object_array_get_idx(child, i), inserts, next_id, indexed_only);
+                rust_native_handle_extract_expression(model, json_object_array_get_idx(child, i), inserts, next_id, indexed_only, in_lambda);
         }
-        else rust_native_handle_extract_expression(model, child, inserts, next_id, indexed_only);
+        else rust_native_handle_extract_expression(model, child, inserts, next_id, indexed_only, in_lambda);
     }
     /* A declaration's indexed temporary keeps its C header until the
      * enclosing scope ends, even when only its string element is passed on. */
@@ -576,20 +586,24 @@ static void rust_native_handle_extract_expression(json_object *model, json_objec
  * Assign at the original expression site so lazy paths and loop headers retain
  * their evaluation order, while replacing the previous iteration's owner. */
 static void rust_native_field_scope_receivers(json_object *model, json_object *node,
-                                               json_object *inserts)
+                                               json_object *inserts, size_t *next_id)
 {
     if (!node) return;
     if (json_object_is_type(node, json_type_array)) {
         for (size_t i = 0; i < json_object_array_length(node); i++)
-            rust_native_field_scope_receivers(model, json_object_array_get_idx(node, i), inserts);
+            rust_native_field_scope_receivers(model, json_object_array_get_idx(node, i), inserts, next_id);
         return;
     }
     if (!json_object_is_type(node, json_type_object) ||
         json_string_property_equals(node, "kind", "lambda")) return;
     json_object_object_foreach(node, key, child) {
         if (strncmp(key, "rust_", 5) != 0)
-            rust_native_field_scope_receivers(model, child, inserts);
+            rust_native_field_scope_receivers(model, child, inserts, next_id);
     }
+    /* Keep an owning indexed container in the same lexical scope as C's
+     * field projection. In a closure this scope is the invoked body. */
+    if (json_boolean_property(node, "rust_native_array_field_view"))
+        rust_native_handle_extract_expression(model, rust_nullable_child(node, "object"), inserts, next_id, false, false);
     json_object *type = rust_nullable_child(rust_nullable_child(node, "object"), "type");
     if (!json_boolean_property(node, "c_owned_field_receiver") ||
         !json_boolean_property(node, "rust_native_array_field_view") ||
@@ -632,14 +646,14 @@ static void rust_lower_native_handle_temporaries(json_object *model, json_object
                 "for_each", "for_each_iter", "using", "lock", NULL};
             for (size_t k = 0; statement_kind && scope_statements[k]; k++) {
                 if (strcmp(statement_kind, scope_statements[k]) == 0) {
-                    rust_native_field_scope_receivers(model, statement, inserts);
+                    rust_native_field_scope_receivers(model, statement, inserts, next_id);
                     break;
                 }
             }
             if (json_string_property_equals(statement, "kind", "var_decl"))
-                rust_native_handle_extract_expression(model, rust_nullable_child(statement, "initializer"), inserts, next_id, false);
+                rust_native_handle_extract_expression(model, rust_nullable_child(statement, "initializer"), inserts, next_id, false, false);
             if (json_string_property_equals(statement, "kind", "expr"))
-                rust_native_handle_extract_expression(model, rust_nullable_child(statement, "expr"), inserts, next_id, true);
+                rust_native_handle_extract_expression(model, rust_nullable_child(statement, "expr"), inserts, next_id, true, false);
             for (size_t t = 0; t < json_object_array_length(inserts); t++)
                 json_object_array_add(ordered, json_object_get(json_object_array_get_idx(inserts, t)));
             json_object_array_add(ordered, json_object_get(statement));
@@ -655,4 +669,10 @@ static void rust_lower_native_handle_temporaries(json_object *model, json_object
     json_object_object_foreach(node, key, child)
         if (strncmp(key, "rust_", 5) != 0 && strcmp(key, "borrow_check_args") != 0)
             rust_lower_native_handle_temporaries(model, child, next_id);
+    if (json_string_property_equals(node, "kind", "lambda") && rust_nullable_child(node, "body"))
+    {
+        json_object *inserts = json_object_new_array();
+        rust_native_field_scope_receivers(model, rust_nullable_child(node, "body"), inserts, next_id);
+        json_object_object_add(node, "rust_native_field_body_prelude", inserts);
+    }
 }

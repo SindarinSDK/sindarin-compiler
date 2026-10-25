@@ -1,3 +1,35 @@
+## Native array fields: combined correction locally validated, 2026-10-25
+
+Field main d3ce failed the computed numeric mutation gate on all three hosted
+platforms: nine modes of the unchanged temporary-owner program produced a
+changed C lambda call sequence. The correction preserves legacy chain
+extraction at closure construction while applying field cleanup in the invoked
+body. Rust also avoids extracting unused original numeric operands and keeps
+indexed field container owners inside block and expression closures.
+[Retained hosted failure and local roots](rust-parity-evidence/native-array-fields-ci-failure.json).
+
+All26 local checks pass: full C3,243/Rust1,099, the unchanged153 numeric pairs plus
+nine new native-array closure pairs,72 field pairs normally and with sanitizers,
+and all composed numeric/record/scalar/byte/array/thread/integer regressions.
+The field control now has26 independent effect/release outputs. Imports52,
+artifacts22, SDK19 smoke84, helpers27 and formatting pass. Every original1,365
+program and1,158 oracle remains unchanged, along with281 accepted SDK fixture
+inputs and87 SDK Sindarin/oracle files. All209 gate commands/IDs remain intact;
+the numeric gate now also runs the nine additive cases. Required coverage remains
+481 platform executions in41 groups.
+[Complete local proof](rust-parity-evidence/native-array-fields-correction-local-validation.json).
+
+The older record revision9f37 has separately passed all49 required jobs on its
+own same-revision retry2:461 platform executions in41 groups. Attempt1 explicitly
+reported runner communication loss; its evidence remains retained.
+[Original runner loss](rust-parity-evidence/record-required-run-runner-loss.json),
+[verified own retry](rust-parity-evidence/record-own-retry-ci-green.json).
+
+The combined correction still requires its own full hosted acceptance before
+feature publication resumes. SDK20 and String work remain separate local batches.
+Broader native/SDK/interface/generic/callback/lifecycle gaps and final original
+corpus, mode and platform acceptance remain open.
+
 ## Native array fields: accepted integer-main composition, 2026-10-25
 
 The field feature is composed with hosted-accepted integer main72. All27 local

@@ -1,0 +1,36 @@
+{
+  "status": "Verified complete own-revision hosted CI after failed-job retry; original attempt1 runner communication failure remains retained.",
+  "revision": "9f37126eff88681c851cf2fc078d8e1aec48c6e1",
+  "CI": 40153334480,
+  "attempt": 2,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40153334480",
+  "required_jobs": 49,
+  "all_jobs_successful": true,
+  "platform_gate_executions": 461,
+  "platform_groups": 41,
+  "compilers": {
+    "Linux": "1782789588a14f7ad513241901183fb33381e42290d6646262fe43ca01f202fb",
+    "Darwin": "05dde6a5fc1f5bc03fe5ae6cd04df6a1137692f2e89059ac6f2f4544f3d6693e",
+    "Windows": "ec053c80a937746550605e0e27af9d70a4563c5b2f80e430d6e157fb52cfbc31"
+  },
+  "original_failure": "Attempt1 Windows packages runner lost communication; exact GitHub annotation, missing log blob and current-main package comparison retained separately. No source workaround was made.",
+  "scope": "Closes this historical record revision own-CI obligation; active field revision d3ce remains failed and feature publication stays frozen pending corrected integrated acceptance.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/record-own-retry-ci-final.json.gz",
+      "sha256": "e7d08b77052b6122f5f772c4c58b637dc6f25a21197090ddc79d35406db75bd9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-own-retry-ci-coverage.json.gz",
+      "sha256": "b62e721e94f5c372d2a194f198352c786d555b993d625f583ae71636d0bd5c2b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-own-retry-ci-api.json.gz",
+      "sha256": "c5b43e7e782edeef08973a295010c96152134884ee38ae2b0947017608569013"
+    },
+    {
+      "path": "docs/rust-parity-evidence/record-own-retry-ci-artifacts.json.gz",
+      "sha256": "f92bc829d714ce8f50dfe5d4d108ae55d763ac158fc264137a03246b142ba7a8"
+    }
+  ]
+}

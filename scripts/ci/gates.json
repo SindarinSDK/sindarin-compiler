@@ -1030,7 +1030,7 @@
       "group": "numeric-io"
     },
     {
-      "name": "computed numeric mutation and owner timing (153 positive pairs)",
+      "name": "computed numeric mutation and owner timing (153 original and 9 native-array closure pairs)",
       "command": [
         "make",
         "-o",

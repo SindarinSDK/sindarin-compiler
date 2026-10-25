@@ -87,6 +87,28 @@ fn loopRead(): void =>
   while watched().data.length==1 && count<3 =>
     count = count+1
   println(observedTrace()==333 && count==3)
+fn closureRead(): void =>
+  reset(0)
+  var callback: fn(): int = fn(): int =>
+    var values: byte[] = watched().data
+    return values.length
+  println(observedTrace()==0)
+  println(callback()==1 && observedTrace()==33)
+  println(callback()==1 && observedTrace()==3333)
+fn expressionClosureRead(): void =>
+  reset(0)
+  var callback: fn(): int = fn(): int => watched().data.length
+  println(observedTrace()==0)
+  println(callback()==1 && observedTrace()==3)
+  println(callback()==1 && observedTrace()==33)
+fn ownerRows(): Fields[] =>
+  return {watched()}
+fn indexedClosureRead(): void =>
+  reset(0)
+  var callback: fn(): int = fn(): int => ownerRows()[0].data.length
+  println(observedTrace()==0)
+  println(callback()==1 && observedTrace()==3)
+  println(callback()==1 && observedTrace()==33)
 fn main(): void =>
   sameSlot()
   rotatingSlot()
@@ -102,6 +124,9 @@ fn main(): void =>
   callRead()
   lazyRead()
   loopRead()
+  closureRead()
+  expressionClosureRead()
+  indexedClosureRead()
 '''
 BACKING = '''#include "sn_types.h"
 #include <string.h>
@@ -118,4 +143,4 @@ long long observedCalls(void) { return calls; }
 uint64_t foreignMid(void) { return UINT64_C(9223372036854775808); }
 long long foreignMidExpected(void) { return !(sizeof(-9223372036854775808LL)>8 && -9223372036854775808LL<0); }
 '''
-EXPECTED = b'true\n' * 17
+EXPECTED = b'true\n' * 26

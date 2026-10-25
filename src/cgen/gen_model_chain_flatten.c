@@ -21,6 +21,8 @@
 static int g_chain_tmp_count = 0;
 static json_object *g_model_structs = NULL;
 static json_object *g_chain_names = NULL;
+typedef enum { CHAIN_ALL, CHAIN_LEGACY, CHAIN_FIELDS } ChainMode;
+static ChainMode g_chain_mode = CHAIN_ALL;
 static void flatten_body(json_object *body);
 
 static void collect_chain_names(json_object *node)
@@ -109,6 +111,40 @@ static bool needs_temp_extraction(json_object *expr)
 
     /* Everything else needs a temp */
     return true;
+}
+
+static bool field_owns_array_container(json_object *object)
+{
+    json_object *kind = NULL, *parent = NULL;
+    if (!object || !json_object_object_get_ex(object, "kind", &kind)) return false;
+    const char *name = json_object_get_string(kind);
+    if (strcmp(name, "array_access") == 0 &&
+        json_object_object_get_ex(object, "array", &parent))
+        return needs_temp_extraction(parent) || field_owns_array_container(parent);
+    if (strcmp(name, "member") == 0 &&
+        json_object_object_get_ex(object, "object", &parent))
+        return field_owns_array_container(parent);
+    return false;
+}
+
+static bool field_needs_receiver_cleanup(json_object *expr)
+{
+    json_object *flag = NULL, *kind = NULL, *type = NULL, *object = NULL, *object_type = NULL;
+    if (json_object_object_get_ex(expr, "c_owned_field_receiver", &flag) &&
+        json_object_get_boolean(flag)) return true;
+    if (!json_object_object_get_ex(expr, "kind", &kind) ||
+        strcmp(json_object_get_string(kind), "member") != 0 ||
+        !json_object_object_get_ex(expr, "type", &type) ||
+        !json_object_object_get_ex(type, "kind", &kind) ||
+        strcmp(json_object_get_string(kind), "array") != 0 ||
+        !json_object_object_get_ex(expr, "object", &object) ||
+        !json_object_object_get_ex(object, "type", &object_type)) return false;
+    json_object *base = NULL;
+    if (json_object_object_get_ex(object_type, "base_type", &base)) object_type = base;
+    json_object *name = NULL;
+    return json_object_object_get_ex(object_type, "name", &name) &&
+        struct_is_pass_by_ref(json_object_get_string(name)) &&
+        field_owns_array_container(object);
 }
 
 /* Add cleanup annotations to a chain temp var_decl based on its struct type.
@@ -420,9 +456,19 @@ static void flatten_expr(json_object *expr, json_object *inserts)
     if (!json_object_object_get_ex(expr, "kind", &kind_obj)) return;
     const char *kind = json_object_get_string(kind_obj);
 
-    /* Closure bodies execute in their separately emitted definitions. Never
-     * extract their receivers into the scope creating the closure. */
-    if (strcmp(kind, "lambda") == 0) return;
+    /* Preserve the established chain extraction of ordinary lambda expressions.
+     * New field receiver cleanup belongs only to the invoked lambda body. */
+    if (strcmp(kind, "lambda") == 0 && g_chain_mode != CHAIN_LEGACY)
+    {
+        if (g_chain_mode == CHAIN_FIELDS) return;
+        ChainMode previous = g_chain_mode;
+        g_chain_mode = CHAIN_LEGACY;
+        flatten_expr(expr, inserts);
+        g_chain_mode = previous;
+        return;
+    }
+    bool field_cleanup = field_needs_receiver_cleanup(expr);
+    if (field_cleanup && g_chain_mode == CHAIN_LEGACY) return;
 
     /* Declare a nil cleanup slot, but acquire its receiver inline. Hoisting
      * the initializer would evaluate factories in skipped branches and only
@@ -438,7 +484,10 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             needs_temp_extraction(object) &&
             json_object_object_get_ex(object, "type", &type))
         {
+            ChainMode previous = g_chain_mode;
+            g_chain_mode = CHAIN_ALL;
             flatten_expr(object, inserts);
+            g_chain_mode = previous;
             char name[64];
             chain_temp_name(name, sizeof(name));
             json_object *decl = json_object_new_object();
@@ -459,6 +508,20 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             json_object_object_del(expr, "c_owned_field_receiver");
             return;
         }
+    }
+
+    if (g_chain_mode == CHAIN_FIELDS)
+    {
+        if (field_cleanup)
+        {
+            json_object *object = NULL;
+            json_object_object_get_ex(expr, "object", &object);
+            g_chain_mode = CHAIN_ALL;
+            flatten_expr(object, inserts);
+            g_chain_mode = CHAIN_FIELDS;
+            return;
+        }
+        goto recurse_children;
     }
 
     /* Bind native ownership snapshots to the actual, flattened arguments.
@@ -743,6 +806,7 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         return;
     }
 
+recurse_children:
     /* Struct literal field initializers: the "fields" array contains
      * objects with "name" and "value" keys but no "kind". The generic
      * recursion below would call flatten_expr on each field descriptor,
@@ -981,6 +1045,7 @@ static void flatten_body(json_object *body)
 
 void gen_model_flatten_chains(json_object *model)
 {
+    g_chain_mode = CHAIN_ALL;
     g_chain_tmp_count = 0;
     g_chain_names = json_object_new_object();
     collect_chain_names(model);
@@ -989,6 +1054,7 @@ void gen_model_flatten_chains(json_object *model)
     json_object_object_get_ex(model, "structs", &g_model_structs);
 
     json_object *lambdas = NULL;
+    g_chain_mode = CHAIN_FIELDS;
     if (json_object_object_get_ex(model, "lambdas", &lambdas))
     {
         for (size_t i = 0; i < json_object_array_length(lambdas); i++)
@@ -1008,6 +1074,7 @@ void gen_model_flatten_chains(json_object *model)
             }
         }
     }
+    g_chain_mode = CHAIN_ALL;
 
     /* Process function bodies */
     json_object *functions = NULL;
