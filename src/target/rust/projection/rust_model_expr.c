@@ -1189,8 +1189,13 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 }
             }
             json_object_object_add(obj, "target", json_object_new_string(aname));
-            if (expr->expr_type && expr->expr_type->kind == TYPE_STRING)
+            if (expr->expr_type && (expr->expr_type->kind == TYPE_STRING || expr->expr_type->kind == TYPE_ARRAY))
+            {
                 gen_model_borrowed_parameter_mutation(obj, expr);
+                json_object *array_owner = NULL;
+                if (!rust_g_in_lambda_body && json_object_object_get_ex(obj, "c_array_parameter_owner", &array_owner))
+                    json_object_object_add(obj, "rust_array_parameter_requires_c_storage", json_object_new_boolean(true));
+            }
             json_object_object_add(obj, "value",
                 rust_gen_model_expr(arena, expr->as.assign.value, symbol_table, arithmetic_mode));
             /* Check if target is captured or is an 'as ref' param (C pointer needing *) */
@@ -1303,8 +1308,13 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
         case EXPR_COMPOUND_ASSIGN:
         {
             json_object_object_add(obj, "kind", json_object_new_string("compound_assign"));
-            if (expr->expr_type && expr->expr_type->kind == TYPE_STRING)
+            if (expr->expr_type && (expr->expr_type->kind == TYPE_STRING || expr->expr_type->kind == TYPE_ARRAY))
+            {
                 gen_model_borrowed_parameter_mutation(obj, expr);
+                json_object *array_owner = NULL;
+                if (!rust_g_in_lambda_body && json_object_object_get_ex(obj, "c_array_parameter_owner", &array_owner))
+                    json_object_object_add(obj, "rust_array_parameter_requires_c_storage", json_object_new_boolean(true));
+            }
             json_object_object_add(obj, "op",
                 json_object_new_string(binary_op_str(expr->as.compound_assign.operator)));
             json_object_object_add(obj, "mutation_op",

@@ -43,6 +43,15 @@ static bool native_primitive_array_boundary(json_object *node)
         return false;
     }
     if (!json_object_is_type(node, json_type_object)) return false;
+    /* Ordinary default array rebinds need a callee-local header owner while
+     * borrowing the incoming caller header. Closure parameters already use
+     * their private entry copies; their C-only owner annotations must not
+     * change an otherwise Vec-backed program's representation. */
+    json_object *parameter_type = native_record_child(node, "type");
+    if (native_bool(node, "rust_array_parameter_requires_c_storage") &&
+        native_string(parameter_type, "kind") &&
+        !strcmp(native_string(parameter_type, "kind"), "array") &&
+        native_primitive_array_element(native_record_child(parameter_type, "element_type"))) return true;
     /* Nested searches compare C array-header pointers, not element contents.
      * Select the canonical array representation even without a native call. */
     if (native_string(node, "kind") && !strcmp(native_string(node, "kind"), "call"))

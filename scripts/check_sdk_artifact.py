@@ -10,7 +10,7 @@ import tempfile
 from build_sdk_package import prepare, checked, MODULES
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ('io/bytes','io/textfile','io/binaryfile','io/path','io/directory','io/stdio','os/env','os/os','crypto/crypto','time/time','time/date','core/random','core/uuid','encoding/text','os/process','encoding/json','encoding/xml','encoding/yaml','core/math')
+FIXTURES = ('io/bytes','io/textfile','io/binaryfile','io/path','io/directory','io/stdio','os/env','os/os','crypto/crypto','time/time','time/date','core/random','core/uuid','encoding/text','os/process','encoding/json','encoding/xml','encoding/yaml','core/math','net/udp')
 STDIN_CASES = (
     ('words', b'line one\nZalpha beta',
      b'true\ntrue\nfalse\nline one\n90\nalpha\nbeta\ntrue\nfalse\nfalse\n-1\nfalse\n0\nfalse\n0\nline one\n\n',

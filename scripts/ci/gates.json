@@ -2691,6 +2691,113 @@
       }
     },
     {
+      "id": "sdk-udp-artifacts",
+      "name": "Canonical SDK UDP artifacts: original callers, binary datagrams, aliases, fields and resource lifetimes",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_udp_artifact.py"
+      ],
+      "group": "sdk-artifacts",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-udp-artifacts-sanitizers",
+      "name": "Canonical SDK UDP artifacts: original callers, binary datagrams, aliases, fields and resource lifetimes with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_udp_artifact.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "sdk-udp-native",
+      "name": "Canonical SDK UDP native: original callers, binary datagrams, aliases, fields and resource lifetimes",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "udp"
+      ],
+      "group": "sdk-native",
+      "linux_only": false
+    },
+    {
+      "id": "sdk-udp-native-sanitizers",
+      "name": "Canonical SDK UDP native: original callers, binary datagrams, aliases, fields and resource lifetimes with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_sdk_native.py",
+        "udp",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "default-array-parameters",
+      "name": "Default array parameter rebinding, native header loans, closure and return copy/release effects",
+      "command": [
+        "{python}",
+        "scripts/check_rust_default_array_parameters.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "default-array-parameters-sanitizers",
+      "name": "Default array parameter rebinding, native header loans, closure and return copy/release effects with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_default_array_parameters.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "package-default-array-parameters",
+      "name": "Default array parameter rebinding in independent RS/RS/C source and sealed artifacts",
+      "command": [
+        "{python}",
+        "tests/package/default_array_parameters.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "package-default-array-parameters-sanitizers",
+      "name": "Default array parameter rebinding in independent RS/RS/C source and sealed artifacts with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/default_array_parameters.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
       "id": "method-struct-parameters",
       "name": "Qualified plain record method arguments: mutation, copies, record/indexed places, numeric fields and C array values",
       "command": [

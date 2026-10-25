@@ -1,0 +1,7 @@
+{
+  "source_sha256": "3a973bfa69382cbca1d29ba0afabd5f4bbb05bf71512f62d859a156386dad7bb",
+  "legacy_oracle_sha256": "150445aa90f027cfbf0cd350e73297df3c64b5cf2732b6148959662db576f0d2",
+  "stdout_hex": "320a",
+  "exit": 0,
+  "reason": "Use canonical array parameter guards for callee-local rebinding while borrowing the incoming caller header; preserve independent return ownership"
+}
