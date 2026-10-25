@@ -1,0 +1,166 @@
+{
+  "status": "Complete local validation on numeric main; own hosted acceptance pending",
+  "base": "9bd0d0d13b6a6144ce7f9e9a0996e44f7ca1cbe2",
+  "compiler_sha256": "e2ec7ea502c32d3c6db0812c863856067e94e3fa7676bd35649647dec596dfc9",
+  "implementation_and_script_sha256": {
+    ".github/workflows/ci.yml": "9e9b2396597f761f12e016867a56002c70e8047f1d4003792696147eb546dd95",
+    "scripts/ci/gates.json": "a00e894b9495226915df66756cd5a1af6289c716a5dcbaca512ed9236b487274",
+    "src/target/rust/rust_lower_calls.c": "f4f7caba14145becf3142a3752e52540ee439d288bc3b2508ed38113dabdd9fd",
+    "src/target/rust/rust_native_internal.h": "1c173a36597f506a5b0c5391eb101e5995fe8e0c21c8603855327d46439aa788",
+    "src/target/rust/rust_native_plan.c": "0eed9ed8419e846160d4a600888daa6a5a94116c7725360083182ec3c4e37e0e",
+    "src/target/rust/rust_native_render.c": "11a5d492c601b22852f45ce489d651e78a256f04cc46ff2fac52aa547ebb0934",
+    "src/target/rust/rust_target.c": "73743b279a5575dd419abd3cd1c41deabd7cc18ea559caf270ab58d06caa73b1",
+    "src/target/rust/rust_validate.c": "4f3de22ebf781b3df790d456f4768854d11517b2b7036520cd7d3e59b3dfe893",
+    "templates/rust/module.hbs": "c22cf7bcc355cd371ef9e17a13993f561dd2f6d15cb8c54c58587d8ab1148bee",
+    "templates/rust/partials/expr/match.hbs": "f720a4e0821f28b974d3c7d974a8b0396f27e98e02f8665f577889c3607d9bdc",
+    "tests/ci/test_ci_helpers.py": "ac4c14e73c4eb4ce68239ec4022ee3e5cccf9102e837765ed49454feb12d829e",
+    "scripts/check_rust_integer_match_patterns.py": "9e7d006e161a52c690fc81c1d92e3ab8c9c551407222c32ce4b519764bcf9a6d",
+    "scripts/integer_match_controls.py": "5c288ca6fd0a854a211751fb4ab92df764cffe6647a8173bbd38ec1f00af6dfc",
+    "tests/package/integer_match_patterns.py": "376d40d773efb54bb7f1b8a9c76a51fcb10845c04c8170af4664a749abf3841a",
+    "templates/rust/integer_matches/module.hbs": "1246d3a3f5e440f8c72fbc651f5f49496d29b01541403e6cecb835e2bdf3438c"
+  },
+  "original_rejections_promoted_without_source_oracle_changes": 6,
+  "focused_C_Rust_mode_pairs_each_environment": 63,
+  "independent_source_sealed_package_cases_each_environment": 36,
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "imports": 52,
+  "artifacts": 22,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "gate_definitions": 207,
+  "platform_gate_executions": 477,
+  "platform_groups": 41,
+  "all_203_numeric_main_gates_preserved": true,
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "SDK_pin": "db7dfe94f3d3b19943843a9382ae2c3f0dc1700e",
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "contract": "Previously rejected literal patterns compare at the actual C expression width without narrowing into the subject. One saved subject and lazy pattern order remain. The decimal -9223372036854775808LL comparison uses a generated C adapter compiled by the actual selected CC, whose extended signed versus unsigned interpretation differs. Ordinary values stay in Rust. The adapter travels with independently built RS libraries and sealed artifacts; helper allocation reserves Rust and private C symbols. Bare --emit-rust continues to reject programs requiring native C support.",
+  "independent_controls": "Foreign native integer inputs execute positive and negative branches across narrow/wide signed and unsigned subjects, C widths, counters/laziness, native C-only helper-name collisions; two independently namespaced RS implementations and one C reference are consumed by C/Rust through source and sealed artifacts.",
+  "initial_failures": "Hardcoded unsigned midpoint interpretation disagreed with this AArch64 GCC, which evaluates the LL expression in signed128 width. C rejects a prefixed negative encoded token (--N), and the shared checker rejects one exploratory cross-byte pattern; no parity credit. Initial new package-fixture indentation and helper-template brace failures were corrected only in new generated fixtures/templates. A C-only function removed from the Rust model exposed a helper linker collision; regression and corrected private-symbol allocation retained.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-broad.json.gz",
+      "sha256": "4217d08a4fe225254c98b8795cf5301ffaca268a42e09e2acaa9a49136a99839"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-full-C.log.gz",
+      "sha256": "b4b29a421868d0f50271c9d765aaa8e2f743eb23ef0b43c336056867f44423fa"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-full-Rust.log.gz",
+      "sha256": "6e49da5b7c751e0a7da98e955a619242c37dcae75b14286d1d647089995909a9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-imports.log.gz",
+      "sha256": "0cf73af48c09e6b22a48778d08607fd6b95da6129e50cbdf446823d80c17a3fb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-artifacts.log.gz",
+      "sha256": "13b68e8796ee0eb7d5b225822f2887f8bd928e39ae1ed199e471483d03addb80"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-CI-helpers.log.gz",
+      "sha256": "1d758dbdf8158ebdb8150ed766f84c92bd81cedb5b317f7fd31db6e18026471d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-final-normal.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-final-sanitized.log.gz",
+      "sha256": "1bfb59852759f2b5117f5e510e2baeea9857033d13adcc7376603d3bbb539190"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-package-normal.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-names-package-sanitized.log.gz",
+      "sha256": "a4ca8fac3ff357b2476cdc2fd3f98872f433748caa2fb4066a275bede187ffa3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-name-collision-before.json.gz",
+      "sha256": "412ab03c2a7077c907ca0946ee87c79fcbc24b5400b00d6b53be076460948e25"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-private-C-name-collision-base.log.gz",
+      "sha256": "641b1304b6068bb5c930694dfa7c36156957b0f93ca6f39cf784dd39c6881f6f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-independent-initial-width-mismatch.log.gz",
+      "sha256": "550efbd32ef7da614c72fea10ce663422565a8269a1b5d43435f3bc2c1e99ca0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-literal-width.c.gz",
+      "sha256": "bc3628edd1ca4fab83dd3f649485995d3a5385b1b8e9996a68ff3ab5b26987a9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-literal-width-build.log.gz",
+      "sha256": "2adfae878017a17c907c071ebcd80aed0bde96d00756186466603dbcae9da7da"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-independent-C-prefix-token-failure.json.gz",
+      "sha256": "f52d44f741196c3ddba9e5cf6b7a0edfe373773a55831f859e9757168f29a6c6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-independent-initial-rejected-byte-pattern.json.gz",
+      "sha256": "7b36faf20e16122ab6dc2f7231796bdef2885d94cea4e6f93c7532ef589587ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-independent-first-bridge-template-failure.json.gz",
+      "sha256": "8f6b737f851dcfccc7976b415697dc47588abd9ae7195a50508a1f438d41dd5e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-candidate-refresh-executable.json.gz",
+      "sha256": "24995174760201d9440028948b2b895c4a78430f9fe72af22a81c3c6aa177797"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-candidate-refresh-executable.log.gz",
+      "sha256": "19a373d0049ee666179496aeb4eff5b419d24b30f449512338a14e378c9283bc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-rust-integer-match-patterns.json.gz",
+      "sha256": "4c34ecee084919878cd15eac1c1908ea44fbaa06eeb10eb0b29770d1ba46cd58"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-rust-integer-match-patterns-sanitized.json.gz",
+      "sha256": "d3572b6c2138acbe0bd55d3e4f9cad335d098751bdc265f982f4b37c5139724f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-package-integer-match-patterns.json.gz",
+      "sha256": "4f438ef20fc70ca2efd71e3c5895ee676514bbfd8d50c08e1b88ffdbac7ff1aa"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-package-integer-match-patterns-sanitized.json.gz",
+      "sha256": "c1e503470b96a22b063fbc958707db42cb658d43900044a4e5e029aadb937c7f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/integer-match-sdk-artifact-validation.json.gz",
+      "sha256": "098a13490ce854ae90f6a7fa0b76211e2dcd6e7f85177358c37a347870f15ff8"
+    }
+  ],
+  "scope": "Six original integer-pattern gaps only. No overall completion percentage or complete SDK/native/ownership/interface/generic/callback/lifecycle or final preserved corpus mode/platform acceptance claim.",
+  "historical60_executable_audit": {
+    "counts": {
+      "C sanitizer and Rust executable agree in this mode; broader semantic gates still required": 32,
+      "Rust executable rejected; semantic review required": 27,
+      "C compile/runtime/sanitizer failure; review separately": 1
+    },
+    "scope": "60 historical candidate programs only; Linux/O0/default arithmetic. Executable builds, not standalone source emission. C sanitizer success alone does not prove defined C behavior. No overall parity or completion claim."
+  }
+}

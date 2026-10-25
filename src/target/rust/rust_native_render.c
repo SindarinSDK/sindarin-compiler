@@ -85,6 +85,17 @@ bool rust_native_emit_support(RustNativePlan *plan, GeneratedFileSet *files,
         }
     }
     modular_render_result_free(rendered);
+    json_object *integer_matches = rust_native_plan_integer_match_support(plan);
+    if (integer_matches) {
+        snprintf(template_dir, sizeof(template_dir), "%s/templates/rust/integer_matches", compiler_dir);
+        json_object *model = json_object_new_object();
+        json_object_object_add(model, "helpers", json_object_get(integer_matches));
+        char *code = render_with_helpers(model, template_dir, gen_model_get_min_c_register_fn(), "C integer match boundary");
+        json_object_put(model);
+        if (!code) return false;
+        if (!generated_file_set_add(files, "sn_integer_matches.c", code, GENERATED_SOURCE, false))
+        { free(code); return false; }
+    }
     json_object *declarations = rust_native_plan_declaration_support(plan);
     if (declarations) {
         snprintf(template_dir, sizeof(template_dir), "%s/templates/rust/native_declarations", compiler_dir);

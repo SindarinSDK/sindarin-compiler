@@ -182,6 +182,8 @@ jobs:
           .sn/rust-parity-*.json
           .sn/rust-nested-array-search*.json
           .sn/rust-numeric-match*.json
+          .sn/rust-integer-match-patterns*.json
+          .sn/package-integer-match-patterns*.json
           .sn/*-lifetimes.json
           .sn/runtime-abi*.json
           .sn/rust-record-body-dispatch*.json

@@ -1,6 +1,7 @@
 /* Included by rust_lower.c. Call annotations retain their original passes. */
 
 static bool rust_owned_value_type(json_object *node);
+static bool rust_call_model_contains_string(json_object *node, const char *wanted);
 
 static bool rust_call_argument_needs_acquire(json_object *node)
 {
@@ -165,6 +166,86 @@ static bool rust_match_literal_exact_in_float(json_object *node)
         !json_object_object_get_ex(node, "value", &value)) return false;
     double number = json_object_get_double(value);
     return (double)(float)number == number;
+}
+
+/* The one decimal LL boundary whose C interpretation is compiler-dependent
+ * stays in a tiny generated C adapter, built with the application's actual CC. */
+static bool rust_integer_match_private_name_used(RustNativePlan *plan, const char *name)
+{
+    ModularModel *split = rust_native_plan_split(plan);
+    if (!split) return false;
+    if (rust_call_model_contains_string(split->common_header, name)) return true;
+    for (int i = 0; i < split->impl_count; i++)
+        if (rust_call_model_contains_string(split->impl_models[i], name)) return true;
+    return false;
+}
+
+static bool rust_collect_integer_match_bridges(json_object *model, json_object *node,
+                                                json_object *helpers, RustNativePlan *plan)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array)) {
+        for (size_t i = 0; i < json_object_array_length(node); i++)
+            if (!rust_collect_integer_match_bridges(model, json_object_array_get_idx(node, i), helpers, plan)) return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+    if (json_string_property_equals(node, "kind", "match")) {
+        json_object *subject = NULL, *type = NULL, *arms = NULL;
+        json_object_object_get_ex(node, "subject", &subject);
+        json_object_object_get_ex(subject, "type", &type);
+        json_object_object_get_ex(node, "arms", &arms);
+        const char *kind = json_string_property(type, "kind");
+        for (size_t a = 0; arms && a < json_object_array_length(arms); a++) {
+            json_object *patterns = NULL;
+            json_object_object_get_ex(json_object_array_get_idx(arms, a), "patterns", &patterns);
+            for (size_t p = 0; patterns && p < json_object_array_length(patterns); p++) {
+                json_object *pattern = json_object_array_get_idx(patterns, p);
+                if (!json_boolean_property(pattern, "rust_match_c_midpoint")) continue;
+                json_object *helper = NULL;
+                for (size_t h = 0; h < json_object_array_length(helpers); h++) {
+                    json_object *candidate = json_object_array_get_idx(helpers, h);
+                    if (json_string_property_equals(candidate, "kind", kind)) { helper = candidate; break; }
+                }
+                if (!helper) {
+                    const char *space = json_string_property(model, "package_native_namespace");
+                    char stem[512], name[640];
+                    int n = snprintf(stem, sizeof(stem), "%s%s__sn_integer_match_midpoint_%s", space ? space : "", space ? "_" : "", kind);
+                    if (n < 0 || (size_t)n >= sizeof(stem)) return false;
+                    /* C-only functions have already left the Rust model. Keep
+                     * their symbols reserved for this new external C helper. */
+                    do {
+                        if (!rust_allocate_helper_name(model, stem, name, sizeof(name))) return false;
+                    } while (rust_integer_match_private_name_used(plan, name));
+                    helper = json_object_new_object();
+                    json_object_object_add(helper, "kind", json_object_new_string(kind));
+                    json_object_object_add(helper, "name", json_object_new_string(name));
+                    json_object_object_add(helper, "type", json_object_get(type));
+                    json_object_array_add(helpers, helper);
+                }
+                json_object *name = NULL;
+                json_object_object_get_ex(helper, "name", &name);
+                json_object_object_add(pattern, "rust_match_midpoint_helper", json_object_get(name));
+            }
+        }
+    }
+    json_object_object_foreach(node, key, child) {
+        if (strncmp(key, "rust_", 5) && !rust_collect_integer_match_bridges(model, child, helpers, plan)) return false;
+    }
+    return true;
+}
+
+static bool rust_lower_integer_match_bridges(json_object *model, RustNativePlan *plan)
+{
+    json_object *helpers = json_object_new_array();
+    if (!helpers) return false;
+    bool ok = rust_collect_integer_match_bridges(model, model, helpers, plan);
+    if (ok && json_object_array_length(helpers)) {
+        ok = rust_native_plan_set_integer_match_support(plan, helpers);
+        if (ok) json_object_object_add(model, "rust_integer_match_helpers", json_object_get(helpers));
+    }
+    json_object_put(helpers);
+    return ok;
 }
 
 /* Match comparisons use C expression promotions, and each selected value arm

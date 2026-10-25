@@ -2380,6 +2380,51 @@ static RustMatchPatternStatus rust_integral_match_literal_pattern(
     return RUST_MATCH_PATTERN_OK;
 }
 
+/* Literal patterns compare at the actual C expression width, rather than
+ * narrowing into the saved subject. The C literal template emits integer model
+ * values with LL spelling, including encoded source uint literals. Byte tokens
+ * instead promote to int. Keep this protocol on the previously rejected path
+ * so existing lossless Rust pattern generation remains stable. */
+static bool rust_prepare_integral_literal_comparison(json_object *pattern,
+                                                      const char *subject_kind)
+{
+    json_object *literal = pattern, *value = NULL;
+    bool negate = false;
+    if (json_string_property_equals(pattern, "kind", "unary") &&
+        json_string_property_equals(pattern, "op", "negate"))
+    {
+        if (!json_object_object_get_ex(pattern, "operand", &literal)) return false;
+        negate = true;
+    }
+    if (!json_string_property_equals(literal, "kind", "literal") ||
+        !json_object_object_get_ex(literal, "value", &value) ||
+        !json_object_is_type(value, json_type_int)) return false;
+    bool byte = json_string_property_equals(literal, "value_kind", "byte");
+    if (!byte && !json_string_property_equals(literal, "value_kind", "int")) return false;
+    int64_t number = json_object_get_int64(value);
+    if (byte && (number < 0 || number > UINT8_MAX)) return false;
+    /* Prefixing the C template's negative encoded token would form --N,
+     * which C rejects. Such source/model cases are not clean C obligations. */
+    if (negate && number < 0) return false;
+    /* C compilers differ at this decimal LL boundary (extended signed width
+     * versus unsigned LL). A generated C comparison preserves the selected
+     * compiler's actual interpretation. */
+    if (!byte && number == INT64_MIN)
+    {
+        json_object_object_add(pattern, "rust_match_c_midpoint", json_object_new_boolean(true));
+        return true;
+    }
+    if (negate) number = -number;
+    const char *common = !strcmp(subject_kind, "uint") ? "u64" :
+        !byte || !strcmp(subject_kind, "int") || !strcmp(subject_kind, "long") ? "i64" :
+        !strcmp(subject_kind, "uint32") ? "u32" : "i32";
+    char constant[96];
+    snprintf(constant, sizeof(constant), "%lldi64", (long long)number);
+    json_object_object_add(pattern, "rust_match_integer_literal_type", json_object_new_string(common));
+    json_object_object_add(pattern, "rust_match_c_integer_literal", json_object_new_string(constant));
+    return true;
+}
+
 static bool rust_report_integral_match_pattern_error(RustMatchPatternStatus status,
                                                      bool is_value_match)
 {
@@ -2793,7 +2838,13 @@ static bool rust_validate_statement_match(json_object *expr)
                     RustMatchPatternStatus status =
                         rust_integral_match_literal_pattern(pattern, subject_kind);
                     if (status != RUST_MATCH_PATTERN_OK)
-                        return rust_report_integral_match_pattern_error(status, false);
+                    {
+                        if ((status == RUST_MATCH_PATTERN_NOT_LOSSLESS || status == RUST_MATCH_PATTERN_NEGATIVE_UNSIGNED) &&
+                            rust_prepare_integral_literal_comparison(pattern, subject_kind))
+                            has_computed_pattern = true;
+                        else
+                            return rust_report_integral_match_pattern_error(status, false);
+                    }
                 }
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
@@ -2910,7 +2961,13 @@ static bool rust_validate_value_match(json_object *expr)
                     RustMatchPatternStatus status =
                         rust_integral_match_literal_pattern(pattern, subject_kind);
                     if (status != RUST_MATCH_PATTERN_OK)
-                        return rust_report_integral_match_pattern_error(status, true);
+                    {
+                        if ((status == RUST_MATCH_PATTERN_NOT_LOSSLESS || status == RUST_MATCH_PATTERN_NEGATIVE_UNSIGNED) &&
+                            rust_prepare_integral_literal_comparison(pattern, subject_kind))
+                            has_computed_pattern = true;
+                        else
+                            return rust_report_integral_match_pattern_error(status, true);
+                    }
                 }
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
