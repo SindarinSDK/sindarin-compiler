@@ -1,0 +1,180 @@
+{
+  "status": "Complete local composition with record and scalar main; own hosted acceptance pending",
+  "revision": "e40b9118b4f461cc5444492ac8d090f178dd8a0d",
+  "main_base": "516bdf323f61a6fe356b270620b92d02818d5ec4",
+  "main_base_CI": 40155571314,
+  "record_main_CI": 40153334480,
+  "accepted_correction": "43a6d633c7d72c1ec8cf144ee720ef885f831490",
+  "accepted_correction_CI": 40150376704,
+  "compiler_sha256": "8849fb4b3863aa92f4dc197193c5932c416e50ffc8d74644a687a0e497790147",
+  "numeric_pairs_each_environment": 81,
+  "original_rejections_promoted_without_source_oracle_changes": 7,
+  "record_pairs_each_environment": 45,
+  "scalar_language_pairs_each_environment": 45,
+  "scalar_package_cases_each_environment": 216,
+  "byte_pairs_each_environment": 81,
+  "array_pairs_each_environment": 45,
+  "thread_cases_each_environment": 72,
+  "full_C_checks": 3243,
+  "full_Rust_checks": 1099,
+  "imports_tests": 52,
+  "artifact_tests": 22,
+  "SDK19_smoke": 84,
+  "CI_helpers": 27,
+  "format": "passed",
+  "source_preservation": {
+    "passed": true,
+    "original_programs": 1365,
+    "original_oracles": 1158,
+    "SDK_input_files": 281,
+    "all_hashes_rechecked_unchanged": true,
+    "reference": "docs/rust-parity-evidence/math-source-preservation-local.json.gz"
+  },
+  "all_201_scalar_record_main_gate_definitions_unchanged": true,
+  "gate_definitions": 203,
+  "platform_gate_executions": 469,
+  "platform_groups": 41,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-validation.json.gz",
+      "sha256": "d3543c19277c0b1edb47682e374c1b653ff80c0711ee49552ecd98149c348d20"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-build.log.gz",
+      "sha256": "ff12dadf70e32c36adc1076b57e2fe2f5d3bb86adf825ab04b38ef600b834565"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-numeric-normal.log.gz",
+      "sha256": "e355f1e4e67f6eb72b5540d523f31972feff26b39dd3b3827c6f989ab28574b1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-numeric-sanitized.log.gz",
+      "sha256": "495db57618cf02f23079ed08682ac4a859de6bf59fdb3a3f0d7acc7fe15d8c1b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-record-normal.log.gz",
+      "sha256": "38fdebbf19068ba3d0e5a632f2f3c730cbdbdad692123cc855976e0066519cab"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-record-sanitized.log.gz",
+      "sha256": "d25dcc6924f9f1d507f4f3a5844b4bc47d4c17bc3becff9bf09395819c0c4500"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-scalar-normal.log.gz",
+      "sha256": "dfa079120ec7c44d9f353d60203b4681e7d3eb6d8f5b3294a51e673996236edc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-scalar-sanitized.log.gz",
+      "sha256": "5061035633a0acbd568bfc32c66ecbf6c1d92781aa2a3e8e58ce575cc178bc7c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-byte-normal.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-byte-sanitized.log.gz",
+      "sha256": "bc82b86ee453274135c11a412d4172fe2cc22e2a3275b8c517ac83eb40a66786"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-array-normal.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-array-sanitized.log.gz",
+      "sha256": "4c34adddc923f4faab9b70b08c827ca9806424f31736422a8b8ca6e1bb44ef31"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-thread-normal.log.gz",
+      "sha256": "9833aa097503390ec9d3595eb1e8b690b6aa8891973a27b68f95bb1f2c9fcb80"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-thread-sanitized.log.gz",
+      "sha256": "e22246d60a6b0df8e9be26aa219254002ba80457ef0b2f6f76a8cc146ca405a2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-full-C.log.gz",
+      "sha256": "d69047bd9fa1aa1b779eb4d8ae0c5049349d68b4014e08146cac773882c63620"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-full-Rust.log.gz",
+      "sha256": "b3a8be8ffe4448d5a80be72ec6513e5a344dddefbd75a7a7b33981d1143a371d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-imports.log.gz",
+      "sha256": "083c78400c77895a2ef3a8f7c2d5333bb0a38ea2ce73e55d303a32cb30d37b58"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-artifacts.log.gz",
+      "sha256": "132a5efcba700ce6a53b2bae2b0290747cd00e30579870f10f327673cee94800"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-SDK19-smoke.log.gz",
+      "sha256": "d28211f9deec97a3d3536374abff21d7e8b7a62d5d2cb036abc4e1c439fa1058"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-CI-helpers.log.gz",
+      "sha256": "6aec4666db4103979c579ab13d1b1297e1745fe32dcb0faedfe9bd1f69d7bcd0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-scalar-record-composed-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-rust-numeric-match.json.gz",
+      "sha256": "694e07bfb89bd110f7f468f13e6487b1cedf47cab619c5c63ccb3a00fff80a41"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-rust-numeric-match-sanitized.json.gz",
+      "sha256": "e66530bd3d98b0b7e417b6643f24baf9d706764da0ee7476e7e2fa2e7072a369"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-package-scalar-value-language.json.gz",
+      "sha256": "3bb056dbc872501c8c6fbdcb86eb598852dc67044acdf4d7e726f57935900646"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-package-scalar-value-language-sanitized.json.gz",
+      "sha256": "c40027e3eb5c41624a298093552bd564de36917a3e76ffa2ab8724a6b3607330"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-package-scalar-value-packages.json.gz",
+      "sha256": "0cf62ba98b866162fff63ea11ed1d296e89f4345657147f4850a3c71284487b1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-package-scalar-value-packages-sanitized.json.gz",
+      "sha256": "dd17702381fecffc03d243303d601e8505b18737134596b5081b70a2421b04b7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-rust-parity-value-record-stores.json.gz",
+      "sha256": "90f71003e8b25edf7b634dff9d2cd373cd123a41eca3a348c8d0b5824a8f1919"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-rust-parity-value-record-stores-sanitizers.json.gz",
+      "sha256": "1f65db5c4f113177c96ea9a1266f370bf9735c7efcd59da30daf818e34e353b1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-rust-parity-byte-encoding.json.gz",
+      "sha256": "dc0384c3fbd3a6fe89c2a7f07f733c127672855e924c216cf0ef87b440357963"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-rust-nested-array-search.json.gz",
+      "sha256": "7381be235b74c2194ba69edaa5d130e01d97995b98a529a4af787789d99dee51"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-rust-nested-array-search-sanitized.json.gz",
+      "sha256": "c3b62bf3149903fa7b4830c4f4c1a505d575a62f3fb1bc2437c5cf27ea37f948"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-package-native-threads.json.gz",
+      "sha256": "258e5e6e4aebb6f5b21c8d1da2ca9f0646cc65fd77fb7b94d9c4d9c3c84580cc"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-package-native-threads-sanitized.json.gz",
+      "sha256": "007152aea6a2d5a8b8650d4b3fd180608220e5b8dd3527112fd5c99e1ff6c570"
+    },
+    {
+      "path": "docs/rust-parity-evidence/numeric-match-main-composed-sdk-artifact-validation.json.gz",
+      "sha256": "1b418a293b55273ad2b61da7040da3b96567fb801ce1ba8c2a6c32693d6423e2"
+    }
+  ],
+  "scope": "Numeric match conversions composed with independent record/scalar features and every accepted base change. All complete hosted feature runs remain separately required. Wider SDK/native/ownership/interface/generic/callback/lifecycle contracts and final preserved corpus modes/platforms remain open."
+}

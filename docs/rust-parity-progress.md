@@ -25,11 +25,20 @@ temporary linker/run files through global orphan cleanup; final full harnesses
 run serially. Exploratory controls rejected by the shared C checker receive no
 parity credit. Their logs and the corrected literal-width analysis remain retained.
 
-This is local validation on correction main `43a6d633`. Feature publication
-remains frozen behind CI 40150376704; this slice needs composition with preceding
-feature batches and its own complete hosted acceptance. Wider match/ownership,
-SDK/native/interface/generic/lifecycle contracts and final original corpus
-mode/platform verification remain required. Evidence:
+The correction at `43a6d633` is accepted by all 49 jobs of CI 40150376704.
+Numeric matches are now composed with record and scalar main `516bdf32`. All
+81 numeric, 45 record, 45 scalar-language, 216 scalar-package, 81 byte, 45 array
+and 72 thread cases pass in normal and sanitizer environments. Full C/Rust
+suites pass 3,243/1,099; imports52, artifacts22, SDK19 smoke84, CI helpers27
+and formatting pass. All original sources, oracles and 281 accepted SDK inputs
+remain byte-identical. All 201 main gate definitions remain unchanged; two
+additive gates require 469 platform executions in 41 groups.
+
+This numeric slice remains local while the record and scalar batches retain
+their own pending hosted runs. It requires its own complete hosted acceptance.
+Wider match/ownership, SDK/native/interface/generic/lifecycle contracts and final
+original corpus mode/platform verification remain required. Evidence:
+[numeric-match-main-composed-local-validation.json](rust-parity-evidence/numeric-match-main-composed-local-validation.json),
 [numeric-match-conversions-local-validation.json](rust-parity-evidence/numeric-match-conversions-local-validation.json).
 
 ## Scalar values composed with record main: complete local validation, 2026-10-25
