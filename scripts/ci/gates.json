@@ -2689,6 +2689,58 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "default-array-parameters",
+      "name": "Default array parameter rebinding, native header loans, closure and return copy/release effects",
+      "command": [
+        "{python}",
+        "scripts/check_rust_default_array_parameters.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "default-array-parameters-sanitizers",
+      "name": "Default array parameter rebinding, native header loans, closure and return copy/release effects with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_default_array_parameters.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "package-default-array-parameters",
+      "name": "Default array parameter rebinding in independent RS/RS/C source and sealed artifacts",
+      "command": [
+        "{python}",
+        "tests/package/default_array_parameters.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "package-default-array-parameters-sanitizers",
+      "name": "Default array parameter rebinding in independent RS/RS/C source and sealed artifacts with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/default_array_parameters.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }
