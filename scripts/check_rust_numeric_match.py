@@ -74,6 +74,10 @@ fn main(): void =>
     1 => 0.0
     else => computed
   println(storedResult == 0.10000000149011612)
+  var wideArithmetic: float = match 2 =>
+    1 => 0.0f
+    else => (large+1.0f)-large
+  println(wideArithmetic)
 '''
 
 
@@ -123,6 +127,12 @@ def main():
         def verify(job):
             index,(source,label,expected,mode,opt)=job
             case=compare_case(compiler,source,index,mode,opt,str(folder),settings);case['source']=label
+            if label == 'control:floating':
+                # Default arithmetic is checked at O0/O1 and unchecked at O2.
+                # C's typed checked helpers round the addition to float;
+                # unchecked C expressions retain the unsuffixed literal's double width.
+                checked = mode == 'checked' or (mode == 'default' and opt != '-O2')
+                expected += b'0.00000\n' if checked else b'1.00000\n'
             if os.name=='nt':expected=expected.replace(b'\n',b'\r\n')
             for target in case['targets'].values():
                 if target['compile']['status']!=0 or (target['run']['status'],target['run']['stdout_hex'],target['run']['stderr_hex'])!=(0,expected.hex(),''):
