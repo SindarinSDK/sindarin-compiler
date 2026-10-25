@@ -2663,6 +2663,32 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "string-call-arguments",
+      "name": "Borrowed string concatenation arguments: caller/callee cleanup, callbacks and C evaluation order",
+      "command": [
+        "{python}",
+        "scripts/check_rust_string_call_arguments.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "string-call-arguments-sanitizers",
+      "name": "Borrowed string concatenation arguments: caller/callee cleanup, callbacks and C evaluation order with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_string_call_arguments.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }
