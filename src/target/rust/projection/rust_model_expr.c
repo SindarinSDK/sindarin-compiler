@@ -1,6 +1,7 @@
 /* Rust-private projection, migrated from main 7af0d192. */
 #include "target/rust/projection/rust_model.h"
 #include "target/rust/projection/rust_ownership.h"
+#include "cgen/gen_model_borrowed_parameters.h"
 #include "debug.h"
 #include "symbol_table/symbol_table_core.h"
 #include <stdint.h>
@@ -1188,6 +1189,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 }
             }
             json_object_object_add(obj, "target", json_object_new_string(aname));
+            if (expr->expr_type && expr->expr_type->kind == TYPE_STRING)
+                gen_model_borrowed_parameter_mutation(obj, expr);
             json_object_object_add(obj, "value",
                 rust_gen_model_expr(arena, expr->as.assign.value, symbol_table, arithmetic_mode));
             /* Check if target is captured or is an 'as ref' param (C pointer needing *) */
@@ -1300,6 +1303,8 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
         case EXPR_COMPOUND_ASSIGN:
         {
             json_object_object_add(obj, "kind", json_object_new_string("compound_assign"));
+            if (expr->expr_type && expr->expr_type->kind == TYPE_STRING)
+                gen_model_borrowed_parameter_mutation(obj, expr);
             json_object_object_add(obj, "op",
                 json_object_new_string(binary_op_str(expr->as.compound_assign.operator)));
             json_object_object_add(obj, "mutation_op",
@@ -3596,6 +3601,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
 
             /* Body */
             {
+                GenModelBorrowedParamContext borrowed_context = gen_model_borrowed_parameters_enter(params);
                 bool prev_in_lambda = rust_g_in_lambda_body;
                 rust_g_in_lambda_body = true;
                 char **saved_ref_names;
@@ -3630,6 +3636,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                 }
                 pop_lambda_as_ref_params(saved_ref_names, saved_ref_count);
                 rust_g_in_lambda_body = prev_in_lambda;
+                gen_model_borrowed_parameters_restore(borrowed_context);
             }
 
             /* Add to global lambdas collection for forward decls and function defs */
@@ -3724,6 +3731,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
 
                 /* Body for the lambda function definition */
                 {
+                    GenModelBorrowedParamContext borrowed_context = gen_model_borrowed_parameters_enter(lparams);
                     bool prev_in_lambda = rust_g_in_lambda_body;
                     rust_g_in_lambda_body = true;
                     char **saved_ref_names;
@@ -3758,6 +3766,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                     }
                     pop_lambda_as_ref_params(saved_ref_names, saved_ref_count);
                     rust_g_in_lambda_body = prev_in_lambda;
+                    gen_model_borrowed_parameters_restore(borrowed_context);
                 }
 
                 json_object_array_add(rust_g_model_lambdas, ldef);
@@ -3816,6 +3825,7 @@ json_object *rust_gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_t
                         {
                             Expr *arm_e = last->as.expression.expression;
                             if (arm_e->type == EXPR_MATCH ||
+                                arm_e->type == EXPR_COPY_OF ||
                                 arm_e->type == EXPR_INTERPOLATED ||
                                 is_heap_producing_string_expr(arm_e) ||
                                 is_named_fn_str_call(arm_e, symbol_table) ||

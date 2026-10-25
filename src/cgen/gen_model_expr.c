@@ -34,7 +34,7 @@ void gen_model_borrowed_parameters_restore(GenModelBorrowedParamContext context)
     c_lambda_parameter_id = context.id;
 }
 
-static void c_model_borrowed_parameter_mutation(json_object *model, Expr *expr)
+void gen_model_borrowed_parameter_mutation(json_object *model, Expr *expr)
 {
     Token *target_name = NULL;
     bool parameter = false;
@@ -1127,7 +1127,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
             }
             json_object_object_add(obj, "target", json_object_new_string(aname));
-            c_model_borrowed_parameter_mutation(obj, expr);
+            gen_model_borrowed_parameter_mutation(obj, expr);
             json_object_object_add(obj, "value",
                 gen_model_expr(arena, expr->as.assign.value, symbol_table, arithmetic_mode));
             /* Check if target is captured or is an 'as ref' param (C pointer needing *) */
@@ -1260,7 +1260,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(ca_val, "is_str_temp",
                     json_object_new_boolean(true));
             json_object_object_add(obj, "value", ca_val);
-            c_model_borrowed_parameter_mutation(obj, expr);
+            gen_model_borrowed_parameter_mutation(obj, expr);
             Expr *target = expr->as.compound_assign.target;
             if (g_in_lambda_body && target && target->type == EXPR_VARIABLE &&
                 target->as.variable.is_param_ref && c_model_numeric_scalar_type(target->expr_type) &&
@@ -3683,6 +3683,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         {
                             Expr *arm_e = last->as.expression.expression;
                             if (arm_e->type == EXPR_MATCH ||
+                                arm_e->type == EXPR_COPY_OF ||
                                 arm_e->type == EXPR_INTERPOLATED ||
                                 is_heap_producing_string_expr(arm_e) ||
                                 is_named_fn_str_call(arm_e, symbol_table) ||

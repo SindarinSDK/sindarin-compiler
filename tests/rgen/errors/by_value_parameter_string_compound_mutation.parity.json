@@ -1,0 +1,7 @@
+{
+  "source_sha256": "789065537f14b4319aee0bb75bc988b17663ac6b77cf476026ab62a94b2182d0",
+  "legacy_oracle_sha256": "1f318c3dece4d6f03ac54cf0a5d3c22b3d113233cd70a1bbb0c79d49e8c56967",
+  "stdout_hex": "736f75726365210a",
+  "exit": 0,
+  "reason": "Rust default string parameter += mutates callee-local storage and returns an owned result while preserving the caller"
+}

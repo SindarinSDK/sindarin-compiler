@@ -2585,6 +2585,58 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "string-match-effects",
+      "name": "String match effects, owned copies and callee-local default string parameter assignment",
+      "command": [
+        "{python}",
+        "scripts/check_rust_string_match_effects.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "string-match-effects-sanitizers",
+      "name": "String match effects, owned copies and callee-local default string parameter assignment with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_string_match_effects.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "id": "package-string-match-effects",
+      "name": "Owned string match results in independent RS/RS/C bodies and sealed C/Rust consumers",
+      "command": [
+        "{python}",
+        "tests/package/string_match_effects.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "package-string-match-effects-sanitizers",
+      "name": "Owned string match results in independent RS/RS/C bodies and sealed C/Rust consumers with address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/string_match_effects.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

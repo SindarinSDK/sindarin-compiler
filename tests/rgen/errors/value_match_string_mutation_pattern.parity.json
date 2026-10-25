@@ -1,0 +1,7 @@
+{
+  "source_sha256": "46f1284748aeeff4a9e896eb7067343b6fcb6d40289fd811fcf031818052d15f",
+  "legacy_oracle_sha256": "73d2d403889379b0253325c8f586d96b5c3a99e855e229a0dcf25dd3878a53bb",
+  "stdout_hex": "",
+  "exit": 0,
+  "reason": "Rust preserves string match pattern side effects and owned selected results; shared C projections transfer copyOf results and the optimizer retains assignment destination storage"
+}
