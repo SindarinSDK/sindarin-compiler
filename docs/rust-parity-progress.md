@@ -1,3 +1,40 @@
+## Reference-record compounds: complete local validation, 2026-10-26
+
+The original `nested_as_ref_parameter_compound_mutation.sn` now compiles and
+prints C's original result, `5`, through Rust. Its source and legacy rejection
+oracle remain unchanged; a hash-bound promotion marker supplies the existing
+runner's positive checks. Direct integer field compounds preserve the C place
+and arithmetic rules across all six integer widths. Specialized private helpers
+reuse the existing physical-place protocol to preserve aliases, forwarding,
+whole-record rebinding, recursion and transitive calls. Public typed signatures
+and all 508 frozen Rust generation oracles remain unchanged.
+
+Review caught an intermediate alias bug: calling an ordinary instance method
+from a raw record helper recreated overlapping exclusive Rust references. C
+returned `10`, while Rust returned `5` at O0/O1. Retained before evidence and
+new forwarding, static/instance method and recursive controls cover the repair.
+The affected method helpers now use physical pointers for receivers, reference
+record arguments and field stores; generated Rust checks verify their bodies
+contain no exclusive references.
+
+Final compiler `d7722d96` passes complete C 3,244/Rust 1,099 suites, 144 focused
+C/Rust pairs in each normal/sanitizer environment and 36 independent RS/RS/C
+source/sealed package cases in each environment. Public package exports in this
+regression are scalar; public record-valued ABI remains separate. All 27 CI
+helpers and formatting checks pass. The fresh original audit completes 24,570
+compilations across nine Linux modes: 10,418 frozen output/exit and 1,854 exit-only
+contracts agree. Nine racy C modes and four unchecked division-by-zero C modes
+remain excluded. All 2,523 compiler and 87 SDK source/oracle hashes are preserved.
+Existing 238 gates remain unchanged; four additional gates bring the catalog to
+242 definitions / 548 platform executions / 41 groups. This batch requires its
+own complete hosted CI before acceptance.
+[Retained local evidence](rust-parity-evidence/reference-record-compounds-local-validation.json).
+
+Wider match-result ownership, copy hooks, closure/callable and receiver aliases,
+reflection and SDK/package completion remain open. SDK22 remains the accepted
+compiler artifact set. TLS's native SDK foundation has separately passed its
+own platform CI; compiler TLS integration is being validated independently.
+
 ## Required macOS path correction: hosted acceptance, 2026-10-26
 
 Published TCP main `ad98351e` failed its required macOS SDK corpus and SDK

@@ -211,6 +211,8 @@ jobs:
           .sn/package-opaque-results*.json
           .sn/static-callback-ownership.json
           .sn/record-reference-snapshots.json
+          .sn/reference-record-compounds*.json
+          .sn/package-reference-record-compounds*.json
           .sn/sdk-time-date-artifact.json
           .sn/sdk-random-artifact*.json
           .sn/sdk-uuid-artifact*.json

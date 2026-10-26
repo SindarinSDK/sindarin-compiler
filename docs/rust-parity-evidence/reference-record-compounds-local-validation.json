@@ -1,0 +1,126 @@
+{
+  "status": "Complete final-binary Linux validation; own hosted acceptance remains required.",
+  "compiler_sha256": "d7722d9651cbf7398d64e5ab3cf43287f968109904a59aff872538ec82e38806",
+  "base": "7a3e646bd939bf6ad7c9a031df1c99b3405be28e",
+  "full_C": 3244,
+  "full_Rust": 1099,
+  "generation_oracles_unchanged": 508,
+  "direct_C_Rust_pairs_normal": 144,
+  "direct_C_Rust_pairs_C_sanitized": 144,
+  "independent_provider_source_sealed_cases_normal": 36,
+  "independent_provider_source_sealed_cases_C_sanitized": 36,
+  "CI_helpers": 27,
+  "gate_definitions": 242,
+  "platform_executions": 548,
+  "platform_groups": 41,
+  "preserved_compiler_source_oracle_hashes": 2523,
+  "preserved_SDK_source_oracle_hashes": 87,
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-full-C.log.gz",
+      "sha256": "6e670ec476a8256069fb2929780d29542fcb2b20eda8aa3646cfb71259aaa200"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-full-Rust.log.gz",
+      "sha256": "701330a283e285939045cccd0a7cbdff06f2c22a4483c97f921e9a3ba44b50e7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-controls-normal.log.gz",
+      "sha256": "bfd9d5bfa059e58f377e8e4b24dc58318461a35018a67839cc90e8c68b012ee5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-controls-sanitized.log.gz",
+      "sha256": "bfd9d5bfa059e58f377e8e4b24dc58318461a35018a67839cc90e8c68b012ee5"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-package-normal.log.gz",
+      "sha256": "3d0632f96ec8087c62fed0ec03a622ca4a8d7515a70db60708ed5115e06bbcfb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-package-sanitized.log.gz",
+      "sha256": "3d0632f96ec8087c62fed0ec03a622ca4a8d7515a70db60708ed5115e06bbcfb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-ci-helpers.log.gz",
+      "sha256": "c54e06da1187d0b716d80b2c65d6a2c26c606c520814ac9a680f5876bf32ca7a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-format.log.gz",
+      "sha256": "21d7c93739ac1f1ca57e5fcf441db95d424a80855146968e9c0983c2514761ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-source-preservation.json.gz",
+      "sha256": "fc37bfd91864a27ff35a703a4cd94429ccb68da2cf97f6722d23d25f644c61c1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-original-modes.log.gz",
+      "sha256": "ec305ce953a8d3a5aaa404face83928fd6631261a1ef3dbe2c9a1f5a31c38732"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-audit-method-original-modes.py.gz",
+      "sha256": "7162ebd06804f3aabf306053e6ad727301953586dbb8f5eaf5cc7b55caf079c2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-verify-final.py.gz",
+      "sha256": "b29f66e6e07824ef53037ce5902117678171fa999c8f3026fe1d6bed80e01243"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-accepted-before-quick.json.gz",
+      "sha256": "8c6d5bf041d07f1a0ca3e92d8680fa37579d964b14855f7b32b5ec87019cd9f0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-accepted-before-quick.log.gz",
+      "sha256": "24766cba4ab4827609564c89c86d0d5d401deef842f6718bd2c422c4bf404f60"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-boundary-prefinal.log.gz",
+      "sha256": "76ff03531f2c8805c590bcfb220742ce2988ae16b6c80a89fa85ef5a2adf07ad"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-boundary-prefinal-discovery.json.gz",
+      "sha256": "d080e9f1a91c2d21526a850ec9ef96b73e430775023b37119432b7a40d43973e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-C-shadow-exclusion.json.gz",
+      "sha256": "8d1843c74686c8f1f09dc88fbf072912924b9fac57de086abe1099a9b029134f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-exploratory-C-rejections.json.gz",
+      "sha256": "dd7dae50ddfee03b9e0a40be68d019d6b37e2557b859102a6c68cef4d0a3a6ea"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-computed-fields-discovery.json.gz",
+      "sha256": "b11bce4f86bca30234f8d66d528cba6834f7f967f0bc2ceda29ca19cbe287a11"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-capture-snapshot-discovery.json.gz",
+      "sha256": "af6ea5a8596e00348aee43826623a4ccb290771d76d0047bc92586902c3c7b90"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-reference-record-compounds.json.gz",
+      "sha256": "06bd23215047e519047053aa08ab2d09d42135cd910badeb45601f51f753eca6"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-reference-record-compounds-sanitized.json.gz",
+      "sha256": "4abaaf5831afe3f541fc3e3e6d2d4a4203b135e73066842fe0087e3d26cb3ba3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-package-reference-record-compounds.json.gz",
+      "sha256": "6e559577e039c45950dbe70f8b39dfcbea6146b10efd28e38f3d3c8e0e95fbbb"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-package-reference-record-compounds-sanitized.json.gz",
+      "sha256": "a830c15cc0ec7e2ada012e03d6fb48f2c5276a1057ab3b444cd22e8c135046a2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/reference-record-method-original-corpus-all-mode-discovery.json.gz",
+      "sha256": "c4028ffd7946d53b1f703b6a0762b893be01c99f25ecfba276a02ba76e2b03d5"
+    }
+  ],
+  "original_corpus_mode_pairs": 12285,
+  "successful_original_compiles": 24570,
+  "frozen_original_output_exit_agreements": 10418,
+  "original_exit_only_agreements": 1854,
+  "excluded_C_undefined_modes": 13,
+  "scope": "Direct integral field compounds of explicit reference value-record parameters, physical-place alias views with transitive free/static/instance calls, recursion and whole-record rebinding. Public package exports remain scalar; wider public record ABI, arbitrary computed/owned places, captures, floating/self-RHS language gaps and final platform acceptance remain separate."
+}

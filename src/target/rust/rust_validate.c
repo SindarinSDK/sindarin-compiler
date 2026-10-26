@@ -345,6 +345,24 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *model, json_ob
      * parameter table while preparing its nested body. */
     if (json_string_property_equals(node, "kind", "lambda")) return true;
 
+    if (json_string_property_equals(node, "kind", "variable") ||
+        json_string_property_equals(node, "kind", "assign"))
+    {
+        bool assignment = json_string_property_equals(node, "kind", "assign");
+        const char *name = json_string_property(node, assignment ? "target" : "name");
+        json_object *param = rust_name_is_shadowed(scope, name) ? NULL : rust_find_parameter(params, name);
+        json_object *type = NULL;
+        json_object_object_get_ex(param, "type", &type);
+        if (param && json_string_property_equals(param, "mem_qual", "as_ref") &&
+            rust_heap_free_value_record_parameter_type(model, type))
+        {
+            json_object_object_add(node, assignment ? "rust_reference_record_parameter_assign" :
+                "rust_reference_record_parameter_use", json_object_new_boolean(true));
+            if (assignment)
+                json_object_object_add(node, "rust_value_record_reference_assign", json_object_new_boolean(true));
+        }
+    }
+
     if (json_string_property_equals(node, "kind", "var_decl"))
     {
         const char *binding_name = json_string_property(node, "name");
@@ -425,6 +443,19 @@ static bool rust_prepare_parameter_mutations_in_node(json_object *model, json_ob
         json_object *root = rust_assignment_place_root(place);
         const char *name = json_string_property(root, "name");
         json_object *param = rust_name_is_shadowed(scope, name) ? NULL : rust_find_parameter(params, name);
+        json_object *parameter_type = NULL, *field_type = NULL;
+        json_object_object_get_ex(param, "type", &parameter_type);
+        json_object_object_get_ex(place, "type", &field_type);
+        if (compound && param &&
+            json_string_property_equals(param, "mem_qual", "as_ref") &&
+            json_string_property_equals(node, "mutation_place", "direct_field") &&
+            rust_integer_type(json_string_property(field_type, "kind")) &&
+            rust_heap_free_value_record_parameter_type(model, parameter_type) &&
+            rust_record_parameter_numeric_rhs_stable(value))
+        {
+            json_object_object_add(param, "rust_reference_record_compound_param", json_object_new_boolean(true));
+            json_object_object_add(param, "rust_plain_record_reference_param", json_object_new_boolean(true));
+        }
         if (json_string_property_equals(place, "kind", "member") && param &&
             (json_boolean_property(param, "rust_plain_record_reference_param") ||
              json_boolean_property(param, "rust_plain_record_value_param")) &&
@@ -738,8 +769,22 @@ static bool rust_prepare_by_value_scalar_parameter_mutations(json_object *model)
     {
         size_t count = json_object_array_length(functions);
         for (size_t i = 0; i < count; i++)
-            if (!rust_prepare_callable_parameter_mutations(model,
-                    json_object_array_get_idx(functions, i))) return false;
+        {
+            json_object *function = json_object_array_get_idx(functions, i);
+            if (!rust_prepare_callable_parameter_mutations(model, function)) return false;
+            json_object *params = NULL;
+            json_object_object_get_ex(function, "params", &params);
+            for (size_t p = 0; p < json_object_array_length(params); p++)
+                if (json_boolean_property(json_object_array_get_idx(params, p),
+                                          "rust_reference_record_compound_param"))
+                {
+                    json_object_object_add(function, "rust_reference_record_compounds", json_object_new_boolean(true));
+                    /* A later compound can introduce the place contract used
+                     * by earlier stores and postfix operations in this body. */
+                    if (!rust_prepare_callable_parameter_mutations(model, function)) return false;
+                    break;
+                }
+        }
     }
 
     json_object *structs = NULL;
@@ -751,9 +796,19 @@ static bool rust_prepare_by_value_scalar_parameter_mutations(json_object *model)
         json_object *structure = json_object_array_get_idx(structs, i);
         if (!json_object_object_get_ex(structure, "methods", &methods)) continue;
         size_t method_count = json_object_array_length(methods);
-        for (size_t m = 0; m < method_count; m++)
-            if (!rust_prepare_callable_parameter_mutations(model,
-                    json_object_array_get_idx(methods, m))) return false;
+        for (size_t m = 0; m < method_count; m++) {
+            json_object *method = json_object_array_get_idx(methods, m);
+            if (!rust_prepare_callable_parameter_mutations(model, method)) return false;
+            json_object *params = NULL;
+            json_object_object_get_ex(method, "params", &params);
+            for (size_t p = 0; p < json_object_array_length(params); p++)
+                if (json_boolean_property(json_object_array_get_idx(params, p),
+                                          "rust_reference_record_compound_param")) {
+                    json_object_object_add(method, "rust_reference_record_compounds", json_object_new_boolean(true));
+                    if (!rust_prepare_callable_parameter_mutations(model, method)) return false;
+                    break;
+                }
+        }
     }
     rust_mark_record_parameter_guards(model);
     return true;
@@ -777,13 +832,27 @@ static bool rust_floating_ref_parameter(json_object *mutation,
         rust_floating_type(type);
 }
 
-static bool rust_checked_scalar_ref_parameter(json_object *mutation,
+/* Explicit reference parameters borrow the caller's storage. A direct scalar
+ * field of a value record is a stable place too; keep the projection's existing
+ * arithmetic mode and exclude computed receivers and native record setters. */
+static bool rust_integral_ref_parameter_place(json_object *mutation,
                                                json_object *parameter)
 {
     json_object *type = NULL;
+    json_object *object = NULL, *object_type = NULL;
+    bool place = json_string_property_equals(mutation, "mutation_place", "variable") &&
+        json_string_property_equals(parameter, "kind", "variable");
+    if (json_string_property_equals(mutation, "mutation_place", "direct_field") &&
+        json_string_property_equals(parameter, "kind", "member") &&
+        json_object_object_get_ex(parameter, "object", &object) &&
+        json_string_property_equals(object, "kind", "variable") &&
+        json_object_object_get_ex(object, "type", &object_type) &&
+        json_string_property_equals(object_type, "kind", "struct") &&
+        !json_boolean_property(object_type, "is_native") &&
+        !json_boolean_property(object_type, "pass_self_by_ref"))
+        place = true;
     return json_string_property_equals(mutation, "mutation_storage", "parameter") &&
-        json_string_property_equals(mutation, "mutation_place", "variable") &&
-        json_string_property_equals(parameter, "kind", "variable") &&
+        place &&
         json_string_property_equals(parameter, "parameter_mem_qual", "as_ref") &&
         json_object_object_get_ex(parameter, "type", &type) &&
         (json_string_property_equals(type, "kind", "int") ||
@@ -2075,7 +2144,7 @@ static bool rust_validate_expr(json_object *expr)
             }
             if (!json_string_property_equals(expr, "mutation_storage", "local") &&
                 !rust_floating_ref_parameter(expr, target) &&
-                !rust_checked_scalar_ref_parameter(expr, target) &&
+                !rust_integral_ref_parameter_place(expr, target) &&
                 !json_boolean_property(
                     expr, "rust_by_value_floating_parameter_mutation") &&
                 !iterator_binding_mutation)
@@ -2098,7 +2167,7 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target does not support compound assignment of by-value parameters\n");
             return false;
         }
-        bool checked_ref_parameter = rust_checked_scalar_ref_parameter(expr, target);
+        bool checked_ref_parameter = rust_integral_ref_parameter_place(expr, target);
         bool mixed_integer =
             rust_integer_type(target_kind) && rust_integer_type(value_kind) &&
             strcmp(target_kind, value_kind) != 0;
@@ -2217,7 +2286,7 @@ static bool rust_validate_expr(json_object *expr)
             return rust_validate_expr(child);
         }
         if (!json_string_property_equals(expr, "mutation_storage", "local") &&
-            !rust_checked_scalar_ref_parameter(expr, child) &&
+            !rust_integral_ref_parameter_place(expr, child) &&
             !json_boolean_property(
                 expr, "rust_by_value_wrapping_parameter_mutation") &&
             !json_boolean_property(expr, "rust_by_value_checked_parameter_mutation") &&

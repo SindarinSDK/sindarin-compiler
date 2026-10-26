@@ -2991,6 +2991,56 @@
         "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
         "UBSAN_OPTIONS": "halt_on_error=1"
       }
+    },
+    {
+      "id": "reference-record-compounds",
+      "name": "Integer reference record compounds: widths, aliases, forwarding, method boundaries, recursion, heap fields and wrapping (144 mode pairs)",
+      "command": [
+        "{python}",
+        "scripts/check_rust_reference_record_compounds.py"
+      ],
+      "group": "core",
+      "linux_only": false
+    },
+    {
+      "id": "reference-record-compounds-sanitizers",
+      "name": "Reference record integer field compounds with C address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "scripts/check_rust_reference_record_compounds.py",
+        "--sanitize"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc"
+      }
+    },
+    {
+      "id": "package-reference-record-compounds",
+      "name": "Reference record compounds and aliases in independent RS/RS/C source and sealed providers",
+      "command": [
+        "{python}",
+        "tests/package/reference_record_compounds.py"
+      ],
+      "group": "native",
+      "linux_only": false
+    },
+    {
+      "id": "package-reference-record-compounds-sanitizers",
+      "name": "Reference record compounds in independent providers with C address/undefined/leak checks",
+      "command": [
+        "{python}",
+        "tests/package/reference_record_compounds.py"
+      ],
+      "group": "sanitizers",
+      "linux_only": true,
+      "env": {
+        "SN_CC": "gcc",
+        "SN_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+        "UBSAN_OPTIONS": "halt_on_error=1"
+      }
     }
   ]
 }

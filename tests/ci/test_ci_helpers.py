@@ -114,7 +114,7 @@ class CoverageTests(unittest.TestCase):
         self.collect()
         report = json.loads((self.output / 'summary.json').read_text())
         self.assertEqual(report['groups'], 41)
-        self.assertEqual(report['gates'], 540)
+        self.assertEqual(report['gates'], 548)
         capture = [g for g in self.catalog['gates'] if g['id'] == 'integer-match-evidence-capture']
         self.assertEqual(len(capture), 1)
         self.assertEqual(capture[0]['command'], ['{python}', 'tests/package/integer_match_capture.py'])
@@ -157,6 +157,27 @@ class CoverageTests(unittest.TestCase):
             self.assertEqual(gate['linux_only'], sanitized)
             if sanitized:
                 self.assertIn('-fsanitize=address,undefined', gate['env']['SN_CFLAGS'])
+
+        for sanitized in (False, True):
+            identity = 'package-reference-record-compounds' + ('-sanitizers' if sanitized else '')
+            matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]
+            self.assertEqual(len(matches), 1, identity)
+            gate = matches[0]
+            self.assertEqual(gate['command'], ['{python}', 'tests/package/reference_record_compounds.py'])
+            self.assertEqual(gate['group'], 'sanitizers' if sanitized else 'native')
+            self.assertEqual(gate['linux_only'], sanitized)
+            if sanitized:
+                self.assertIn('-fsanitize=address,undefined', gate['env']['SN_CFLAGS'])
+
+        for sanitized in (False, True):
+            identity = 'reference-record-compounds' + ('-sanitizers' if sanitized else '')
+            matches = [gate for gate in self.catalog['gates'] if gate['id'] == identity]
+            self.assertEqual(len(matches), 1, identity)
+            gate = matches[0]
+            self.assertEqual(gate['command'], ['{python}', 'scripts/check_rust_reference_record_compounds.py'] +
+                             (['--sanitize'] if sanitized else []))
+            self.assertEqual(gate['group'], 'sanitizers' if sanitized else 'core')
+            self.assertEqual(gate['linux_only'], sanitized)
 
         for sanitized in (False, True):
             identity = 'value-record-stores' + ('-sanitizers' if sanitized else '')

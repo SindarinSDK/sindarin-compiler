@@ -1,1 +1,1 @@
-{ let __sn_byte_place = &mut ({{> expr operand}}); let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous }
+{ let __sn_byte_place = {{#if rust_reference_record_raw_store}}std::ptr::addr_of_mut!({{> expr operand}}){{else}}&mut ({{> expr operand}}){{/if}}; let __sn_byte_previous = *__sn_byte_place; *__sn_byte_place = __sn_byte_previous.wrapping_add(1); __sn_byte_previous }

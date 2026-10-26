@@ -2056,3 +2056,4 @@ static bool rust_lower_match_temp_names(json_object *model, json_object *node,
 #include "rust_lower_sizeof.c"
 
 #include "rust_physical_receivers.c"
+#include "rust_reference_record_parameters.c"

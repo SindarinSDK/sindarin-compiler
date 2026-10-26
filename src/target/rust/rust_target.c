@@ -413,6 +413,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         }
     }
     if (!rust_lower_physical_receivers(model)) { json_object_put(model); return false; }
+    if (!rust_lower_reference_record_parameters(model)) { json_object_put(model); return false; }
     if (!rust_lower_static_instance_collisions(model)) { json_object_put(model); return false; }
     rust_prepare_native_record_field_owners(model);
     if (rust_nullable_child(model, "rust_native_callback_strings")) rust_prepare_native_string_borrow_calls(model, model);
