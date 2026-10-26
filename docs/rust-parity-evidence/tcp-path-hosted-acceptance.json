@@ -1,0 +1,355 @@
+{
+  "status": "Hosted-accepted corrected integrated main; all49 jobs successful. SDK22/TCP artifact integration is accepted, while the overall Rust/C parity goal remains open.",
+  "revision": "7a3e646bd939bf6ad7c9a031df1c99b3405be28e",
+  "CI": 40241868422,
+  "url": "https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40241868422",
+  "SDK_revision": "9d2e6e792746ce22d4ee3e744bc3f9938b59b104",
+  "jobs": 49,
+  "gate_definitions": 238,
+  "platform_executions": 540,
+  "platform_groups": 41,
+  "compilers": {
+    "Linux": "a7a31d10cef0dd926f38c215d0dbdc2e92b2280fd5079708c420468145fcfc95",
+    "Darwin": "e84956872d8facb2e6113a584998327b6402ed2cc9a5b8833429956d300b0bd1",
+    "Windows": "053db3b68a86d54e2a781db39f39e984989db7bf04e7a33c46749f2b57452b25"
+  },
+  "coverage_verification": "All41 exact platform/group reports were downloaded and independently recollected against the published238-definition catalog and exact7a3e646b Git HEAD. Recollected summary equals hosted coverage summary; every required gate status0 and every platform uses one compiler hash.",
+  "SDK22": [
+    {
+      "artifact": "ci-evidence-macos-latest-sdk-corpus",
+      "cases": 864,
+      "compiler_sha256": "e84956872d8facb2e6113a584998327b6402ed2cc9a5b8833429956d300b0bd1"
+    },
+    {
+      "artifact": "ci-evidence-ubuntu-latest-sdk-corpus",
+      "cases": 864,
+      "compiler_sha256": "a7a31d10cef0dd926f38c215d0dbdc2e92b2280fd5079708c420468145fcfc95"
+    },
+    {
+      "artifact": "ci-evidence-windows-latest-sdk-corpus",
+      "cases": 864,
+      "compiler_sha256": "053db3b68a86d54e2a781db39f39e984989db7bf04e7a33c46749f2b57452b25"
+    }
+  ],
+  "TCP_artifacts": [
+    {
+      "artifact": "ci-evidence-macos-latest-sdk-artifacts",
+      "report": "sdk-tcp-artifact.json",
+      "cases": 144,
+      "separate_copy_contract_rejections": 16
+    },
+    {
+      "artifact": "ci-evidence-ubuntu-latest-sanitizers",
+      "report": "sdk-tcp-artifact-sanitized.json",
+      "cases": 144,
+      "separate_copy_contract_rejections": 16
+    },
+    {
+      "artifact": "ci-evidence-ubuntu-latest-sdk-artifacts",
+      "report": "sdk-tcp-artifact.json",
+      "cases": 144,
+      "separate_copy_contract_rejections": 16
+    },
+    {
+      "artifact": "ci-evidence-windows-latest-sdk-artifacts",
+      "report": "sdk-tcp-artifact.json",
+      "cases": 144,
+      "separate_copy_contract_rejections": 16
+    }
+  ],
+  "TCP_native": [
+    {
+      "artifact": "ci-evidence-macos-latest-sdk-native",
+      "report": "tcp-native.json",
+      "cases": 21
+    },
+    {
+      "artifact": "ci-evidence-ubuntu-latest-sdk-native",
+      "report": "tcp-native.json",
+      "cases": 21
+    },
+    {
+      "artifact": "ci-evidence-windows-latest-sdk-native",
+      "report": "tcp-native.json",
+      "cases": 21
+    },
+    {
+      "artifact": "ci-evidence-ubuntu-latest-sanitizers",
+      "report": "tcp-sanitizers.json",
+      "cases": 1
+    }
+  ],
+  "scope": "Both original macOS provided-source alias failures pass on corrected main. Source/sealed and real/aliased regression paths, full C/Rust suites, package/runtime/ownership/SDK and required sanitizer gates all pass. Contract rejections for copies unsupported by legacy C receive no parity credit. Existing Sindarin sources/oracles remain unchanged. Six SDK modules, further language/ownership/mixed-package and final whole-goal acceptance remain required; four legacy C debug leaks and historical unexplained external TLS failure remain open.",
+  "retained_reports": [
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-run.json.gz",
+      "sha256": "4762ca2e9506c38de9f908c5bf8593ed9f5cd80065e3c766a912db25a4ee7f90",
+      "raw_sha256": "8ba5d5c843355954efb6b2be2d6a2490b4697897799d59edf4c6aac1c7f7b27f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-coverage-summary.json.gz",
+      "sha256": "d91a0e7f7bc1b5b5be0725f42f7fd87ad98f19c6365e61bbce3cec64c30602be",
+      "raw_sha256": "fdfc943a69ab61f2cca4fb1935d8201201b11cec98224af17a51554ec92f3554"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-arrays-ci-reports-arrays-results.json.gz",
+      "sha256": "9ab11e60006e3b3fe51038521ef19a52d60ca9f23654d07c101b25237a43e12e",
+      "raw_sha256": "f201f9c2d76649e912b7a1d8ca0ed472b8d4d4ea1a95baaa2fd5b62dd4f6e231"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-c-ci-reports-c-results.json.gz",
+      "sha256": "1b9c1e10858a6190cd6e6f86d6e8ab3be8947a451a808ca169577af3242aef8e",
+      "raw_sha256": "21bb741f1e13718207e3f2a3a95cb885f9d243301eb21a91ddf23de667d45d47"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-callbacks-ci-reports-callbacks-results.json.gz",
+      "sha256": "3dd644b3e3c0617f9fa9f859eeecb0b5b1931f47ce24ac5b723254830d904316",
+      "raw_sha256": "159ca36494f1750f4a32df97e76423c4d7112462668dd11b87da08ea92c0ddf9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-closures-ci-reports-closures-results.json.gz",
+      "sha256": "bc8b7dfcd2a95acfc2bce8fee17eb5c92d90a3f229dbca1bc3a113104ad16257",
+      "raw_sha256": "eeb1295b56a85ca7510ef985dcbb672a11cf64e632209f48676a82783648f5b0"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-core-ci-reports-core-results.json.gz",
+      "sha256": "866234dc4e077bc4f43639bb10bd83038a475aaa75a531cfb2e4c62d70af6393",
+      "raw_sha256": "247d8ec7774cc5a1ac783a389736831c05feda0034eb878aae056d3ee3afd050"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-native-ci-reports-native-results.json.gz",
+      "sha256": "f5c62d906d1cbe86c45f5371521ea95fd7610d1a5b05080f1686f34ee6412b84",
+      "raw_sha256": "f3e7dbb6e7700289b8e873022d37af1160c50141f684bc5ca3e51d4f5327cae9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-numeric-io-ci-reports-numeric-io-results.json.gz",
+      "sha256": "bc936310c3f591745b312b702f12094e7b570219a9119e3dce2c167f4231f193",
+      "raw_sha256": "8e7e838131072f461af2721a0180beaa40462001ff0271f75d39afd859469812"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-packages-ci-reports-packages-results.json.gz",
+      "sha256": "3058fda7ad6d3190156dbde01ce443b9a86cf417ef7feb162816ba16c1818314",
+      "raw_sha256": "9383a6e8dc17f16b4706d32429d5f494399860acad1980bdd65cd49509c1e0af"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-providers-ci-reports-providers-results.json.gz",
+      "sha256": "cecbda927e599244f4d622987c3665c6ef08579fce1be1d740ecb98ab206c20b",
+      "raw_sha256": "aa6347b7680a406218cea53f851e46eaccfb487979879f37dacb67990bae559a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-rust-ci-reports-rust-results.json.gz",
+      "sha256": "9110eca5045287c0621535549bc6a55ef145092ec31b7cd42bb955e9ec605177",
+      "raw_sha256": "40a9f2fe12cc72b6827883d376aa80819f011104899e32fbfca114de35886de2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-sdk-artifacts-ci-reports-sdk-artifacts-results.json.gz",
+      "sha256": "7748f32dc548ece271ed817dcf93472d3fa07227f0c9f12c1fe2ee8dedcd282a",
+      "raw_sha256": "d712de6d43dafd10bcfd04abf9717e08c10cb61c59cd7e89dfeb787d88da6b45"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-sdk-corpus-ci-reports-sdk-corpus-results.json.gz",
+      "sha256": "407b2ee488e266cc3196d085af703cae1ea02fc4e37c9fe893d58605eb2f1e6b",
+      "raw_sha256": "ded5f8b5bd92c7f367b29bd963a1b14aee675467d5fe41c14552b5ed9dad61c9"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-sdk-native-ci-reports-sdk-native-results.json.gz",
+      "sha256": "f30918c3fbfc186610f04f275aad06e0b838e8dd081e5198644a3a3c109a62f1",
+      "raw_sha256": "4688107c235d3763c6eb7e9406bc012fce03eb5c6061f9699264a9b772defdc7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-arrays-ci-reports-arrays-results.json.gz",
+      "sha256": "c16c7de2d6e58843aef400f6f896e23d51741dc9a5c3b74f1bc2207c5a1c7e19",
+      "raw_sha256": "76cde510cfba1e24a5a31d05f027cc1507efa6c861a81a11bb52a4d7213f59da"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-c-ci-reports-c-results.json.gz",
+      "sha256": "9f2ba3cda88113cb125450906817b831b889343c74ff6e780a1049b40c8f1807",
+      "raw_sha256": "c0aea48c8fbe4960f0e50c82df1ec11a32dff47ad1fdbbfb857fca0a2b4debc3"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-callback-sanitizers-ci-reports-callback-sanitizers-results.json.gz",
+      "sha256": "f00d2814b17db056288ae48f0f11f6fafab146a77687487692f600763f5ab580",
+      "raw_sha256": "da39da1a2797196188cf4138d3844ee7b75ef27461f1963a25695bb93ad23a24"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-callbacks-ci-reports-callbacks-results.json.gz",
+      "sha256": "26b67e3dc73cd53fb20987024cd4ef176f334ec6c9eed5afc95e1a9aa964be12",
+      "raw_sha256": "5e656ec591b5a962086df1ca32f7645693d27450ca457283ce1eae47f81c88d2"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-closures-ci-reports-closures-results.json.gz",
+      "sha256": "71654a99b6ba3ba36961390fe068bac424b198a8516eaf60bc7fe561a9fa3da9",
+      "raw_sha256": "f8928a0e5552be55a1bf4843d61ed8e3e5f106539d0eb008cd2cfdfb13c45441"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-core-ci-reports-core-results.json.gz",
+      "sha256": "0e853bc4b4a751461a452c1ad3951c0627ae8ead29232d3fa1eaa33da3f94124",
+      "raw_sha256": "8ec0e44bface64aa0bd2e91fe5ac890f93f4fda99d0ca09a6d9ef511d4bf234e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-native-ci-reports-native-results.json.gz",
+      "sha256": "1b5389dfa1b55b51d81ae6eab3d158020d0c07af63b236ac26c9c8d85da7dd87",
+      "raw_sha256": "2369766ec2aeed1ccc2a19e95dc41695767ee7f9afa4fbf49707659c2fde560b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-numeric-io-ci-reports-numeric-io-results.json.gz",
+      "sha256": "b1397125a193d6648dd3dbb901d531718cb41f339064650ccb0d58fce54fcdbd",
+      "raw_sha256": "fb04b03febb95f28135687b9a5a273ac5d902569cc6b6a4cecb10e01fc46f697"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-packages-ci-reports-packages-results.json.gz",
+      "sha256": "e329db93349cb57a72e977a241af43648765770b8a7aa8e6262716764944d896",
+      "raw_sha256": "aa10ad8a513104e2f07a753aa608b3f63695f84e8366a2a7f7a46dc21d342490"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-providers-ci-reports-providers-results.json.gz",
+      "sha256": "82832742172f8aa19f60f12105686b78e23f773356dbc42b1b0ee21fc400d5c5",
+      "raw_sha256": "bc224f76b7cc7724d6355dea92d3bf8c7ee5132b2bf26dc8ce85b7e67c040e66"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-rust-ci-reports-rust-results.json.gz",
+      "sha256": "e9474c772f489a06188e34945e2bfb52b84545358c8a381fe677a6b0ae5aa5f3",
+      "raw_sha256": "6fa376a1da2496b8fbf0111348ce667dfa7a50cef9f8f8997b099fea8e2820e4"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sanitizers-ci-reports-sanitizers-results.json.gz",
+      "sha256": "b36df65d0b60292fcdf31d925d685169a22aef48f22650342f08b07f30f5e2db",
+      "raw_sha256": "17f0dd003ead3f5769bd5fb3ac5a76d91ff81ea12b327a326bd816277dd48e99"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sdk-artifacts-ci-reports-sdk-artifacts-results.json.gz",
+      "sha256": "3e42cbe7dd3af1c5d7f00122710206e8ed246f465654f270d862a2e196dce54a",
+      "raw_sha256": "31b7446c865d164a4c4c337f1fb539d1f28e746746a77f996383adee8dbbaa45"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sdk-corpus-ci-reports-sdk-corpus-results.json.gz",
+      "sha256": "84b42cbf9daf3388923d883207e1dfd1a32fa23e89714f7d239a14163f1d9463",
+      "raw_sha256": "290e6fb52cd1c9661d28764beb17dbd5afbd1533781dcd4127c8a0a2ef9e6834"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sdk-native-ci-reports-sdk-native-results.json.gz",
+      "sha256": "468767edd0988833cbbe4604e86b6449a1d47d1e43e3a70dbbcafd61cc0321da",
+      "raw_sha256": "0f3308e7a85b87da2d73125ad1a0450d2691ace68dd76201f6e39287994cd005"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-arrays-ci-reports-arrays-results.json.gz",
+      "sha256": "7e1334515ee9a12db7f994330ace59f4f0b0afaa4cb07bf059441d54d97233aa",
+      "raw_sha256": "632c439b575f0fbbf817efdd8e2bfa535b7c9efcb0a4c639415c8514c5571c4a"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-c-ci-reports-c-results.json.gz",
+      "sha256": "c411a129f7f723014f6b0557458b1003dbd7639b8e596332fd21deaf2bb5f929",
+      "raw_sha256": "7342c6774dd3b7046f06de8910a3fd3dd8594b7cb617fd21ff8e4c7cef1acaad"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-callbacks-ci-reports-callbacks-results.json.gz",
+      "sha256": "7d50d80a07692615377de16e419514e65393dedb9692751df108c7dccbd057fe",
+      "raw_sha256": "b6044720927be93d50994761bfad924ea3cc1edf64ce57004371fd71d51c8d68"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-closures-ci-reports-closures-results.json.gz",
+      "sha256": "47469aac40cc6f849bcfb063f346127a0fbf6065ab2c887873096abfa3cc6e10",
+      "raw_sha256": "bd8231afb8ea1d4fbb9ada2bae244198a457c48e5f5c6a5f379dd14fdaf23e6f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-core-ci-reports-core-results.json.gz",
+      "sha256": "ef3d57ab49f58a606b793fde3d8b8b2e88d29d74794c14537c421f3addf99620",
+      "raw_sha256": "88252c92e44eb8dfbe812a621287f4c420b137fe8e8a345930943a9e508564ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-native-ci-reports-native-results.json.gz",
+      "sha256": "8ea8e2aad5bc8d1ec18a0828edd4babfe6fee30c5b97d260321c7a26769e2a37",
+      "raw_sha256": "ee896345bf38718171ac9a52073a113104fded14235066915352ca3b2188412f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-numeric-io-ci-reports-numeric-io-results.json.gz",
+      "sha256": "1cd3e42002f38ae7e40ee64ff09c2e8dca9e178115d4703cc81c8cf1334e80ca",
+      "raw_sha256": "affc3d6cc77010bba9c87633e2cacba9ea109f8d71b3379cb9c2dcf16668ab07"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-packages-ci-reports-packages-results.json.gz",
+      "sha256": "cf56a4e56a73d62d65368973803b3beb0c3853263c1d26676e6da75fe22d7ace",
+      "raw_sha256": "17f8c5e7f7c73d0b18c4b61333ec19d7363980253ad00898010c1cc6f1779915"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-providers-ci-reports-providers-results.json.gz",
+      "sha256": "f6a87098f237534e28f414486190a1ed19e1139d3ab949c368cf2fbcf122255b",
+      "raw_sha256": "ab23d502a587765833d77d14f74b9685952ac372e9440400916a5f8dd1b7250b"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-rust-ci-reports-rust-results.json.gz",
+      "sha256": "cddf3e3aebe8fd31905e242a5bccdec09e974c80d41dbb032ca353b0c0032c0e",
+      "raw_sha256": "2d4d2a53f9dfeecb884d47627d6624000602a198fde732311a851d73fe26e5a1"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-sdk-artifacts-ci-reports-sdk-artifacts-results.json.gz",
+      "sha256": "2bdc9cece3a280205a7f040226e68f044bef0026ae9935efd76cc1818d1de475",
+      "raw_sha256": "0090a630fbe56bbb215f995dbdf2d142710e4e868f2b9b6eafe55d16709f3079"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-sdk-corpus-ci-reports-sdk-corpus-results.json.gz",
+      "sha256": "f6838066a06bba939220c13baa15aa1e757ac6c07e6fc58b4d4636c6ba9ccbfa",
+      "raw_sha256": "816c36432c082a72d8bd2c302b7aa71e72e740e75dc6081a6a273b7051a8399e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-sdk-native-ci-reports-sdk-native-results.json.gz",
+      "sha256": "f4c1c4a8dfed1f8c596a531fa1dc29a6b0515f0ad234e4f12cfbd90b7ab48650",
+      "raw_sha256": "ea55c032ffd2cf6e4bda1275eb99ece82cbc84759c9debdc474185fcaeb72ae7"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-sdk-corpus-sdk-artifact-validation.json.gz",
+      "sha256": "ea84ef147ff23b871b82097f3f867544b02c6859a99239adb0454e906409b0b3",
+      "raw_sha256": "7e8eb5c6156726286e252bfe797b3dc59b82d101cc4c90126b2595d3f4cc2b56"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sdk-corpus-sdk-artifact-validation.json.gz",
+      "sha256": "0a0739e6432571638588cde0b7e37b4489b9b1f9d7452398efa7efdef2d7bcc0",
+      "raw_sha256": "7930ea1bb6ac8ed64a11655b38af796819d5cec175bba508909c40d12d8bd47d"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-sdk-corpus-sdk-artifact-validation.json.gz",
+      "sha256": "ae4e7c35499637d87cc0ac02c8b005ef5d929f48c39273a0948a5709efbe3045",
+      "raw_sha256": "ecb4a132866e6b0497b4de46a0381b374d5005eaf8c4f9b7b064aa9192151d6f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-sdk-artifacts-sdk-tcp-artifact.json.gz",
+      "sha256": "bff9541cdf4ec5d85ca39f8ed446480519921e6b61822735f37bf3abd6cfece4",
+      "raw_sha256": "eba2082ba10f96527e88cb74966e7bc3c4ba2009faff3c4c00dd09abd228f5ae"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sanitizers-sdk-tcp-artifact-sanitized.json.gz",
+      "sha256": "1ba06d3fe4a4f07dc6dd3a2a771046daa143b873fc192986213bf8cde8dca2af",
+      "raw_sha256": "a84488c80a328838087f4be9a90cd49a5f465e69a6acaca67f5eb2ac4f5fcc4c"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sdk-artifacts-sdk-tcp-artifact.json.gz",
+      "sha256": "4d07f91f06d143bd98f681454bcd2589b28b29dd94f8b8c383549d2fcec13980",
+      "raw_sha256": "577cd87d37d0b8cf43fdb2b9395259ab3087e5a955948d09bd92d8412a5c0108"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-sdk-artifacts-sdk-tcp-artifact.json.gz",
+      "sha256": "e5bd3f960eefb0960c710d49e4aa0032a9a3834178df87248bfc19587c961b6f",
+      "raw_sha256": "43f3f83fc070ed5d769adfa6ec8917e39e84a72ce1cc5ee284b16b8f5e2b44ee"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-macos-latest-sdk-native-sdk-native-integration-.sn-tcp-native.json.gz",
+      "sha256": "632a65da9ffa4a633ae21812e9b0662b21ea7cde6ed29911e316f2dcd007d739",
+      "raw_sha256": "ee16c5df83b66539745367dee973ebac3065b6272ee737f4210e0ca1bf6a7b00"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sdk-native-sdk-native-integration-.sn-tcp-native.json.gz",
+      "sha256": "7a3965c16d51b26909174f565b89098fc55584c8a195287fc9b6d31615ed59a2",
+      "raw_sha256": "a875100bf411b8ba76b7d10e1d6e8e74dae39d3bd1a9202a1d18ac907a63020f"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-windows-latest-sdk-native-sdk-native-integration-.sn-tcp-native.json.gz",
+      "sha256": "f2950fef685727a003401d9eaeced525d35ad4afdd82cd8d314d4b1df3a5de61",
+      "raw_sha256": "7e984db0174948cfe1d5db03a116947510125df9bcfd83f941e9a87294b75a1e"
+    },
+    {
+      "path": "docs/rust-parity-evidence/tcp-path-hosted-groups-ci-evidence-ubuntu-latest-sanitizers-sdk-native-integration-.sn-tcp-sanitizers.json.gz",
+      "sha256": "818aad8f2d31c176767de2e237d8d9f5db2a77b59dbf7e362bc27ac639cab466",
+      "raw_sha256": "06df33a1d0fc3bd10165f0307d7191c8bb56b0dbfe7f9f4d223ee317a90e7c44"
+    }
+  ]
+}

@@ -1,12 +1,15 @@
-## Required macOS path correction: complete local validation, 2026-10-25
+## Required macOS path correction: hosted acceptance, 2026-10-26
 
 Published TCP main `ad98351e` failed its required macOS SDK corpus and SDK
 artifact jobs in [40234115101](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40234115101).
 Both failures have the same cause: temporary callers use `/var/folders/...`,
 while package manifests resolve to `/private/var/folders/...`. The provided-source
 matcher compared lexical paths and incorrectly rejected the independently
-provided backing source. Feature publication is frozen; this revision is not
-hosted-accepted. Compiler `61633bb8` remains the accepted main.
+provided backing source. Feature publication was frozen while the correction was validated. Corrected
+compiler `7a3e646b` is now hosted-accepted: all 49 jobs passed in its own
+[run 40241868422](https://github.com/SindarinSDK/sindarin-compiler/actions/runs/40241868422).
+Downloaded evidence independently verifies all 540 executions across 41 groups
+and one compiler hash per platform. [Hosted acceptance proof](rust-parity-evidence/tcp-path-hosted-acceptance.json).
 [Retained failure logs](rust-parity-evidence/tcp-path-required-failure.json).
 
 The local correction resolves existing source paths, or the nearest existing
@@ -22,10 +25,11 @@ The fresh original-corpus audit completes all 24,570 compilations with unchanged
 sources and oracles; 13 known C undefined mode cases remain excluded. Whole-SDK
 normal and sanitizer validation both pass all 864 cases through the aliased
 temporary directory. [Retained correction proof](rust-parity-evidence/tcp-path-correction-local-validation.json).
-The combined correction requires its own complete hosted CI before acceptance.
-No Sindarin source or behavioral/generation oracle has changed.
+The corrected revision passes complete Linux/macOS/Windows CI. Feature
+publication can resume under the two-independent-batch limit. No Sindarin
+source or behavioral/generation oracle has changed.
 
-## TCP/SDK22 integration: complete local validation, 2026-10-25
+## TCP/SDK22 integration: hosted acceptance, 2026-10-26
 
 SDK `9d2e6e79` passed all seven jobs in its own
 [hosted run](https://github.com/SindarinSDK/sindarin-pkg-sdk/actions/runs/40222092078).
@@ -36,7 +40,7 @@ Linux/macOS/Windows. Linux also passes actual C module/runtime instrumentation;
 Linux/macOS verify disconnected writes without process-global SIGPIPE changes.
 [Retained SDK acceptance](rust-parity-evidence/sdk-tcp-foundation-ci-green.json).
 
-Compiler integration is local and unaccepted: module 22 supplies all 25 logical
+Accepted compiler `7a3e646b` pins SDK `9d2e6e79`: module 22 supplies all 25 logical
 TCP exports through two independently built C/Sindarin units. The original TCP
 test keeps its `../../src/net/tcp` import and original bytes. Generated Rust
 caller functions are checked directly in both source and sealed consumers.
@@ -75,9 +79,13 @@ environments. Complete local evidence is retained in
 [86 reports](rust-parity-evidence/tcp-artifact-local-validation.json).
 All 234
 prior gate definitions remain unchanged; four new definitions bring the
-planned integrated acceptance to 540 executions/41 groups. The accepted compiler
-remains `61633bb8` with SDK21 until this batch passes its own hosted CI. Full
-parity and final integrated platform acceptance remain open. Four known legacy
+accepted integrated coverage to 540 executions/41 groups. Whole-SDK22 passes
+864 unchanged caller/stdin cases on each platform. Focused TCP passes 144
+source/sealed cases on each platform and 144 Linux sanitizer cases, with 16
+unsupported-copy rejections per environment recorded separately. Native TCP
+passes 21 cases per platform and one actual C/runtime sanitizer case. Six SDK
+modules and further language, ownership, mixed-package and final whole-goal
+acceptance remain open. Four known legacy
 C debug lifetime leaks and the historical unadjudicated TLS failure remain open.
 
 Legacy cleanup diagnosis confirms that ordinary, unaliased `dispose()` wrappers
